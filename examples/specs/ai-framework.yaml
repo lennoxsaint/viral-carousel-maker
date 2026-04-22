@@ -1,0 +1,61 @@
+version: 1
+title: "The AI prompt stack"
+handle: "@samplecreator"
+template_family: "framework"
+aspect_ratio: "vertical"
+profile:
+  niche: "AI"
+  audience: "solo creators learning practical AI workflows"
+theme:
+  palette:
+    text: "#05063f"
+    accent: "#e84b05"
+    accent_2: "#ff1f83"
+caption: |
+  Most people ask AI for output.
+  Better creators build a prompt stack.
+
+  Save this if you want cleaner first drafts.
+slides:
+  - id: hook
+    role: hook
+    title: "Stop prompting from scratch"
+    subtitle: "Use this 5-layer prompt stack instead."
+    badge: "AI"
+    visual_prompt: "Subtle white paper texture with a single abstract orange AI node cluster, no text, no logo."
+  - id: context
+    role: body
+    title: "Context"
+    body: "Tell the model what world it is operating in before you ask for output."
+  - id: role
+    role: body
+    title: "Role"
+    body: "Give the model a useful job: strategist, editor, analyst, designer, or coach."
+  - id: examples
+    role: body
+    title: "Examples"
+    body: "One good example beats five vague adjectives. Show the shape you want."
+  - id: constraints
+    role: body
+    title: "Constraints"
+    body: "Name the audience, tone, length, style, and hard no-go zones."
+  - id: review
+    role: body
+    title: "Review"
+    body: "Ask it to critique its own output before you accept the first version."
+  - id: recap
+    role: recap
+    title: "TL;DR"
+    bullets:
+      - "Context sets the world."
+      - "Role sets the lens."
+      - "Examples set the shape."
+      - "Constraints prevent drift."
+      - "Review catches weak output."
+  - id: cta
+    role: cta
+    title: "Follow"
+    cta:
+      type: follow
+      description: "For practical AI workflows you can use today."
+

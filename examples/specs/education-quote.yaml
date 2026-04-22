@@ -1,0 +1,42 @@
+version: 1
+title: "Teach one transformation at a time"
+handle: "@sampleteacher"
+template_family: "quote"
+aspect_ratio: "vertical"
+profile:
+  niche: "Education"
+  audience: "online educators"
+slides:
+  - role: hook
+    title: "A lesson is not a download"
+    subtitle: "It is a guided change in how someone sees the problem."
+    badge: "TEACH"
+  - role: body
+    title: "Start"
+    body: "Begin where the learner is already confused."
+  - role: body
+    title: "Name"
+    body: "Give the confusion a simple label so they can hold it."
+  - role: body
+    title: "Show"
+    body: "Use one example before adding theory."
+  - role: body
+    title: "Practice"
+    body: "Give them a small action that proves the idea works."
+  - role: body
+    title: "Compress"
+    body: "End with a phrase they can remember later."
+  - role: recap
+    title: "TL;DR"
+    bullets:
+      - "Start with confusion."
+      - "Name the pattern."
+      - "Show one example."
+      - "Create one action."
+      - "End with memory."
+  - role: cta
+    title: "Follow"
+    cta:
+      type: follow
+      description: "For sharper online lessons."
+

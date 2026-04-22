@@ -1,0 +1,47 @@
+version: 1
+title: "A calmer nervous system reset"
+handle: "@samplewellness"
+template_family: "recap"
+aspect_ratio: "vertical"
+profile:
+  niche: "Wellness"
+  audience: "overstimulated professionals"
+theme:
+  palette:
+    text: "#1f2f2b"
+    accent: "#4ecdc4"
+    accent_2: "#e84b05"
+slides:
+  - role: hook
+    title: "You may not need more discipline"
+    subtitle: "You may need a simpler reset."
+    badge: "RESET"
+  - role: body
+    title: "Exhale"
+    body: "Make the out-breath longer than the in-breath for one minute."
+  - role: body
+    title: "Unclench"
+    body: "Relax jaw, shoulders, hands, and stomach."
+  - role: body
+    title: "Name"
+    body: "Say what is happening without turning it into a story."
+  - role: body
+    title: "Reduce"
+    body: "Remove one input: noise, screen, light, or conversation."
+  - role: body
+    title: "Return"
+    body: "Choose one tiny next action. Not the whole life plan."
+  - role: recap
+    title: "TL;DR"
+    bullets:
+      - "Longer exhale."
+      - "Relax the body."
+      - "Name the state."
+      - "Remove one input."
+      - "Choose one next action."
+  - role: cta
+    title: "Follow"
+    cta:
+      type: follow
+      description: "For practical calm in busy weeks."
+

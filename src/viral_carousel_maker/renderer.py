@@ -1,0 +1,453 @@
+"""Pillow renderer for viral carousel specs."""
+
+from __future__ import annotations
+
+import json
+import shutil
+from pathlib import Path
+from typing import Any
+
+import yaml
+from PIL import Image, ImageDraw
+
+from .assets import paper_texture, write_prompts_jsonl
+from .models import RenderDimensions, deep_merge_palette, dimensions_for
+from .qa import write_qa_report
+from .spec import normalized_handle, validate_spec
+from .text import draw_multiline, fit_font, load_font, text_size, wrap_text
+
+
+class CarouselRenderer:
+    def __init__(self, spec: dict[str, Any], out_dir: str | Path):
+        self.spec = spec
+        self.out_dir = Path(out_dir)
+        self.dimensions = dimensions_for(str(spec.get("aspect_ratio", "vertical")))
+        self.palette = deep_merge_palette(spec.get("theme", {}).get("palette"))
+        self.handle = normalized_handle(str(spec["handle"]))
+        self.warnings = validate_spec(spec)
+        self.slide_dir = self.out_dir / "slides"
+        self.asset_dir = self.out_dir / "assets"
+
+    def render(self) -> dict[str, Any]:
+        self.out_dir.mkdir(parents=True, exist_ok=True)
+        self.slide_dir.mkdir(parents=True, exist_ok=True)
+        self.asset_dir.mkdir(parents=True, exist_ok=True)
+
+        slides_meta = []
+        body_total = sum(1 for slide in self.spec["slides"] if slide["role"] == "body")
+        body_seen = 0
+        for index, slide in enumerate(self.spec["slides"], start=1):
+            if slide["role"] == "body":
+                body_seen += 1
+            image, meta = self._render_slide(slide, index, body_seen, body_total)
+            filename = f"{index:02d}-{slide['role']}-{self._slug(slide['title'])}.png"
+            path = self.slide_dir / filename
+            image.save(path)
+            meta["path"] = str(path)
+            slides_meta.append(meta)
+
+        prompts_path = write_prompts_jsonl(self.spec, self.out_dir / "prompts.jsonl")
+        manifest = {
+            "title": self.spec["title"],
+            "handle": self.handle,
+            "aspect_ratio": self.spec["aspect_ratio"],
+            "dimensions": [self.dimensions.width, self.dimensions.height],
+            "template_family": self.spec["template_family"],
+            "warnings": self.warnings,
+            "slides": slides_meta,
+            "prompts": str(prompts_path),
+        }
+        manifest_path = self.out_dir / "manifest.json"
+        manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+        self._write_supporting_files(manifest)
+        write_qa_report(manifest, self.out_dir / "qa_report.md")
+        return manifest
+
+    def _base(self, slide: dict[str, Any]) -> Image.Image:
+        texture_seed = f"{self.spec['title']}:{slide.get('id', slide.get('title'))}"
+        image = paper_texture((self.dimensions.width, self.dimensions.height), seed=texture_seed)
+        draw = ImageDraw.Draw(image, "RGBA")
+        if self.spec["template_family"] in {"data", "cta"}:
+            self._draw_soft_band(draw)
+        return image
+
+    def _render_slide(
+        self,
+        slide: dict[str, Any],
+        index: int,
+        body_seen: int,
+        body_total: int,
+    ) -> tuple[Image.Image, dict[str, Any]]:
+        image = self._base(slide)
+        draw = ImageDraw.Draw(image, "RGBA")
+        role = slide["role"]
+        meta = {
+            "index": index,
+            "id": slide.get("id", f"slide-{index}"),
+            "role": role,
+            "title": slide["title"],
+            "handle_drawn": True,
+            "text_fit": True,
+            "cta_type": None,
+        }
+
+        if role == "hook":
+            meta["text_fit"] = self._draw_hook(draw, slide)
+        elif role == "body":
+            self._draw_progress(draw, body_seen, body_total)
+            meta["text_fit"] = self._draw_body(draw, slide)
+            self._draw_swipe_arrow(draw)
+        elif role == "recap":
+            meta["text_fit"] = self._draw_recap(draw, slide)
+        elif role == "cta":
+            cta = slide.get("cta", self.spec.get("cta", {"type": "follow"}))
+            meta["cta_type"] = cta.get("type", "follow")
+            meta["text_fit"] = self._draw_cta(draw, slide, cta)
+
+        self._draw_handle(draw)
+        return image, meta
+
+    def _draw_hook(self, draw: ImageDraw.ImageDraw, slide: dict[str, Any]) -> bool:
+        d = self.dimensions
+        margin = d.margin
+        title = str(slide["title"]).upper()
+        subtitle = str(slide.get("subtitle", ""))
+        title_font, title_lines, title_fit = fit_font(
+            draw,
+            title,
+            "heading",
+            max_width=d.width - margin * 2,
+            max_height=int(d.height * 0.42),
+            start_size=int(d.width * 0.145),
+            min_size=58,
+            line_spacing=0.95,
+        )
+        title_height = int(title_font.size * 0.95) * len(title_lines)
+        y = int(d.height * 0.18)
+        draw_multiline(
+            draw,
+            (margin, y),
+            title_lines,
+            title_font,
+            self.palette["text"],
+            int(title_font.size * 0.95),
+        )
+        self._draw_accent_rule(draw, margin, y + title_height + 44)
+
+        body_fit = True
+        if subtitle:
+            body_font, body_lines, body_fit = fit_font(
+                draw,
+                subtitle,
+                "body",
+                max_width=int(d.width * 0.66),
+                max_height=int(d.height * 0.24),
+                start_size=int(d.width * 0.045),
+                min_size=28,
+            )
+            draw_multiline(
+                draw,
+                (margin, y + title_height + 120),
+                body_lines,
+                body_font,
+                self.palette["text"],
+                int(body_font.size * 1.35),
+            )
+
+        if slide.get("badge"):
+            self._draw_badge(draw, str(slide["badge"]), d.width - margin - 270, margin)
+        return title_fit and body_fit
+
+    def _draw_body(self, draw: ImageDraw.ImageDraw, slide: dict[str, Any]) -> bool:
+        d = self.dimensions
+        margin = d.margin
+        top = int(d.height * 0.23)
+        title_font, title_lines, title_fit = fit_font(
+            draw,
+            str(slide["title"]).upper(),
+            "heading",
+            max_width=d.width - margin * 2,
+            max_height=int(d.height * 0.22),
+            start_size=int(d.width * 0.085),
+            min_size=42,
+            line_spacing=0.95,
+        )
+        draw_multiline(
+            draw,
+            (margin, top),
+            title_lines,
+            title_font,
+            self.palette["text"],
+            int(title_font.size * 0.95),
+        )
+        self._draw_accent_rule(draw, margin, top + int(title_font.size * 1.08) * len(title_lines) + 36)
+
+        text_blocks = []
+        if slide.get("body"):
+            text_blocks.append(str(slide["body"]))
+        for bullet in slide.get("bullets", []) or []:
+            text_blocks.append(f"- {bullet}")
+        body_text = "\n\n".join(text_blocks)
+        body_font, body_lines, body_fit = fit_font(
+            draw,
+            body_text,
+            "body",
+            max_width=int(d.width * 0.70),
+            max_height=int(d.height * 0.45),
+            start_size=int(d.width * 0.043),
+            min_size=24,
+        )
+        draw_multiline(
+            draw,
+            (margin, int(d.height * 0.45)),
+            body_lines,
+            body_font,
+            self.palette["text"],
+            int(body_font.size * 1.36),
+        )
+        self._draw_optional_logo(draw, slide)
+        return title_fit and body_fit
+
+    def _draw_recap(self, draw: ImageDraw.ImageDraw, slide: dict[str, Any]) -> bool:
+        d = self.dimensions
+        margin = d.margin
+        title_font = load_font("heading", int(d.width * 0.082))
+        draw.text((margin, int(d.height * 0.15)), "TL;DR", font=title_font, fill=self.palette["text"])
+        self._draw_accent_rule(draw, margin, int(d.height * 0.15) + int(d.width * 0.1))
+
+        bullets = slide.get("bullets", []) or []
+        if not bullets and slide.get("body"):
+            bullets = [line.strip("- ") for line in str(slide["body"]).splitlines() if line.strip()]
+        bullet_font, _, fit = fit_font(
+            draw,
+            "\n".join(str(bullet) for bullet in bullets),
+            "body",
+            max_width=d.width - margin * 2,
+            max_height=int(d.height * 0.58),
+            start_size=int(d.width * 0.041),
+            min_size=24,
+        )
+        y = int(d.height * 0.31)
+        for bullet in bullets[:9]:
+            circle_x = margin + 8
+            circle_y = y + int(bullet_font.size * 0.45)
+            draw.ellipse(
+                (circle_x, circle_y, circle_x + 14, circle_y + 14),
+                fill=self.palette["accent"],
+            )
+            lines = wrap_text(draw, str(bullet), bullet_font, d.width - margin * 2 - 50)
+            draw_multiline(
+                draw,
+                (margin + 42, y),
+                lines,
+                bullet_font,
+                self.palette["text"],
+                int(bullet_font.size * 1.3),
+            )
+            y += max(int(bullet_font.size * 1.55), len(lines) * int(bullet_font.size * 1.3) + 24)
+        return fit
+
+    def _draw_cta(self, draw: ImageDraw.ImageDraw, slide: dict[str, Any], cta: dict[str, Any]) -> bool:
+        d = self.dimensions
+        margin = d.margin
+        cta_type = str(cta.get("type", "follow"))
+        eyebrow = "FOUND THIS HELPFUL?"
+        eyebrow_font = load_font("bold", int(d.width * 0.05))
+        badge_width = int(d.width * 0.52)
+        badge_height = int(d.height * 0.07)
+        badge_x = int((d.width - badge_width) / 2)
+        badge_y = int(d.height * 0.12)
+        draw.rounded_rectangle(
+            (badge_x, badge_y, badge_x + badge_width, badge_y + badge_height),
+            radius=22,
+            fill=self.palette["text"],
+        )
+        draw.text(
+            (badge_x + badge_width / 2, badge_y + badge_height / 2),
+            eyebrow,
+            font=eyebrow_font,
+            fill=self.palette["paper"],
+            anchor="mm",
+        )
+
+        title = "Follow" if cta_type == "follow" else str(cta.get("label", slide["title"]))
+        title_font, title_lines, title_fit = fit_font(
+            draw,
+            title,
+            "bold",
+            max_width=d.width - margin * 2,
+            max_height=int(d.height * 0.22),
+            start_size=int(d.width * 0.135),
+            min_size=58,
+            line_spacing=1.0,
+        )
+        y = int(d.height * 0.42)
+        draw_multiline(
+            draw,
+            (margin, y),
+            title_lines,
+            title_font,
+            self.palette["accent_2"],
+            int(title_font.size * 1.02),
+        )
+
+        handle_font = load_font("bold", int(d.width * 0.063))
+        main_handle = str(cta.get("handle", self.handle))
+        draw.text((margin, int(d.height * 0.64)), main_handle, font=handle_font, fill=self.palette["text"])
+
+        desc = str(cta.get("description", slide.get("subtitle", "")))
+        if cta_type == "offer":
+            desc = f"{desc}\n{cta.get('url', '')}".strip()
+        desc_font, desc_lines, desc_fit = fit_font(
+            draw,
+            desc,
+            "body",
+            max_width=d.width - margin * 2,
+            max_height=int(d.height * 0.18),
+            start_size=int(d.width * 0.039),
+            min_size=22,
+        )
+        draw_multiline(
+            draw,
+            (margin, int(d.height * 0.75)),
+            desc_lines,
+            desc_font,
+            self.palette["text"],
+            int(desc_font.size * 1.35),
+        )
+        return title_fit and desc_fit
+
+    def _draw_handle(self, draw: ImageDraw.ImageDraw) -> None:
+        d = self.dimensions
+        font = load_font("body", int(d.width * 0.025))
+        draw.text(
+            (d.margin, d.height - int(d.height * 0.075)),
+            self.handle,
+            font=font,
+            fill=self.palette["muted"],
+        )
+
+    def _draw_progress(self, draw: ImageDraw.ImageDraw, current: int, total: int) -> None:
+        d = self.dimensions
+        radius = int(d.width * 0.071)
+        x = d.margin
+        y = d.margin
+        draw.ellipse((x, y, x + radius * 2, y + radius * 2), fill=self.palette["accent"])
+        font = load_font("bold", int(radius * 0.62))
+        draw.text(
+            (x + radius, y + radius),
+            f"{current}/{total}",
+            font=font,
+            fill="#ffffff",
+            anchor="mm",
+        )
+
+    def _draw_swipe_arrow(self, draw: ImageDraw.ImageDraw) -> None:
+        d = self.dimensions
+        w = int(d.width * 0.16)
+        h = int(d.height * 0.055)
+        x = d.width - d.margin - w
+        y = d.height - int(d.height * 0.19)
+        draw.rounded_rectangle((x, y, x + w, y + h), radius=h // 2, fill=self.palette["accent"])
+        line_y = y + h // 2
+        draw.line((x + w * 0.32, line_y, x + w * 0.68, line_y), fill="#ffffff", width=4)
+        draw.polygon(
+            [
+                (x + w * 0.68, line_y - 12),
+                (x + w * 0.82, line_y),
+                (x + w * 0.68, line_y + 12),
+            ],
+            fill="#ffffff",
+        )
+
+    def _draw_accent_rule(self, draw: ImageDraw.ImageDraw, x: int, y: int) -> None:
+        width = int(self.dimensions.width * 0.22)
+        draw.rounded_rectangle((x, y, x + width, y + 14), radius=7, fill=self.palette["accent"])
+
+    def _draw_badge(self, draw: ImageDraw.ImageDraw, text: str, x: int, y: int) -> None:
+        font = load_font("bold", 42)
+        text_w, text_h = text_size(draw, text, font)
+        pad_x = 32
+        pad_y = 20
+        draw.rounded_rectangle(
+            (x, y, x + text_w + pad_x * 2, y + text_h + pad_y * 2),
+            radius=26,
+            fill=self.palette["text"],
+        )
+        draw.text((x + pad_x, y + pad_y), text, font=font, fill="#ffffff")
+
+    def _draw_soft_band(self, draw: ImageDraw.ImageDraw) -> None:
+        d = self.dimensions
+        draw.rounded_rectangle(
+            (
+                d.margin,
+                int(d.height * 0.54),
+                d.width - d.margin,
+                int(d.height * 0.76),
+            ),
+            radius=34,
+            fill=self._hex_to_rgba(self.palette["accent"], 34),
+        )
+
+    def _draw_optional_logo(self, draw: ImageDraw.ImageDraw, slide: dict[str, Any]) -> None:
+        logo = slide.get("logo")
+        if not isinstance(logo, dict):
+            return
+        d = self.dimensions
+        label = str(logo.get("name", "Logo"))
+        initials = "".join(part[0] for part in label.replace(".", " ").split()[:2]).upper() or "?"
+        size = int(d.width * 0.14)
+        x = d.width - d.margin - size
+        y = int(d.height * 0.52)
+        draw.rounded_rectangle(
+            (x, y, x + size, y + size),
+            radius=24,
+            fill="#ffffff",
+            outline=self.palette["text"],
+            width=4,
+        )
+        font = load_font("bold", int(size * 0.42))
+        draw.text(
+            (x + size / 2, y + size / 2),
+            initials,
+            font=font,
+            fill=self.palette["text"],
+            anchor="mm",
+        )
+
+    def _write_supporting_files(self, manifest: dict[str, Any]) -> None:
+        caption = self.spec.get("caption", "")
+        if caption:
+            (self.out_dir / "caption.md").write_text(str(caption).rstrip() + "\n", encoding="utf-8")
+        else:
+            (self.out_dir / "caption.md").write_text(
+                f"{self.spec['title']}\n\n{self.handle}\n", encoding="utf-8"
+            )
+
+        alt_lines = ["# Alt Text", ""]
+        for slide in self.spec["slides"]:
+            alt = slide.get("alt") or f"{slide['role']} slide: {slide['title']}"
+            alt_lines.append(f"- {alt}")
+        (self.out_dir / "alt_text.md").write_text("\n".join(alt_lines) + "\n", encoding="utf-8")
+
+        profile_snapshot = self.spec.get("profile", {})
+        if profile_snapshot:
+            (self.out_dir / "profile_snapshot.yaml").write_text(
+                yaml.safe_dump(profile_snapshot, sort_keys=False),
+                encoding="utf-8",
+            )
+        else:
+            (self.out_dir / "profile_snapshot.yaml").write_text("{}\n", encoding="utf-8")
+
+        shutil.copyfile(self.out_dir / "manifest.json", self.out_dir / "manifest.latest.json")
+
+    @staticmethod
+    def _hex_to_rgba(hex_value: str, alpha: int) -> tuple[int, int, int, int]:
+        value = hex_value.lstrip("#")
+        return tuple(int(value[i : i + 2], 16) for i in (0, 2, 4)) + (alpha,)
+
+    @staticmethod
+    def _slug(value: str) -> str:
+        slug = "".join(ch.lower() if ch.isalnum() else "-" for ch in value)
+        slug = "-".join(part for part in slug.split("-") if part)
+        return slug[:54] or "slide"

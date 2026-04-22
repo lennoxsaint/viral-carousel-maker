@@ -1,0 +1,94 @@
+{
+  "aspect_ratio": "vertical",
+  "dimensions": [
+    1080,
+    1350
+  ],
+  "handle": "@samplecreator",
+  "prompts": "examples/generated/ai-framework/prompts.jsonl",
+  "slides": [
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "hook",
+      "index": 1,
+      "path": "examples/generated/ai-framework/slides/01-hook-stop-prompting-from-scratch.png",
+      "role": "hook",
+      "text_fit": true,
+      "title": "Stop prompting from scratch"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "context",
+      "index": 2,
+      "path": "examples/generated/ai-framework/slides/02-body-context.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Context"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "role",
+      "index": 3,
+      "path": "examples/generated/ai-framework/slides/03-body-role.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Role"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "examples",
+      "index": 4,
+      "path": "examples/generated/ai-framework/slides/04-body-examples.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Examples"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "constraints",
+      "index": 5,
+      "path": "examples/generated/ai-framework/slides/05-body-constraints.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Constraints"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "review",
+      "index": 6,
+      "path": "examples/generated/ai-framework/slides/06-body-review.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Review"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "recap",
+      "index": 7,
+      "path": "examples/generated/ai-framework/slides/07-recap-tl-dr.png",
+      "role": "recap",
+      "text_fit": true,
+      "title": "TL;DR"
+    },
+    {
+      "cta_type": "follow",
+      "handle_drawn": true,
+      "id": "cta",
+      "index": 8,
+      "path": "examples/generated/ai-framework/slides/08-cta-follow.png",
+      "role": "cta",
+      "text_fit": true,
+      "title": "Follow"
+    }
+  ],
+  "template_family": "framework",
+  "title": "The AI prompt stack",
+  "warnings": []
+}

@@ -1,0 +1,94 @@
+{
+  "aspect_ratio": "vertical",
+  "dimensions": [
+    1080,
+    1350
+  ],
+  "handle": "@samplecoach",
+  "prompts": "examples/generated/fitness-mistakes/prompts.jsonl",
+  "slides": [
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-1",
+      "index": 1,
+      "path": "examples/generated/fitness-mistakes/slides/01-hook-you-are-not-lazy.png",
+      "role": "hook",
+      "text_fit": true,
+      "title": "You are not lazy"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-2",
+      "index": 2,
+      "path": "examples/generated/fitness-mistakes/slides/02-body-all-or-nothing.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "All or nothing"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-3",
+      "index": 3,
+      "path": "examples/generated/fitness-mistakes/slides/03-body-too-many-goals.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Too many goals"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-4",
+      "index": 4,
+      "path": "examples/generated/fitness-mistakes/slides/04-body-no-defaults.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "No defaults"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-5",
+      "index": 5,
+      "path": "examples/generated/fitness-mistakes/slides/05-body-random-workouts.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Random workouts"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-6",
+      "index": 6,
+      "path": "examples/generated/fitness-mistakes/slides/06-body-no-recovery.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "No recovery"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-7",
+      "index": 7,
+      "path": "examples/generated/fitness-mistakes/slides/07-recap-tl-dr.png",
+      "role": "recap",
+      "text_fit": true,
+      "title": "TL;DR"
+    },
+    {
+      "cta_type": "follow",
+      "handle_drawn": true,
+      "id": "slide-8",
+      "index": 8,
+      "path": "examples/generated/fitness-mistakes/slides/08-cta-follow.png",
+      "role": "cta",
+      "text_fit": true,
+      "title": "Follow"
+    }
+  ],
+  "template_family": "mistakes",
+  "title": "Five fitness mistakes that keep beginners stuck",
+  "warnings": []
+}

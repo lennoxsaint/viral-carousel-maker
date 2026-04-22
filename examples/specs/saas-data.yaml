@@ -1,0 +1,42 @@
+version: 1
+title: "SaaS onboarding signals"
+handle: "@samplesaas"
+template_family: "data"
+aspect_ratio: "vertical"
+profile:
+  niche: "SaaS"
+  audience: "early-stage founders"
+slides:
+  - role: hook
+    title: "Activation is not a tour"
+    subtitle: "It is the first moment your user feels progress."
+    badge: "SAAS"
+  - role: body
+    title: "Time to value"
+    body: "How long until the user gets a meaningful result?"
+  - role: body
+    title: "First action"
+    body: "What action proves they understand what the product is for?"
+  - role: body
+    title: "Empty state"
+    body: "Does a blank screen guide them or punish them?"
+  - role: body
+    title: "Friction"
+    body: "Every required field is a bet that the user still cares."
+  - role: body
+    title: "Return hook"
+    body: "What reason do they have to come back tomorrow?"
+  - role: recap
+    title: "TL;DR"
+    bullets:
+      - "Measure time to value."
+      - "Design the first action."
+      - "Fix empty states."
+      - "Remove fake friction."
+      - "Create a return hook."
+  - role: cta
+    title: "Follow"
+    cta:
+      type: follow
+      description: "For sharper SaaS product thinking."
+

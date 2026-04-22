@@ -1,0 +1,94 @@
+{
+  "aspect_ratio": "vertical",
+  "dimensions": [
+    1080,
+    1350
+  ],
+  "handle": "@sampleteacher",
+  "prompts": "examples/generated/education-quote/prompts.jsonl",
+  "slides": [
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-1",
+      "index": 1,
+      "path": "examples/generated/education-quote/slides/01-hook-a-lesson-is-not-a-download.png",
+      "role": "hook",
+      "text_fit": true,
+      "title": "A lesson is not a download"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-2",
+      "index": 2,
+      "path": "examples/generated/education-quote/slides/02-body-start.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Start"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-3",
+      "index": 3,
+      "path": "examples/generated/education-quote/slides/03-body-name.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Name"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-4",
+      "index": 4,
+      "path": "examples/generated/education-quote/slides/04-body-show.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Show"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-5",
+      "index": 5,
+      "path": "examples/generated/education-quote/slides/05-body-practice.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Practice"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-6",
+      "index": 6,
+      "path": "examples/generated/education-quote/slides/06-body-compress.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Compress"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-7",
+      "index": 7,
+      "path": "examples/generated/education-quote/slides/07-recap-tl-dr.png",
+      "role": "recap",
+      "text_fit": true,
+      "title": "TL;DR"
+    },
+    {
+      "cta_type": "follow",
+      "handle_drawn": true,
+      "id": "slide-8",
+      "index": 8,
+      "path": "examples/generated/education-quote/slides/08-cta-follow.png",
+      "role": "cta",
+      "text_fit": true,
+      "title": "Follow"
+    }
+  ],
+  "template_family": "quote",
+  "title": "Teach one transformation at a time",
+  "warnings": []
+}

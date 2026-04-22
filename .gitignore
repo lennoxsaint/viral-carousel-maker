@@ -1,0 +1,23 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+/dist/
+/build/
+*.egg-info/
+
+# Local creator profiles and private brand assets.
+.viral-carousel-maker/
+profiles/
+local/
+
+# Generated runs can be recreated from specs.
+output/
+runs/
+
+# API and environment secrets.
+.env
+.env.*
+!.env.example

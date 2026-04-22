@@ -1,0 +1,42 @@
+version: 1
+title: "Tiny design fixes that make carousels feel expensive"
+handle: "@sampledesigner"
+template_family: "examples"
+aspect_ratio: "vertical"
+profile:
+  niche: "Design"
+  audience: "non-designers making content"
+slides:
+  - role: hook
+    title: "Your carousel does not need more decoration"
+    subtitle: "It probably needs fewer decisions."
+    badge: "DESIGN"
+  - role: body
+    title: "One font job"
+    body: "Use one font for headlines and one for body. Stop auditioning the whole menu."
+  - role: body
+    title: "One accent"
+    body: "Let one color carry emphasis. More accents usually mean less hierarchy."
+  - role: body
+    title: "One idea"
+    body: "Every slide should have a single job."
+  - role: body
+    title: "One direction"
+    body: "Align related objects so the eye knows where to travel."
+  - role: body
+    title: "One exit"
+    body: "CTA slides should make the next action obvious."
+  - role: recap
+    title: "TL;DR"
+    bullets:
+      - "Fewer fonts."
+      - "Fewer accents."
+      - "One idea per slide."
+      - "Clear alignment."
+      - "Obvious CTA."
+  - role: cta
+    title: "Follow"
+    cta:
+      type: follow
+      description: "For simple design systems creators can actually use."
+

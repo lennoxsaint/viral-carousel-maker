@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://viral-carousel-maker.local/schemas/carousel.schema.json",
+  "title": "Viral Carousel Maker Spec",
+  "type": "object",
+  "required": ["title", "handle", "template_family", "aspect_ratio", "slides"],
+  "properties": {
+    "version": { "type": "integer", "const": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "handle": { "type": "string", "minLength": 1 },
+    "template_family": {
+      "type": "string",
+      "enum": ["story", "list", "framework", "timeline", "debate", "examples", "data", "quote", "map", "mistakes", "recap", "cta"]
+    },
+    "aspect_ratio": {
+      "type": "string",
+      "enum": ["vertical", "square", "wide"]
+    },
+    "theme": {
+      "type": "object",
+      "properties": {
+        "palette": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "caption": { "type": "string" },
+    "cta": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["follow", "offer"] },
+        "url": { "type": "string" },
+        "label": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "slides": {
+      "type": "array",
+      "minItems": 6,
+      "items": {
+        "type": "object",
+        "required": ["role", "title"],
+        "properties": {
+          "id": { "type": "string" },
+          "role": { "type": "string", "enum": ["hook", "body", "recap", "cta"] },
+          "title": { "type": "string", "minLength": 1 },
+          "subtitle": { "type": "string" },
+          "body": { "type": "string" },
+          "badge": { "type": "string" },
+          "visual_prompt": { "type": "string" },
+          "alt": { "type": "string" },
+          "bullets": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "logo": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "domain": { "type": "string" }
+            },
+            "additionalProperties": true
+          },
+          "cta": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}
+

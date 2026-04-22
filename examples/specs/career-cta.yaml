@@ -1,0 +1,44 @@
+version: 1
+title: "Career proof assets"
+handle: "@samplecareer"
+template_family: "cta"
+aspect_ratio: "vertical"
+profile:
+  niche: "Career"
+  audience: "professionals preparing for better roles"
+slides:
+  - role: hook
+    title: "Your resume is not enough"
+    subtitle: "Build proof assets before you need them."
+    badge: "CAREER"
+  - role: body
+    title: "Case study"
+    body: "Turn one project into a before, action, result story."
+  - role: body
+    title: "Decision log"
+    body: "Show how you think, not just what you shipped."
+  - role: body
+    title: "Metrics"
+    body: "Track the numbers your work improved."
+  - role: body
+    title: "Artifacts"
+    body: "Save screenshots, docs, decks, and outputs while access is fresh."
+  - role: body
+    title: "Narrative"
+    body: "Connect the proof to the role you want next."
+  - role: recap
+    title: "TL;DR"
+    bullets:
+      - "Write case studies."
+      - "Keep decision logs."
+      - "Track metrics."
+      - "Save artifacts."
+      - "Shape the narrative."
+  - role: cta
+    title: "Career Proof Kit"
+    cta:
+      type: offer
+      label: "Get the proof kit"
+      url: "example.com/proof"
+      description: "Use the template to turn your work into visible proof."
+

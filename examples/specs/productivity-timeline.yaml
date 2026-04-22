@@ -1,0 +1,42 @@
+version: 1
+title: "The weekly reset timeline"
+handle: "@samplecreator"
+template_family: "timeline"
+aspect_ratio: "vertical"
+profile:
+  niche: "Productivity"
+  audience: "busy operators"
+slides:
+  - role: hook
+    title: "Your week needs a runway"
+    subtitle: "A 30-minute reset can remove three days of friction."
+    badge: "RESET"
+  - role: body
+    title: "Minute 0"
+    body: "Dump every open loop: tasks, worries, promises, ideas."
+  - role: body
+    title: "Minute 7"
+    body: "Mark what actually matters this week. Delete fake urgency."
+  - role: body
+    title: "Minute 14"
+    body: "Block deep work first, then meetings, then admin."
+  - role: body
+    title: "Minute 21"
+    body: "Prepare the first step for each important project."
+  - role: body
+    title: "Minute 30"
+    body: "Stop planning. Start with the smallest real action."
+  - role: recap
+    title: "TL;DR"
+    bullets:
+      - "Dump open loops."
+      - "Choose real priorities."
+      - "Block deep work."
+      - "Prep first steps."
+      - "Start small."
+  - role: cta
+    title: "Follow"
+    cta:
+      type: follow
+      description: "For productivity that survives Monday."
+

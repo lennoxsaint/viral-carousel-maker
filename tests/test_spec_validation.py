@@ -1,0 +1,29 @@
+from pathlib import Path
+
+import pytest
+
+from viral_carousel_maker.spec import SpecError, load_spec, validate_spec
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_sample_spec_validates():
+    spec = load_spec(ROOT / "examples" / "specs" / "ai-framework.yaml")
+    warnings = validate_spec(spec)
+    assert isinstance(warnings, list)
+
+
+def test_body_count_gate():
+    spec = load_spec(ROOT / "examples" / "specs" / "ai-framework.yaml")
+    spec["slides"] = [slide for slide in spec["slides"] if slide.get("role") != "body"][:]
+    with pytest.raises(SpecError, match="3, 5, 7, or 9"):
+        validate_spec(spec)
+
+
+def test_offer_cta_requires_url():
+    spec = load_spec(ROOT / "examples" / "specs" / "career-cta.yaml")
+    spec["slides"][-1]["cta"].pop("url")
+    with pytest.raises(SpecError, match="Offer CTA"):
+        validate_spec(spec)
+

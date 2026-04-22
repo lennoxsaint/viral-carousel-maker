@@ -1,0 +1,7 @@
+interface:
+  display_name: Viral Carousel Maker
+  short_description: Create Threads carousel images from ideas
+  default_prompt: Use $viral-carousel-maker to turn my idea into a Threads carousel production pack.
+policy:
+  allow_implicit_invocation: true
+

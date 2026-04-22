@@ -1,0 +1,50 @@
+version: 1
+title: "Marketing is not posting more"
+handle: "@samplecreator"
+template_family: "map"
+aspect_ratio: "vertical"
+profile:
+  niche: "Marketing"
+  audience: "small business owners"
+theme:
+  palette:
+    text: "#06124f"
+    accent: "#e84b05"
+    accent_2: "#2f80ed"
+caption: |
+  Posting more is not a strategy.
+  Use this map before you make more content.
+slides:
+  - role: hook
+    title: "Marketing is not posting more"
+    subtitle: "It is moving the right person through the right belief shift."
+    badge: "MAP"
+  - role: body
+    title: "Audience"
+    body: "Who has the pain, money, and urgency to care now?"
+  - role: body
+    title: "Problem"
+    body: "What specific frustration are they already trying to solve?"
+  - role: body
+    title: "Promise"
+    body: "What outcome can you credibly help them reach?"
+  - role: body
+    title: "Proof"
+    body: "What evidence makes the promise believable?"
+  - role: body
+    title: "Path"
+    body: "What is the next low-friction step they can take?"
+  - role: recap
+    title: "TL;DR"
+    bullets:
+      - "Audience before channels."
+      - "Problem before content."
+      - "Promise before pitch."
+      - "Proof before CTA."
+      - "Path before platform."
+  - role: cta
+    title: "Follow"
+    cta:
+      type: follow
+      description: "For simple marketing systems that do not require posting all day."
+

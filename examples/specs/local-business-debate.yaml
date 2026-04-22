@@ -1,0 +1,42 @@
+version: 1
+title: "Local business content"
+handle: "@samplelocal"
+template_family: "debate"
+aspect_ratio: "vertical"
+profile:
+  niche: "Local business"
+  audience: "service business owners"
+slides:
+  - role: hook
+    title: "Bad local content vs useful local content"
+    subtitle: "One gets ignored. One makes people remember you."
+    badge: "LOCAL"
+  - role: body
+    title: "Bad"
+    body: "Posting only discounts trains people to wait."
+  - role: body
+    title: "Useful"
+    body: "Show people how to avoid the problem you solve."
+  - role: body
+    title: "Bad"
+    body: "Generic holiday posts disappear in the feed."
+  - role: body
+    title: "Useful"
+    body: "Local, specific, helpful examples build recognition."
+  - role: body
+    title: "Better"
+    body: "Answer the question customers ask before they call."
+  - role: recap
+    title: "TL;DR"
+    bullets:
+      - "Discounts are not strategy."
+      - "Generic posts vanish."
+      - "Specific help builds trust."
+      - "Local proof matters."
+      - "Answer pre-call questions."
+  - role: cta
+    title: "Follow"
+    cta:
+      type: follow
+      description: "For local marketing that earns attention."
+

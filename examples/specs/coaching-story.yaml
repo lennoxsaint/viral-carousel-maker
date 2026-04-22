@@ -1,0 +1,42 @@
+version: 1
+title: "The coaching shift"
+handle: "@samplecoach"
+template_family: "story"
+aspect_ratio: "vertical"
+profile:
+  niche: "Coaching"
+  audience: "new coaches"
+slides:
+  - role: hook
+    title: "Stop trying to sound impressive"
+    subtitle: "The best coaching content makes people feel understood first."
+    badge: "COACH"
+  - role: body
+    title: "Before"
+    body: "You explain your method because you want people to trust you."
+  - role: body
+    title: "Problem"
+    body: "But strangers do not trust methods yet. They trust recognition."
+  - role: body
+    title: "Shift"
+    body: "Name the private frustration they thought only they had."
+  - role: body
+    title: "Proof"
+    body: "Then show how your method solves that exact moment."
+  - role: body
+    title: "After"
+    body: "Now your advice feels like relief, not a lecture."
+  - role: recap
+    title: "TL;DR"
+    bullets:
+      - "Recognition before method."
+      - "Pain before proof."
+      - "Relief before pitch."
+      - "Specificity beats authority."
+      - "Trust starts with being seen."
+  - role: cta
+    title: "Follow"
+    cta:
+      type: follow
+      description: "For coaches who want content that actually connects."
+

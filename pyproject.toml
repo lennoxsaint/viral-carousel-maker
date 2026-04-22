@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "viral-carousel-maker"
+version = "0.1.0"
+description = "Claude Code and Codex skill plus Python renderer for Threads-optimized viral carousel images."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Viral Carousel Maker contributors" }]
+dependencies = [
+  "Pillow>=10.0",
+  "PyYAML>=6.0",
+  "jsonschema>=4.0",
+]
+
+[project.optional-dependencies]
+image-api = ["openai>=1.0"]
+dev = ["pytest>=8.0", "ruff>=0.6"]
+
+[project.scripts]
+viral-carousel = "viral_carousel_maker.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+viral_carousel_maker = ["py.typed"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+

@@ -1,0 +1,42 @@
+version: 1
+title: "Five fitness mistakes that keep beginners stuck"
+handle: "@samplecoach"
+template_family: "mistakes"
+aspect_ratio: "vertical"
+profile:
+  niche: "Fitness"
+  audience: "busy beginners"
+slides:
+  - role: hook
+    title: "You are not lazy"
+    subtitle: "Your fitness plan is probably too fragile."
+    badge: "FITNESS"
+  - role: body
+    title: "All or nothing"
+    body: "A plan that fails after one missed day is not discipline. It is bad design."
+  - role: body
+    title: "Too many goals"
+    body: "Fat loss, strength, mobility, and running all at once creates noise."
+  - role: body
+    title: "No defaults"
+    body: "If you need motivation every day, your system is too expensive to run."
+  - role: body
+    title: "Random workouts"
+    body: "Sweating is not the same as progressing."
+  - role: body
+    title: "No recovery"
+    body: "Recovery is where your body adapts. Skipping it is not toughness."
+  - role: recap
+    title: "TL;DR"
+    bullets:
+      - "Build flexible plans."
+      - "Pick one main goal."
+      - "Create defaults."
+      - "Track progression."
+      - "Protect recovery."
+  - role: cta
+    title: "Follow"
+    cta:
+      type: follow
+      description: "For fitness systems that survive real life."
+

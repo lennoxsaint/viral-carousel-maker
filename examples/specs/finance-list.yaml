@@ -1,0 +1,47 @@
+version: 1
+title: "Money rules that lower stress"
+handle: "@samplefinance"
+template_family: "list"
+aspect_ratio: "vertical"
+profile:
+  niche: "Finance"
+  audience: "first-time budgeters"
+theme:
+  palette:
+    text: "#082b20"
+    accent: "#0b8f55"
+    accent_2: "#e84b05"
+slides:
+  - role: hook
+    title: "Money feels chaotic when it has no job"
+    subtitle: "Give every dollar a role before it disappears."
+    badge: "MONEY"
+  - role: body
+    title: "Bills"
+    body: "Separate must-pay money first. This lowers decision fatigue."
+  - role: body
+    title: "Buffer"
+    body: "A small cash buffer prevents tiny surprises from becoming emergencies."
+  - role: body
+    title: "Future"
+    body: "Save before lifestyle upgrades absorb the extra."
+  - role: body
+    title: "Fun"
+    body: "Guilt-free spending works better when it has a clear boundary."
+  - role: body
+    title: "Growth"
+    body: "Put some money toward skills, tools, or assets that increase earning power."
+  - role: recap
+    title: "TL;DR"
+    bullets:
+      - "Bills protect stability."
+      - "Buffer protects calm."
+      - "Future protects options."
+      - "Fun protects joy."
+      - "Growth protects upside."
+  - role: cta
+    title: "Follow"
+    cta:
+      type: follow
+      description: "For calmer money systems."
+

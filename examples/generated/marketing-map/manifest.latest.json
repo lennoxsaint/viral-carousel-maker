@@ -1,0 +1,94 @@
+{
+  "aspect_ratio": "vertical",
+  "dimensions": [
+    1080,
+    1350
+  ],
+  "handle": "@samplecreator",
+  "prompts": "examples/generated/marketing-map/prompts.jsonl",
+  "slides": [
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-1",
+      "index": 1,
+      "path": "examples/generated/marketing-map/slides/01-hook-marketing-is-not-posting-more.png",
+      "role": "hook",
+      "text_fit": true,
+      "title": "Marketing is not posting more"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-2",
+      "index": 2,
+      "path": "examples/generated/marketing-map/slides/02-body-audience.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Audience"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-3",
+      "index": 3,
+      "path": "examples/generated/marketing-map/slides/03-body-problem.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Problem"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-4",
+      "index": 4,
+      "path": "examples/generated/marketing-map/slides/04-body-promise.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Promise"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-5",
+      "index": 5,
+      "path": "examples/generated/marketing-map/slides/05-body-proof.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Proof"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-6",
+      "index": 6,
+      "path": "examples/generated/marketing-map/slides/06-body-path.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Path"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-7",
+      "index": 7,
+      "path": "examples/generated/marketing-map/slides/07-recap-tl-dr.png",
+      "role": "recap",
+      "text_fit": true,
+      "title": "TL;DR"
+    },
+    {
+      "cta_type": "follow",
+      "handle_drawn": true,
+      "id": "slide-8",
+      "index": 8,
+      "path": "examples/generated/marketing-map/slides/08-cta-follow.png",
+      "role": "cta",
+      "text_fit": true,
+      "title": "Follow"
+    }
+  ],
+  "template_family": "map",
+  "title": "Marketing is not posting more",
+  "warnings": []
+}

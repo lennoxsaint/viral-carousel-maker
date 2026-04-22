@@ -1,0 +1,94 @@
+{
+  "aspect_ratio": "vertical",
+  "dimensions": [
+    1080,
+    1350
+  ],
+  "handle": "@samplefinance",
+  "prompts": "examples/generated/finance-list/prompts.jsonl",
+  "slides": [
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-1",
+      "index": 1,
+      "path": "examples/generated/finance-list/slides/01-hook-money-feels-chaotic-when-it-has-no-job.png",
+      "role": "hook",
+      "text_fit": true,
+      "title": "Money feels chaotic when it has no job"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-2",
+      "index": 2,
+      "path": "examples/generated/finance-list/slides/02-body-bills.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Bills"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-3",
+      "index": 3,
+      "path": "examples/generated/finance-list/slides/03-body-buffer.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Buffer"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-4",
+      "index": 4,
+      "path": "examples/generated/finance-list/slides/04-body-future.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Future"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-5",
+      "index": 5,
+      "path": "examples/generated/finance-list/slides/05-body-fun.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Fun"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-6",
+      "index": 6,
+      "path": "examples/generated/finance-list/slides/06-body-growth.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Growth"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-7",
+      "index": 7,
+      "path": "examples/generated/finance-list/slides/07-recap-tl-dr.png",
+      "role": "recap",
+      "text_fit": true,
+      "title": "TL;DR"
+    },
+    {
+      "cta_type": "follow",
+      "handle_drawn": true,
+      "id": "slide-8",
+      "index": 8,
+      "path": "examples/generated/finance-list/slides/08-cta-follow.png",
+      "role": "cta",
+      "text_fit": true,
+      "title": "Follow"
+    }
+  ],
+  "template_family": "list",
+  "title": "Money rules that lower stress",
+  "warnings": []
+}

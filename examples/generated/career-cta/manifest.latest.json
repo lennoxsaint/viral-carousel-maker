@@ -1,0 +1,94 @@
+{
+  "aspect_ratio": "vertical",
+  "dimensions": [
+    1080,
+    1350
+  ],
+  "handle": "@samplecareer",
+  "prompts": "examples/generated/career-cta/prompts.jsonl",
+  "slides": [
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-1",
+      "index": 1,
+      "path": "examples/generated/career-cta/slides/01-hook-your-resume-is-not-enough.png",
+      "role": "hook",
+      "text_fit": true,
+      "title": "Your resume is not enough"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-2",
+      "index": 2,
+      "path": "examples/generated/career-cta/slides/02-body-case-study.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Case study"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-3",
+      "index": 3,
+      "path": "examples/generated/career-cta/slides/03-body-decision-log.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Decision log"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-4",
+      "index": 4,
+      "path": "examples/generated/career-cta/slides/04-body-metrics.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Metrics"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-5",
+      "index": 5,
+      "path": "examples/generated/career-cta/slides/05-body-artifacts.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Artifacts"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-6",
+      "index": 6,
+      "path": "examples/generated/career-cta/slides/06-body-narrative.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Narrative"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-7",
+      "index": 7,
+      "path": "examples/generated/career-cta/slides/07-recap-tl-dr.png",
+      "role": "recap",
+      "text_fit": true,
+      "title": "TL;DR"
+    },
+    {
+      "cta_type": "offer",
+      "handle_drawn": true,
+      "id": "slide-8",
+      "index": 8,
+      "path": "examples/generated/career-cta/slides/08-cta-career-proof-kit.png",
+      "role": "cta",
+      "text_fit": true,
+      "title": "Career Proof Kit"
+    }
+  ],
+  "template_family": "cta",
+  "title": "Career proof assets",
+  "warnings": []
+}

@@ -1,0 +1,94 @@
+{
+  "aspect_ratio": "vertical",
+  "dimensions": [
+    1080,
+    1350
+  ],
+  "handle": "@samplelocal",
+  "prompts": "examples/generated/local-business-debate/prompts.jsonl",
+  "slides": [
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-1",
+      "index": 1,
+      "path": "examples/generated/local-business-debate/slides/01-hook-bad-local-content-vs-useful-local-content.png",
+      "role": "hook",
+      "text_fit": true,
+      "title": "Bad local content vs useful local content"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-2",
+      "index": 2,
+      "path": "examples/generated/local-business-debate/slides/02-body-bad.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Bad"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-3",
+      "index": 3,
+      "path": "examples/generated/local-business-debate/slides/03-body-useful.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Useful"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-4",
+      "index": 4,
+      "path": "examples/generated/local-business-debate/slides/04-body-bad.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Bad"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-5",
+      "index": 5,
+      "path": "examples/generated/local-business-debate/slides/05-body-useful.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Useful"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-6",
+      "index": 6,
+      "path": "examples/generated/local-business-debate/slides/06-body-better.png",
+      "role": "body",
+      "text_fit": true,
+      "title": "Better"
+    },
+    {
+      "cta_type": null,
+      "handle_drawn": true,
+      "id": "slide-7",
+      "index": 7,
+      "path": "examples/generated/local-business-debate/slides/07-recap-tl-dr.png",
+      "role": "recap",
+      "text_fit": true,
+      "title": "TL;DR"
+    },
+    {
+      "cta_type": "follow",
+      "handle_drawn": true,
+      "id": "slide-8",
+      "index": 8,
+      "path": "examples/generated/local-business-debate/slides/08-cta-follow.png",
+      "role": "cta",
+      "text_fit": true,
+      "title": "Follow"
+    }
+  ],
+  "template_family": "debate",
+  "title": "Local business content",
+  "warnings": []
+}
