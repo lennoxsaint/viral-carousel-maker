@@ -102,13 +102,17 @@ bash scripts/install.sh
 When invoked, the skill:
 
 - Checks for a saved local style profile
-- Runs a strategic but friendly interview if the profile is missing or thin
+- Runs a mandatory interrogation interview before generation, even when a profile exists
+- Uses `request_user_input` when the host provides it, or asks direct question batches when it does not
 - Chooses one of 12 content-mechanic template families
 - Drafts the carousel spec
-- Scores hook strength, saveability, clarity, CTA fit, and proof quality
+- Scores hook strength, saveability, shareability, clarity, CTA fit, and proof quality
 - Shows the spec before paid or native image generation
 - Renders final PNGs and a production pack
-- Runs QA before calling the pack done
+- Creates or updates `~/.viral-carousel-maker/profile.yaml` after the first successful carousel
+- Runs strict per-slide QA before calling the pack done
+
+The skill is intentionally not a one-prompt generator. It asks several questions first so the final carousel can be tailored to the user's niche, voice, offer, visual taste, proof boundaries, and virality goal.
 
 ## Template families
 

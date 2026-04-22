@@ -35,3 +35,25 @@ def test_skill_render_script_creates_dist():
     assert "require `OPENAI_API_KEY`" in claude_text
     assert "https://platform.openai.com/api-keys" in claude_text
     assert "do not require `OPENAI_API_KEY`" in codex_text
+    assert "Mandatory Interrogation Gate" in claude_text
+    assert "request_user_input" in claude_text
+    assert "profile.yaml" in claude_text
+    assert "per-slide quality gate" in claude_text
+    assert "Mandatory Interrogation Gate" in codex_text
+    assert "request_user_input" in codex_text
+    assert "profile.yaml" in codex_text
+
+
+def test_skill_reference_docs_include_interview_profile_and_quality_gates():
+    source_root = ROOT / "skills" / "source" / "viral-carousel-maker" / "references"
+    interview = (source_root / "interview.md").read_text(encoding="utf-8")
+    profile = (source_root / "profile-memory.md").read_text(encoding="utf-8")
+    quality = (source_root / "quality-rubric.md").read_text(encoding="utf-8")
+
+    assert "This gate is mandatory before carousel generation." in interview
+    assert "Use `request_user_input` whenever the host provides it." in interview
+    assert "Do not summarize, draft, plan, select a template, generate images, or render" in interview
+    assert "~/.viral-carousel-maker/profile.yaml" in profile
+    assert "Never store" in profile
+    assert "Quality gates are mandatory" in quality
+    assert "Per-slide finished image quality" in quality
