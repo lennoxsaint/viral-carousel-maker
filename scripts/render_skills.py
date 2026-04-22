@@ -52,14 +52,24 @@ def strip_existing_adapter(text: str) -> str:
 
 def adapter_block(target: str) -> str:
     info = TARGETS[target]
+    if target == "claude":
+        platform_notes = (
+            "- In Claude Desktop or Claude Code, require `OPENAI_API_KEY` before the intended OpenAI image-generation workflow.\n"
+            "- If the key is missing, pause and show the API-key onboarding message from `SKILL.md`.\n"
+            "- API key setup guide: `references/claude-openai-api-key-setup.md`.\n"
+        )
+    else:
+        platform_notes = (
+            "- In Codex, prefer native image generation and do not require `OPENAI_API_KEY`.\n"
+            "- If native image generation is unavailable, continue with procedural renderer assets rather than blocking.\n"
+        )
     return (
         "<!-- BEGIN GENERATED: platform-adapter -->\n"
         "## Platform Adapter\n\n"
         f"- Rendered for: {info['label']}.\n"
         f"- Skill root: `{info['skill_root']}`.\n"
         "- Canonical source: `skills/source/viral-carousel-maker`.\n"
-        "- In Codex, prefer native image generation and do not require `OPENAI_API_KEY`.\n"
-        "- In Claude Code/local CLI, render without API calls unless the user chooses the optional OpenAI Image API fallback.\n"
+        f"{platform_notes}"
         "<!-- END GENERATED: platform-adapter -->\n\n"
     )
 
@@ -120,4 +130,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

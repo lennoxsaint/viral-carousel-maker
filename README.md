@@ -29,17 +29,48 @@ That means:
 - Python/Pillow handles exact layout and text rendering
 - No `OPENAI_API_KEY` is required for the Codex-native path
 
-## Claude or local CLI path
+## Claude Desktop or Claude Code path
 
-If you are using Claude Code or running the renderer outside Codex, you can still use the skill.
+If you are using this skill in Claude Desktop or Claude Code, the intended image-generation workflow requires an OpenAI API key.
 
-The local renderer works without API calls by using procedural textures and code-rendered layouts. If you want the optional OpenAI Image API asset-generation fallback, set `OPENAI_API_KEY` and install the image API extras:
+When the skill is invoked in Claude Desktop or Claude Code, it should pause before production image generation and tell the user:
+
+```text
+To use Viral Carousel Maker in Claude Desktop or Claude Code, you need an OpenAI API key for image generation.
+
+Get one here: https://platform.openai.com/api-keys
+
+Follow the setup guide in docs/claude-openai-api-key-setup.md, then provide the key to Claude as OPENAI_API_KEY.
+Do not commit the key to GitHub, paste it into public files, or share it with anyone else.
+```
+
+Full setup guide:
+
+- [Claude and OpenAI API key setup](docs/claude-openai-api-key-setup.md)
+- Official OpenAI API key page: <https://platform.openai.com/api-keys>
+- Official OpenAI API key safety guide: <https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety>
+- Official OpenAI "where do I find my API key" guide: <https://help.openai.com/en/articles/4936850-where-do-i-find-my-secret-api-key_>
+
+For Claude Code on macOS, the usual setup is:
+
+```bash
+echo "export OPENAI_API_KEY='paste-your-key-here'" >> ~/.zshrc
+source ~/.zshrc
+```
+
+Then restart Claude Code or open a new terminal session before invoking the skill again.
+
+For Claude Desktop, use the safest available local environment or connector configuration for your setup. If Claude Desktop cannot read environment variables, the skill should ask the user whether they are comfortable providing the key for the current local run only. Never store it in the repo.
+
+The renderer can still make draft/procedural carousel PNGs without API calls, but Claude Desktop and Claude Code users should expect to provide `OPENAI_API_KEY` for the intended OpenAI image-generation workflow.
+
+Install the API extras:
 
 ```bash
 uv pip install -e ".[image-api]"
 ```
 
-The API fallback targets `gpt-image-2`.
+The API image workflow targets `gpt-image-2`.
 
 ## Quick start
 
