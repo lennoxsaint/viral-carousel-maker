@@ -22,3 +22,5 @@ jobs:
         run: python scripts/render_skills.py --check
       - name: Tests
         run: pytest
+      - name: Public proof artifacts
+        run: python scripts/public_proof.py --check-gallery

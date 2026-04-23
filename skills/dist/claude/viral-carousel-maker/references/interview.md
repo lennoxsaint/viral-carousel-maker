@@ -26,9 +26,40 @@ If the user asks to skip the interview, say:
 I cannot skip the interrogation step because this skill is designed to protect carousel quality. I will keep this focused, but I need enough signal before generating.
 ```
 
+## Intake-aware start
+
+If the user provides pasted draft copy, a markdown/text path, or Threadify JSON, do not start from zero.
+
+1. Normalize the draft first with the intake workflow.
+2. Treat extracted fields as provisional answers.
+3. Ask only for missing, weak, or conflicting information.
+4. Tell the user which fields were inferred and which still need confirmation.
+
+Use this plain-English framing:
+
+```text
+I can use your draft as a starting point. I still need to pressure-test the audience, belief shift, proof, CTA, and visual direction before generating, because those decide whether the carousel feels saveable or generic.
+```
+
+## Two-stage interrogation flow
+
+Stage A is the fast essentials pass. Ask these before any hook, spec, or render work:
+
+1. What is your Threads handle?
+2. What is the carousel's job: reach, saves, authority, conversion, or community?
+3. Who exactly should feel like this was written for them?
+4. What painful, annoying, expensive, or status-threatening situation are they already experiencing?
+5. What old belief should the carousel replace, and what new belief should it leave behind?
+6. What proof, lived experience, example, data, or receipt can we safely use?
+7. What CTA should it earn: none, follow, soft offer, or hard offer?
+8. What visual direction should it lean toward, and what should it avoid?
+9. How many body slides should it use: 3, 5, 7, or 9?
+
+Stage B is targeted follow-up. Only ask follow-ups for thin, vague, contradictory, or risky answers. Do not make the user repeat information already supplied by a draft, JSON intake, or saved profile.
+
 ## Question batch protocol
 
-Ask in batches of 3-5 questions. Do not ask all questions at once unless the user explicitly asks for a full worksheet.
+Ask in batches of 3-5 questions. Do not ask all questions at once unless the user explicitly asks for a full worksheet. The first batch should cover Stage A essentials. Later batches should be Stage B follow-ups only.
 
 Recommended tool pattern when `request_user_input` exists:
 
@@ -151,4 +182,10 @@ Only proceed when you can fill this sentence:
 
 ```text
 This carousel is for [specific viewer] who struggles with [specific pain/desire]. It will shift them from [old belief/state] to [new belief/state] using [proof/examples/framework]. It should feel [tone/style], avoid [anti-patterns], and earn a [CTA] by making the post [saveable/shareable reason].
+```
+
+Before generation, send the one-line ready summary:
+
+```text
+Ready to generate: [viewer] needs [belief shift], backed by [proof level], in a [tone/visual direction] carousel with [slide count] body slides and a [CTA type] CTA.
 ```

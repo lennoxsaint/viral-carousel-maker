@@ -18,6 +18,14 @@ Do not wait for the user to ask. Treat profile creation as part of the productio
 
 If a profile already exists, merge new stable preferences into it instead of overwriting useful details.
 
+In the source repo, the operational path is:
+
+```bash
+viral-carousel render path/to/spec.yaml --out-dir output/run-name --use-profile --update-profile
+```
+
+Use `--profile-path path/to/profile.yaml` in tests or unusual local setups.
+
 ## What to store
 
 Store stable creator information:
@@ -83,6 +91,10 @@ template_preferences:
     - "mistakes"
   avoid: []
 last_updated: "YYYY-MM-DD"
+provenance:
+  last_updated_at: "YYYY-MM-DDTHH:MM:SS+00:00"
+  sources:
+    - "successful-render"
 ```
 
 ## What never to store
@@ -96,6 +108,8 @@ Never store:
 - Sensitive client data.
 - Payment details.
 - Anything the user explicitly says not to remember.
+
+The implementation must strip keys containing `api_key`, `secret`, `token`, `password`, `authorization`, or `credential` before writing.
 
 ## How to use the profile later
 

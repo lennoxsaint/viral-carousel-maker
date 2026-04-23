@@ -56,12 +56,15 @@ def adapter_block(target: str) -> str:
         platform_notes = (
             "- In Claude Desktop or Claude Code, require `OPENAI_API_KEY` before the intended OpenAI image-generation workflow.\n"
             "- If the key is missing, pause and show the API-key onboarding message from `SKILL.md`.\n"
+            "- If the user declines a key, offer procedural draft rendering and clearly label it as the fallback path.\n"
+            "- Readiness check: `viral-carousel doctor --platform claude-code`.\n"
             "- API key setup guide: `references/claude-openai-api-key-setup.md`.\n"
         )
     else:
         platform_notes = (
             "- In Codex, prefer native image generation and do not require `OPENAI_API_KEY`.\n"
             "- If native image generation is unavailable, continue with procedural renderer assets rather than blocking.\n"
+            "- Readiness check: `viral-carousel doctor --platform codex`.\n"
         )
     return (
         "<!-- BEGIN GENERATED: platform-adapter -->\n"

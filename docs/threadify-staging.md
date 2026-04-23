@@ -2,6 +2,16 @@
 
 Viral Carousel Maker v1 does not publish to Threads and does not automate a browser.
 
+Threadify-ready means the run produced:
+
+- posting-order PNGs in `slides/`
+- `caption.md`
+- `alt_text.md`
+- `manifest.json`
+- `qa_report.md`
+- `visual_qa.json`
+- `contact_sheet.png`
+
 The public-safe flow is:
 
 1. Render the carousel pack.
@@ -14,3 +24,4 @@ The public-safe flow is:
 
 This keeps the public skill useful without requiring Threadify auth, browser automation, or direct platform publishing.
 
+To start from a Threadify draft export before rendering, use `docs/threadify-draft-intake.md`.

@@ -46,6 +46,8 @@ def test_skill_render_script_creates_dist():
     assert "visual_priority" in claude_text
     assert "visual_qa.json" in claude_text
     assert "contact_sheet.png" in claude_text
+    assert "Threadify draft" in claude_text
+    assert "Safe fallback message" in claude_text
     assert "Mandatory Interrogation Gate" in codex_text
     assert "request_user_input" in codex_text
     assert "profile.yaml" in codex_text
@@ -53,6 +55,7 @@ def test_skill_render_script_creates_dist():
     assert "AI critic gate" in codex_text
     assert "browser renderer" in codex_text
     assert "visual_priority" in codex_text
+    assert "OPENAI_API_KEY" not in codex_text.split("## Platform Adapter", 1)[1].split("<!-- END GENERATED", 1)[0] or "do not require `OPENAI_API_KEY`" in codex_text
 
 
 def test_skill_reference_docs_include_interview_profile_and_quality_gates():
@@ -65,12 +68,18 @@ def test_skill_reference_docs_include_interview_profile_and_quality_gates():
     performance = (source_root / "performance-loop.md").read_text(encoding="utf-8")
     critic = (source_root / "ai-critic-gate.md").read_text(encoding="utf-8")
     pattern_bank = (source_root / "pattern-bank.md").read_text(encoding="utf-8")
+    intake = (source_root / "threadify-draft-intake.md").read_text(encoding="utf-8")
 
     assert "This gate is mandatory before carousel generation." in interview
+    assert "Two-stage interrogation flow" in interview
+    assert "Ready to generate" in interview
     assert "Use `request_user_input` whenever the host provides it." in interview
     assert "Do not summarize, draft, plan, select a template, generate images, or render" in interview
     assert "~/.viral-carousel-maker/profile.yaml" in profile
     assert "Never store" in profile
+    assert "provenance" in profile
+    assert "Threadify-style JSON" in intake
+    assert "best-effort" in intake
     assert "Quality gates are mandatory" in quality
     assert "Per-slide finished image quality" in quality
     assert "visual-area threshold" in quality

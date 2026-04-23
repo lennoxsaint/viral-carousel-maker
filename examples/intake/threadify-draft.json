@@ -1,0 +1,24 @@
+{
+  "title": "Your Threads posts do not need more tricks",
+  "profile": {
+    "handle": "@lennox_saint"
+  },
+  "caption": "A useful carousel should give people a reason to save it.",
+  "slides": [
+    {
+      "title": "Start with tension",
+      "body": "Weak posts announce a topic. Strong posts name the problem the reader already feels."
+    },
+    {
+      "title": "Make one useful point",
+      "body": "If a post tries to teach three things, none of them lands."
+    },
+    {
+      "title": "Earn the save",
+      "body": "Likes come from recognition. Saves come from future usefulness."
+    }
+  ],
+  "cta": {
+    "type": "follow"
+  }
+}

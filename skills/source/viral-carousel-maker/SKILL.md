@@ -1,6 +1,6 @@
 ---
 name: viral-carousel-maker
-description: "Use this skill whenever a user wants to create a Threads carousel, viral carousel, social media carousel, carousel images, swipe post, educational carousel, or saveable visual post from an idea, rough notes, or existing copy. It must run a mandatory interrogation interview before generation, create or update a reusable local creator profile after the first successful carousel, use Codex native image generation when available without requiring an OpenAI API key, and render final PNGs with exact code-rendered text."
+description: "Use this skill whenever a user wants to create a Threads carousel, viral carousel, social media carousel, carousel images, swipe post, educational carousel, or saveable visual post from an idea, rough notes, Threadify draft, or existing copy. It must run a mandatory interrogation interview before generation, create or update a reusable local creator profile after the first successful carousel, use the correct Codex or Claude image-generation pathway, and render final PNGs with exact code-rendered text."
 ---
 
 # Viral Carousel Maker
@@ -11,9 +11,7 @@ You must also act as a relentless product architect before generation. Your firs
 
 After interrogation, you must run the Virality Engine. This is the stage where you convert the user's raw idea into a hook, belief shift, slide count, CTA pressure, and visual thesis that can survive a fast Threads feed.
 
-Default to the Codex-native pathway when running in Codex. Codex users do not need to set `OPENAI_API_KEY`; use native image generation for optional backgrounds, hero accents, and style assets when available. The Python renderer owns final text and layout so words stay exact and readable.
-
-In Claude Desktop or Claude Code, the intended image-generation workflow requires `OPENAI_API_KEY`. If the key is missing, pause before production image generation and show the API-key onboarding message in the "Claude API Key Gate" section.
+Use the platform adapter at the top of this skill to choose the correct image path. Codex users do not need `OPENAI_API_KEY` for the preferred workflow. Claude Desktop and Claude Code users need `OPENAI_API_KEY` for the intended OpenAI image-generation workflow, with a procedural draft fallback when the key is missing.
 
 ## Output Contract
 
@@ -40,25 +38,25 @@ Default canvas: `1080x1350` vertical. Use the same aspect ratio for every slide.
 ## Workflow
 
 1. Check for an existing local profile at `~/.viral-carousel-maker/profile.yaml`.
-2. Always run the mandatory interrogation gate in `references/interview.md` before the first carousel in a session. A saved profile can prefill answers, but it does not remove the obligation to ask clarifying questions for the current carousel.
-3. Use `request_user_input` whenever the host provides it. Ask question after question in focused batches. If `request_user_input` is unavailable, ask the same questions directly in chat and wait for answers.
-4. Do not draft, plan, select a template, generate images, or render until the gate has captured the minimum required answers and any thin answers have been challenged.
-5. Run the Virality Engine and Hook Lab:
+2. If the user provides pasted copy, markdown/text, or Threadify JSON, normalize it first with the Threadify draft intake workflow below. Treat extracted fields as provisional answers, not final truth.
+3. Always run the mandatory two-stage interrogation gate in `references/interview.md` before the first carousel in a session. A saved profile or draft intake can prefill answers, but it does not remove the obligation to ask current-carousel questions.
+4. Use `request_user_input` whenever the host provides it. Ask Stage A essentials first, then Stage B follow-ups only for missing, weak, or conflicting answers. If `request_user_input` is unavailable, ask the same questions directly in chat and wait for answers.
+5. Do not draft, plan, select a template, generate images, or render until the gate has captured the minimum required answers and any thin answers have been challenged.
+6. Run the Virality Engine and Hook Lab:
    - Apply `references/threads-virality-constitution.md`.
    - Generate at least 5 hooks with `references/hook-lab.md`.
    - Apply the public pattern bank and any local-only corpus summaries in `references/pattern-bank.md`.
    - Select the hook, belief shift, proof level, CTA pressure, carousel length, and `visual_thesis`.
    - If permissioned research is useful, apply `references/larry-growth-loop.md`.
-6. Select one template family from `references/template-families.md`. Auto-pick, but respect explicit user preference.
-7. Select a `design_pack`, `render_engine`, `render_quality`, and `visual_priority`. Default to `browser` + `high`; use `pillow` only as fallback.
-8. Draft the carousel copy and YAML spec, including `strategy`, `design_pack`, `render_engine`, `pattern_bank`, and per-slide `main_idea` wherever possible.
-9. Score the strategy and spec with `references/quality-rubric.md` and the CLI `viral-carousel score`. Revise until it passes the virality gate.
-10. Run the required AI critic gate in `references/ai-critic-gate.md`. Revise until critic verdict is `pass`.
-11. On the user's first successful carousel, create or update `~/.viral-carousel-maker/profile.yaml` using `references/profile-memory.md`. Use that profile to tailor future carousels.
+7. Select one template family from `references/template-families.md`. Auto-pick, but respect explicit user preference.
+8. Select a `design_pack`, `render_engine`, `render_quality`, and `visual_priority`. Default to `browser` + `high`; use `pillow` only as fallback.
+9. Draft the carousel copy and YAML spec, including `strategy`, `design_pack`, `render_engine`, `pattern_bank`, and per-slide `main_idea` wherever possible.
+10. Score the strategy and spec with `references/quality-rubric.md` and the CLI `viral-carousel score`. Revise until it passes the virality gate.
+11. Run the required AI critic gate in `references/ai-critic-gate.md`. Revise until critic verdict is `pass`.
 12. Show the approved spec summary before paid API calls or native image generation.
 13. In Codex, use native image generation only for optional visual assets if helpful; no API key is required.
 14. In Claude Desktop or Claude Code, check whether `OPENAI_API_KEY` is available before production image generation.
-15. If `OPENAI_API_KEY` is missing in Claude, stop and show the API-key onboarding message below.
+15. If `OPENAI_API_KEY` is missing in Claude, show the API-key onboarding message below and offer procedural draft rendering as the safe fallback.
 16. Render final PNGs with the browser renderer. Use Pillow fallback only if browser rendering is unavailable.
 17. Ensure every slide has an explicit visual component (icon/object/diagram), not text-only layout.
 18. For aggressive first-slide requests, enforce both copy and visual hook-stop scores at `8.5+` before final delivery.
@@ -66,7 +64,8 @@ Default canvas: `1080x1350` vertical. Use the same aspect ratio for every slide.
 20. Run technical QA against `manifest.json` and visual QA from `visual_qa.json`.
 21. Run the strict per-slide quality gate in `references/quality-rubric.md`. Every slide must pass before final delivery.
 22. If any slide fails, revise the spec/render and rerun QA. Do not mark the production pack finished until all slides pass.
-23. Return file paths plus the short QA result.
+23. After successful QA, create or update `~/.viral-carousel-maker/profile.yaml` using `references/profile-memory.md` or the CLI `--update-profile` flag. Use that profile to tailor future carousels.
+24. Return file paths plus the short QA result.
 
 ## Mandatory Interrogation Gate
 
@@ -115,6 +114,19 @@ Score a spec before rendering:
 
 ```bash
 PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli score path/to/spec.yaml
+```
+
+Normalize Threadify draft text, markdown, or JSON into an editable seed spec:
+
+```bash
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli intake examples/intake/threadify-draft.json --out output/threadify-seed.yaml
+```
+
+Check platform/API-key readiness:
+
+```bash
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli doctor --platform codex
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli doctor --platform claude-code
 ```
 
 Validate critic JSON if it was saved separately:
@@ -195,6 +207,12 @@ Repo guide: docs/claude-openai-api-key-setup.md
 
 If the user declines to provide a key, offer to draft the carousel spec, copy, caption, alt text, and procedural renderer output, but make clear that the intended Claude image-generation workflow needs `OPENAI_API_KEY`.
 
+Safe fallback message:
+
+```text
+I can still create a procedural draft pack without the API key. It will use the browser/Pillow renderer and bundled/procedural visuals, but it will not use OpenAI image generation for custom visual assets until OPENAI_API_KEY is available.
+```
+
 ## Claude / Local API Workflow
 
 If running in Claude Desktop, Claude Code, or another non-Codex environment, use the OpenAI Image API workflow documented in `references/claude-openai-api-key-setup.md`, `docs/openai-image-fallback.md`, and `docs/claude-openai-api-key-setup.md`.
@@ -217,7 +235,7 @@ Support two CTA types in v1:
 
 Offer CTA slides must include the short URL as visible text.
 
-Do not publish or schedule the post. For Threadify, generate Threadify-ready files and point users to `docs/threadify-staging.md`.
+Do not publish or schedule the post. For Threadify, generate Threadify-ready files and point users to `docs/threadify-staging.md` and `docs/threadify-draft-intake.md`.
 
 ## Profile Memory Rules
 
@@ -248,6 +266,7 @@ For future carousels, load the profile first, reuse stable preferences, and stil
 ## Reference Map
 
 - `references/interview.md`: adaptive onboarding questions
+- `references/threadify-draft-intake.md`: pasted text, markdown, and Threadify JSON intake
 - `references/threads-virality-constitution.md`: corpus-backed Threads rules
 - `references/hook-lab.md`: hook generation and scoring system
 - `references/ai-critic-gate.md`: required structured red-team critique
@@ -261,3 +280,15 @@ For future carousels, load the profile first, reuse stable preferences, and stil
 - `references/spec-authoring.md`: YAML spec rules and examples
 - `references/profile-memory.md`: first-run profile creation and reuse rules
 - `references/claude-openai-api-key-setup.md`: installed Claude API-key onboarding guide
+
+## V1 Boundaries
+
+Do not build or imply these in v1:
+
+- Direct Threads publishing.
+- Threadify auth/session automation.
+- Browser staging automation.
+- Background job scheduling or cloud dashboard.
+- Remote profile sync or account system.
+- Automatic platform metrics ingestion.
+- Guaranteed virality claims.

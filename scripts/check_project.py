@@ -25,6 +25,7 @@ def main() -> int:
         [sys.executable, "-m", "viral_carousel_maker.cli", "render", "examples/specs/threads-shock-stat.yaml", "--out-dir", "output/check", "--dry-run"],
         [sys.executable, "-m", "viral_carousel_maker.cli", "critic", "validate", "examples/critic-pass.json"],
         [sys.executable, "-m", "viral_carousel_maker.cli", "metrics", "report", "--days", "30", "--ledger", "output/check-metrics.jsonl"],
+        [sys.executable, "scripts/public_proof.py", "--check-gallery"],
     ]
     for command in commands:
         code = run(command)

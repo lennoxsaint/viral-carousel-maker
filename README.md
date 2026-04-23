@@ -1,10 +1,16 @@
 # Viral Carousel Maker
 
-Viral Carousel Maker is a public Claude Code + Codex skill for turning an idea, rough notes, or existing copy into a Threads-optimized carousel.
+Viral Carousel Maker is a public Claude Code + Codex skill for turning an idea, Threadify draft, rough notes, or existing copy into a Threads-optimized carousel.
 
 It is built for creators who want useful, saveable carousels that feel native to a social feed, not generic slide decks.
 
-The current version adds a Threads Virality Engine: hook lab, corpus-derived rules, AI critic gate, browser-rendered visual systems, quality gates, and a local performance loop.
+The current public v1 adds a Threads Virality Engine: staged interrogation, Threadify draft intake, hook lab, corpus-derived rules, AI critic gate, browser-rendered visual systems, quality gates, and a local performance loop.
+
+Start here:
+
+- [Public quickstart](docs/public-quickstart.md)
+- [Threadify draft intake](docs/threadify-draft-intake.md)
+- [Threadify manual staging](docs/threadify-staging.md)
 
 ## What it creates
 
@@ -112,6 +118,19 @@ Validate the output:
 PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli qa output/ai-framework/manifest.json
 ```
 
+Normalize a Threadify draft before generation:
+
+```bash
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli intake examples/intake/threadify-draft.json --out output/threadify-seed.yaml
+```
+
+Check platform readiness:
+
+```bash
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli doctor --platform codex
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli doctor --platform claude-code
+```
+
 Render the Claude and Codex skill copies:
 
 ```bash
@@ -129,7 +148,8 @@ bash scripts/install.sh
 When invoked, the skill:
 
 - Checks for a saved local style profile
-- Runs a mandatory interrogation interview before generation, even when a profile exists
+- Normalizes pasted copy, markdown/text files, or Threadify JSON when provided
+- Runs a mandatory two-stage interrogation interview before generation, even when a profile or intake draft exists
 - Uses `request_user_input` when the host provides it, or asks direct question batches when it does not
 - Runs a Hook Lab with at least 5 candidate hooks
 - Applies the Threads Virality Constitution before template selection
@@ -154,18 +174,20 @@ The skill is intentionally not a one-prompt generator. It asks several questions
 
 The production workflow is:
 
-1. Interrogate the idea and profile.
-2. Generate and score hook candidates.
-3. Select a corpus-backed virality principle.
-4. Choose template family, body-slide count, CTA pressure, design pack, and visual thesis.
-5. Draft the YAML spec.
-6. Run `viral-carousel score`.
-7. Run the AI critic gate and revise until it passes.
-8. Render with the browser renderer.
-9. Review `contact_sheet.png`, `visual_qa.json`, and `visual_qa_report.md`.
-10. Run QA.
-11. Publish manually.
-12. Paste metrics later with `viral-carousel metrics add`.
+1. Normalize draft intake if the user provides text, markdown, or Threadify JSON.
+2. Interrogate the idea and profile with Stage A essentials, then Stage B follow-ups.
+3. Generate and score hook candidates.
+4. Select a corpus-backed virality principle.
+5. Choose template family, body-slide count, CTA pressure, design pack, and visual thesis.
+6. Draft the YAML spec.
+7. Run `viral-carousel score`.
+8. Run the AI critic gate and revise until it passes.
+9. Render with the browser renderer.
+10. Review `contact_sheet.png`, `visual_qa.json`, and `visual_qa_report.md`.
+11. Run QA.
+12. Update local profile memory after successful QA when the user is using the skill workflow.
+13. Publish manually.
+14. Paste metrics later with `viral-carousel metrics add`.
 
 Score before rendering:
 
@@ -284,7 +306,21 @@ See [docs/gallery.md](docs/gallery.md) for curated example packs and contact she
 
 V1 does not publish or automate browser posting.
 
-The renderer produces Threadify-ready files and copy. See [docs/threadify-staging.md](docs/threadify-staging.md) for the optional manual staging workflow.
+The renderer produces Threadify-ready files and copy. Threadify-ready means posting-order PNGs, caption, alt text, manifest, QA report, visual QA, and contact sheet. It does not mean Threadify auth, browser staging, direct Threads publishing, or scheduling.
+
+See [docs/threadify-draft-intake.md](docs/threadify-draft-intake.md) for draft intake and [docs/threadify-staging.md](docs/threadify-staging.md) for the optional manual staging workflow.
+
+## V1 boundaries
+
+Do not expect these in public v1:
+
+- Direct Threads publishing
+- Threadify auth or session automation
+- Browser staging automation
+- Background jobs or a cloud dashboard
+- Remote profile sync or user accounts
+- Automatic platform metrics ingestion
+- Guaranteed virality claims
 
 ## Safety and proof
 

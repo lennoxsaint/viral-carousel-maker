@@ -1,0 +1,87 @@
+version: 1
+title: Your Threads posts do not need more tricks
+handle: '@lennox_saint'
+template_family: framework
+aspect_ratio: vertical
+design_pack: editorial-paper
+render_engine: browser
+render_quality: high
+strategy:
+  goal: saves
+  hook_archetype: private_room_observation
+  belief_shift: 'Old: the draft is information. New: the carousel needs one useful belief shift.'
+  proof_level: lived-experience
+  cta_pressure: soft
+  visual_priority: high
+  visual_thesis: One clear visual anchor per slide, with crisp editorial hierarchy.
+  virality_principles:
+  - observation-over-how-to
+  - one-idea-per-slide
+intake:
+  source_type: json
+  mapping: best-effort
+  warnings: []
+  extracted_fields:
+  - caption
+  - cta
+  - draft_text
+  - format
+  - handle
+  - title
+profile:
+  handle: '@lennox_saint'
+  visual_preferences:
+  - visual-first
+  - mobile-readable
+  - high contrast
+  style_anti_patterns:
+  - generic slide deck
+  - text-only slides
+caption: A useful carousel should give people a reason to save it.
+slides:
+- role: hook
+  title: Your Threads posts do not need more tricks
+  subtitle: The useful version needs one sharper job.
+  main_idea: Name the tension before teaching.
+  visual_mode: shock-stat
+  alt: Hook slide for Your Threads posts do not need more tricks.
+- role: body
+  title: Name the tension
+  body: Your Threads posts do not need more tricks Start with tension Weak posts announce a topic.
+  main_idea: Name the tension
+  visual_mode: myth-truth
+- role: body
+  title: Choose one job
+  body: Strong posts name the problem the reader already feels.
+  main_idea: Choose one job
+  visual_mode: contrast-table
+- role: body
+  title: Cut the extras
+  body: Make one useful point If a post tries to teach three things, none of them lands.
+  main_idea: Cut the extras
+  visual_mode: field-note
+- role: body
+  title: Prove the point
+  body: Earn the save Likes come from recognition.
+  main_idea: Prove the point
+  visual_mode: proof-grid
+- role: body
+  title: Give the next move
+  body: Saves come from future usefulness.
+  main_idea: Give the next move
+  visual_mode: photo-anchor
+- role: recap
+  title: TL;DR
+  bullets:
+  - Start with tension.
+  - Make each slide do one job.
+  - Give the reader a next move.
+  main_idea: Compress the useful takeaway.
+  visual_mode: field-note
+- role: cta
+  title: Follow
+  subtitle: For practical creator systems people actually save.
+  cta:
+    type: follow
+  main_idea: Earn a low-pressure next step.
+  visual_mode: photo-anchor

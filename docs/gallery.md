@@ -1,12 +1,14 @@
 # Gallery
 
-This gallery proves the v2 browser renderer can produce polished Threads-ready packs across niches and visual systems.
+This gallery proves the public v1 browser renderer can produce polished Threads-ready packs across niches and visual systems.
 
 Each example includes:
 
 - `hook.png`: first-slide proof of scroll-stop direction
 - `contact_sheet.png`: full carousel pacing check
-- `summary.json`: small metadata summary
+- `summary.json`: compact proof summary with slide count and QA status
+
+The source proof for each showcased pack also lives in `examples/generated/<pack>/` and includes `manifest.json` and `qa_report.md`.
 
 The gallery contains generated public demo assets only. It does not include private corpus posts, private performance logs, API keys, or raw user data.
 
@@ -39,4 +41,16 @@ Then inspect:
 output/gallery-check/contact_sheet.png
 output/gallery-check/visual_qa.json
 output/gallery-check/visual_qa_report.md
+```
+
+Validate committed gallery proof:
+
+```bash
+python scripts/public_proof.py --check-gallery
+```
+
+Regenerate full local showcase proof under `output/public-proof`:
+
+```bash
+PYTHONPATH=src python scripts/public_proof.py --run-showcase
 ```

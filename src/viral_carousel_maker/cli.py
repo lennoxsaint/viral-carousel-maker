@@ -4,14 +4,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 from .assets import generate_openai_asset, write_prompts_jsonl
 from .browser_renderer import BrowserCarouselRenderer
 from .corpus import import_private_corpus
 from .critic import load_critic, validate_critic_output
+from .intake import normalize_intake, write_seed_yaml
 from .performance import add_metrics, summarize_metrics
-from .profile import init_profile
+from .profile import init_profile, load_profile, update_profile_from_manifest
 from .qa import load_manifest, run_manifest_qa, write_qa_report
 from .renderer import CarouselRenderer
 from .spec import load_spec, validate_spec
@@ -20,6 +22,10 @@ from .virality import score_spec
 
 def render_command(args: argparse.Namespace) -> int:
     spec = load_spec(args.spec)
+    if args.use_profile or args.update_profile:
+        profile = load_profile(args.profile_path)
+        if profile and not isinstance(spec.get("profile"), dict):
+            spec["profile"] = profile
     warnings = validate_spec(spec)
     if args.dry_run:
         print(json.dumps({"status": "ok", "renderer": args.renderer, "warnings": warnings}, indent=2))
@@ -30,7 +36,21 @@ def render_command(args: argparse.Namespace) -> int:
         else BrowserCarouselRenderer(spec, args.out_dir)
     )
     manifest = renderer.render()
-    print(json.dumps({"manifest": str(Path(args.out_dir) / "manifest.json"), "slides": len(manifest["slides"])}, indent=2))
+    profile_path = None
+    if args.update_profile:
+        qa_ok, _messages = run_manifest_qa(manifest)
+        if qa_ok:
+            profile_path = update_profile_from_manifest(manifest, path=args.profile_path)
+    print(
+        json.dumps(
+            {
+                "manifest": str(Path(args.out_dir) / "manifest.json"),
+                "slides": len(manifest["slides"]),
+                "profile_updated": str(profile_path) if profile_path else None,
+            },
+            indent=2,
+        )
+    )
     return 0
 
 
@@ -108,6 +128,47 @@ def corpus_import_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def intake_command(args: argparse.Namespace) -> int:
+    result = normalize_intake(args.source, text=args.text, input_format=args.format)
+    if args.out:
+        path = write_seed_yaml(result, args.out)
+        print(json.dumps({"seed_spec": str(path), "warnings": result.warnings}, indent=2))
+    else:
+        print(json.dumps(result.to_dict(), indent=2, sort_keys=True))
+    return 0
+
+
+def doctor_command(args: argparse.Namespace) -> int:
+    platform = args.platform
+    key_set = bool(os.environ.get("OPENAI_API_KEY"))
+    if platform == "codex":
+        status = {
+            "platform": "codex",
+            "ok": True,
+            "api_key_required": False,
+            "message": "Codex preferred path is ready. OPENAI_API_KEY is not required.",
+        }
+    else:
+        status = {
+            "platform": platform,
+            "ok": key_set,
+            "api_key_required": True,
+            "openai_api_key_set": key_set,
+            "message": (
+                "OPENAI_API_KEY is set. Claude image-generation workflow can run."
+                if key_set
+                else "OPENAI_API_KEY is missing. Claude can still make procedural drafts, but the intended image workflow needs a key."
+            ),
+            "next_action": (
+                "Run the carousel workflow."
+                if key_set
+                else "Create a key at https://platform.openai.com/api-keys and expose it as OPENAI_API_KEY."
+            ),
+        }
+    print(json.dumps(status, indent=2, sort_keys=True))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="viral-carousel")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -122,7 +183,21 @@ def main(argv: list[str] | None = None) -> int:
         help="Renderer engine. Browser is the default production path; Pillow is the fallback.",
     )
     render.add_argument("--dry-run", action="store_true")
+    render.add_argument("--use-profile", action="store_true", help="Load local profile into the spec when the spec has no profile block.")
+    render.add_argument("--update-profile", action="store_true", help="After successful QA, merge stable render metadata into the local profile.")
+    render.add_argument("--profile-path", help="Override the local profile path.")
     render.set_defaults(func=render_command)
+
+    intake = subparsers.add_parser("intake", help="Normalize pasted text, markdown, or Threadify JSON into a seed spec.")
+    intake.add_argument("source", nargs="?", help="Local path or raw source string.")
+    intake.add_argument("--text", help="Pasted draft text. Use this instead of a source path.")
+    intake.add_argument("--format", choices=["auto", "text", "markdown", "json"], default="auto")
+    intake.add_argument("--out", help="Write the normalized seed spec YAML to this path.")
+    intake.set_defaults(func=intake_command)
+
+    doctor = subparsers.add_parser("doctor", help="Check platform readiness and API-key behavior.")
+    doctor.add_argument("--platform", choices=["codex", "claude", "claude-code", "claude-desktop"], default="codex")
+    doctor.set_defaults(func=doctor_command)
 
     prompts = subparsers.add_parser("prompts", help="Write visual prompts JSONL.")
     prompts.add_argument("spec")

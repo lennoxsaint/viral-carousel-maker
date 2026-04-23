@@ -14,6 +14,12 @@ def test_sample_spec_validates():
     assert isinstance(warnings, list)
 
 
+def test_threadify_intake_seed_spec_validates():
+    spec = load_spec(ROOT / "examples" / "specs" / "threadify-intake-seed.yaml")
+    warnings = validate_spec(spec)
+    assert isinstance(warnings, list)
+
+
 def test_body_count_gate():
     spec = load_spec(ROOT / "examples" / "specs" / "ai-framework.yaml")
     spec["slides"] = [slide for slide in spec["slides"] if slide.get("role") != "body"][:]
