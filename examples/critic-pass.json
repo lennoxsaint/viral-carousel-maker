@@ -1,0 +1,18 @@
+{
+  "verdict": "pass",
+  "scores": {
+    "hook_strength": 9,
+    "belief_shift": 9,
+    "specificity": 8.5,
+    "proof_integrity": 9,
+    "cta_fit": 8,
+    "visual_thesis": 9,
+    "slide_density": 8.5,
+    "saveability": 9,
+    "shareability": 8.5
+  },
+  "blockers": [],
+  "revision_notes": [
+    "Hook is concise and contradiction-led."
+  ]
+}

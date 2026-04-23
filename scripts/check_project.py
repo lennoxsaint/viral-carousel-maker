@@ -23,6 +23,7 @@ def main() -> int:
         [sys.executable, "scripts/render_skills.py", "--check"],
         [sys.executable, "-m", "viral_carousel_maker.cli", "score", "examples/specs/threads-shock-stat.yaml"],
         [sys.executable, "-m", "viral_carousel_maker.cli", "render", "examples/specs/threads-shock-stat.yaml", "--out-dir", "output/check", "--dry-run"],
+        [sys.executable, "-m", "viral_carousel_maker.cli", "critic", "validate", "examples/critic-pass.json"],
         [sys.executable, "-m", "viral_carousel_maker.cli", "metrics", "report", "--days", "30", "--ledger", "output/check-metrics.jsonl"],
     ]
     for command in commands:

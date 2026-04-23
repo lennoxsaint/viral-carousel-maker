@@ -7,6 +7,9 @@ import json
 from pathlib import Path
 
 from .assets import generate_openai_asset, write_prompts_jsonl
+from .browser_renderer import BrowserCarouselRenderer
+from .corpus import import_private_corpus
+from .critic import load_critic, validate_critic_output
 from .performance import add_metrics, summarize_metrics
 from .profile import init_profile
 from .qa import load_manifest, run_manifest_qa, write_qa_report
@@ -19,9 +22,14 @@ def render_command(args: argparse.Namespace) -> int:
     spec = load_spec(args.spec)
     warnings = validate_spec(spec)
     if args.dry_run:
-        print(json.dumps({"status": "ok", "warnings": warnings}, indent=2))
+        print(json.dumps({"status": "ok", "renderer": args.renderer, "warnings": warnings}, indent=2))
         return 0
-    manifest = CarouselRenderer(spec, args.out_dir).render()
+    renderer = (
+        CarouselRenderer(spec, args.out_dir)
+        if args.renderer == "pillow"
+        else BrowserCarouselRenderer(spec, args.out_dir)
+    )
+    manifest = renderer.render()
     print(json.dumps({"manifest": str(Path(args.out_dir) / "manifest.json"), "slides": len(manifest["slides"])}, indent=2))
     return 0
 
@@ -87,6 +95,19 @@ def metrics_report_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def critic_validate_command(args: argparse.Namespace) -> int:
+    critic = load_critic(args.critic_json)
+    ok, errors = validate_critic_output(critic)
+    print(json.dumps({"ok": ok, "errors": errors}, indent=2, sort_keys=True))
+    return 0 if ok else 1
+
+
+def corpus_import_command(args: argparse.Namespace) -> int:
+    summary = import_private_corpus(args.source, local_only=args.local_only)
+    print(json.dumps(summary, indent=2, sort_keys=True))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="viral-carousel")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -94,6 +115,12 @@ def main(argv: list[str] | None = None) -> int:
     render = subparsers.add_parser("render", help="Render a carousel spec to PNGs.")
     render.add_argument("spec")
     render.add_argument("--out-dir", required=True)
+    render.add_argument(
+        "--renderer",
+        choices=["browser", "pillow"],
+        default="browser",
+        help="Renderer engine. Browser is the default production path; Pillow is the fallback.",
+    )
     render.add_argument("--dry-run", action="store_true")
     render.set_defaults(func=render_command)
 
@@ -145,6 +172,19 @@ def main(argv: list[str] | None = None) -> int:
     metrics_report.add_argument("--days", type=int, default=30)
     metrics_report.add_argument("--ledger")
     metrics_report.set_defaults(func=metrics_report_command)
+
+    critic = subparsers.add_parser("critic", help="Validate structured AI critic output.")
+    critic_sub = critic.add_subparsers(dest="critic_command", required=True)
+    critic_validate = critic_sub.add_parser("validate", help="Validate an AI critic JSON file.")
+    critic_validate.add_argument("critic_json")
+    critic_validate.set_defaults(func=critic_validate_command)
+
+    corpus = subparsers.add_parser("corpus", help="Manage local-only private corpus summaries.")
+    corpus_sub = corpus.add_subparsers(dest="corpus_command", required=True)
+    corpus_import = corpus_sub.add_parser("import", help="Import a private corpus as a local summary.")
+    corpus_import.add_argument("source")
+    corpus_import.add_argument("--local-only", action="store_true", required=True)
+    corpus_import.set_defaults(func=corpus_import_command)
 
     args = parser.parse_args(argv)
     return args.func(args)

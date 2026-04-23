@@ -29,6 +29,9 @@ Produce a full production pack:
 - `profile_snapshot.yaml`
 - `manifest.json`
 - `qa_report.md`
+- `visual_qa.json`
+- `visual_qa_report.md`
+- `contact_sheet.png`
 
 All slides must include the user's Threads handle in the bottom-left corner.
 
@@ -43,22 +46,25 @@ Default canvas: `1080x1350` vertical. Use the same aspect ratio for every slide.
 5. Run the Virality Engine and Hook Lab:
    - Apply `references/threads-virality-constitution.md`.
    - Generate at least 5 hooks with `references/hook-lab.md`.
+   - Apply the public pattern bank and any local-only corpus summaries in `references/pattern-bank.md`.
    - Select the hook, belief shift, proof level, CTA pressure, carousel length, and `visual_thesis`.
    - If permissioned research is useful, apply `references/larry-growth-loop.md`.
 6. Select one template family from `references/template-families.md`. Auto-pick, but respect explicit user preference.
-7. Draft the carousel copy and YAML spec, including `strategy` fields and per-slide `main_idea` wherever possible.
-8. Score the strategy and spec with `references/quality-rubric.md` and the CLI `viral-carousel score`. Revise until it passes the virality gate.
-9. On the user's first successful carousel, create or update `~/.viral-carousel-maker/profile.yaml` using `references/profile-memory.md`. Use that profile to tailor future carousels.
-10. Show the approved spec summary before paid API calls or native image generation.
-11. In Codex, use native image generation only for optional visual assets if helpful; no API key is required.
-12. In Claude Desktop or Claude Code, check whether `OPENAI_API_KEY` is available before production image generation.
-13. If `OPENAI_API_KEY` is missing in Claude, stop and show the API-key onboarding message below.
-14. Render final PNGs with the Python renderer.
-15. Review `contact_sheet.png` for pacing, hierarchy, and mobile crop safety.
-16. Run technical QA against `manifest.json`.
-17. Run the strict per-slide quality gate in `references/quality-rubric.md`. Every slide must pass before final delivery.
-18. If any slide fails, revise the spec/render and rerun QA. Do not mark the production pack finished until all slides pass.
-19. Return file paths plus the short QA result.
+7. Select a `design_pack` and final `render_engine`. Default to `browser`; use `pillow` only as fallback.
+8. Draft the carousel copy and YAML spec, including `strategy`, `design_pack`, `render_engine`, `pattern_bank`, and per-slide `main_idea` wherever possible.
+9. Score the strategy and spec with `references/quality-rubric.md` and the CLI `viral-carousel score`. Revise until it passes the virality gate.
+10. Run the required AI critic gate in `references/ai-critic-gate.md`. Revise until critic verdict is `pass`.
+11. On the user's first successful carousel, create or update `~/.viral-carousel-maker/profile.yaml` using `references/profile-memory.md`. Use that profile to tailor future carousels.
+12. Show the approved spec summary before paid API calls or native image generation.
+13. In Codex, use native image generation only for optional visual assets if helpful; no API key is required.
+14. In Claude Desktop or Claude Code, check whether `OPENAI_API_KEY` is available before production image generation.
+15. If `OPENAI_API_KEY` is missing in Claude, stop and show the API-key onboarding message below.
+16. Render final PNGs with the browser renderer. Use Pillow fallback only if browser rendering is unavailable.
+17. Review `contact_sheet.png` for pacing, hierarchy, and mobile crop safety.
+18. Run technical QA against `manifest.json` and visual QA from `visual_qa.json`.
+19. Run the strict per-slide quality gate in `references/quality-rubric.md`. Every slide must pass before final delivery.
+20. If any slide fails, revise the spec/render and rerun QA. Do not mark the production pack finished until all slides pass.
+21. Return file paths plus the short QA result.
 
 ## Mandatory Interrogation Gate
 
@@ -88,31 +94,49 @@ Render a spec:
 
 ```bash
 cd /Users/lennoxsaint/viral-carousel-maker
-PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema python -m viral_carousel_maker.cli render path/to/spec.yaml --out-dir output/run-name
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli render path/to/spec.yaml --out-dir output/run-name
+```
+
+The default renderer is browser/Playwright. Use the fallback only when needed:
+
+```bash
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli render path/to/spec.yaml --out-dir output/run-name --renderer pillow
 ```
 
 Run QA:
 
 ```bash
-PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema python -m viral_carousel_maker.cli qa output/run-name/manifest.json
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli qa output/run-name/manifest.json
 ```
 
 Score a spec before rendering:
 
 ```bash
-PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema python -m viral_carousel_maker.cli score path/to/spec.yaml
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli score path/to/spec.yaml
+```
+
+Validate critic JSON if it was saved separately:
+
+```bash
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli critic validate critic.json
 ```
 
 Record manual performance after publishing:
 
 ```bash
-PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema python -m viral_carousel_maker.cli metrics add output/run-name/manifest.json --views 12000 --likes 300 --replies 40 --reposts 18 --saves 90 --clicks 12
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli metrics add output/run-name/manifest.json --views 12000 --likes 300 --replies 40 --reposts 18 --saves 90 --clicks 12
 ```
 
 Write visual prompts without rendering:
 
 ```bash
-PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema python -m viral_carousel_maker.cli prompts path/to/spec.yaml --out output/run-name/prompts.jsonl
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli prompts path/to/spec.yaml --out output/run-name/prompts.jsonl
+```
+
+Import a private local corpus summary:
+
+```bash
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli corpus import /path/to/posts --local-only
 ```
 
 ## Codex Native Image Pathway
@@ -224,6 +248,8 @@ For future carousels, load the profile first, reuse stable preferences, and stil
 - `references/interview.md`: adaptive onboarding questions
 - `references/threads-virality-constitution.md`: corpus-backed Threads rules
 - `references/hook-lab.md`: hook generation and scoring system
+- `references/ai-critic-gate.md`: required structured red-team critique
+- `references/pattern-bank.md`: public pattern bank and local private corpus summaries
 - `references/larry-growth-loop.md`: research and learning-loop adaptation
 - `references/visual-art-direction.md`: visual thesis, modes, and contact-sheet QA
 - `references/performance-loop.md`: manual metrics ledger and diagnosis rules

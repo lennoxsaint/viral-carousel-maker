@@ -20,11 +20,16 @@ DEFAULT_PROFILE = {
     "cta_default": "follow",
     "visual_preferences": ["clean", "high contrast", "mobile-first"],
     "winning_hook_categories": [],
+    "weak_hook_categories": [],
     "visual_anchors": [],
+    "best_visual_packs": [],
     "style_anti_patterns": [],
     "performance_summary": {
         "top_hooks": [],
+        "weak_hooks": [],
         "best_cta_pressure": "soft",
+        "best_body_slide_count": 5,
+        "topics_that_earned_saves": [],
         "last_reviewed_at": None,
     },
 }

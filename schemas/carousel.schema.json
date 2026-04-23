@@ -16,12 +16,52 @@
       "type": "string",
       "enum": ["vertical", "square", "wide"]
     },
+    "design_pack": {
+      "type": "string",
+      "enum": [
+        "editorial-paper",
+        "brutal-proof",
+        "quiet-luxury",
+        "founder-field-notes",
+        "photo-anchor",
+        "data-lab",
+        "myth-truth",
+        "template-marketplace"
+      ]
+    },
+    "render_engine": {
+      "type": "string",
+      "enum": ["browser", "pillow"]
+    },
+    "visual_qa": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "critic": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "pattern_bank": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "learning": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "theme": {
       "type": "object",
       "properties": {
         "palette": {
           "type": "object",
           "additionalProperties": { "type": "string" }
+        },
+        "design_pack": {
+          "type": "string"
+        },
+        "design_tokens": {
+          "type": "object",
+          "additionalProperties": true
         }
       },
       "additionalProperties": true
@@ -39,6 +79,7 @@
         "proof_level": { "type": "string", "enum": ["none", "lived-experience", "example", "data", "receipt"] },
         "cta_pressure": { "type": "string", "enum": ["none", "soft", "medium", "hard"] },
         "visual_thesis": { "type": "string" },
+        "design_pack": { "type": "string" },
         "virality_principles": {
           "type": "array",
           "items": { "type": "string" }

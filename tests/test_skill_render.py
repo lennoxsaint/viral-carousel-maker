@@ -41,11 +41,16 @@ def test_skill_render_script_creates_dist():
     assert "per-slide quality gate" in claude_text
     assert "Virality Engine" in claude_text
     assert "Hook Lab" in claude_text
+    assert "AI critic gate" in claude_text
+    assert "browser renderer" in claude_text
+    assert "visual_qa.json" in claude_text
     assert "contact_sheet.png" in claude_text
     assert "Mandatory Interrogation Gate" in codex_text
     assert "request_user_input" in codex_text
     assert "profile.yaml" in codex_text
     assert "Virality Engine" in codex_text
+    assert "AI critic gate" in codex_text
+    assert "browser renderer" in codex_text
 
 
 def test_skill_reference_docs_include_interview_profile_and_quality_gates():
@@ -56,6 +61,8 @@ def test_skill_reference_docs_include_interview_profile_and_quality_gates():
     constitution = (source_root / "threads-virality-constitution.md").read_text(encoding="utf-8")
     hooks = (source_root / "hook-lab.md").read_text(encoding="utf-8")
     performance = (source_root / "performance-loop.md").read_text(encoding="utf-8")
+    critic = (source_root / "ai-critic-gate.md").read_text(encoding="utf-8")
+    pattern_bank = (source_root / "pattern-bank.md").read_text(encoding="utf-8")
 
     assert "This gate is mandatory before carousel generation." in interview
     assert "Use `request_user_input` whenever the host provides it." in interview
@@ -67,3 +74,7 @@ def test_skill_reference_docs_include_interview_profile_and_quality_gates():
     assert "No how-to hooks by default" in constitution
     assert "Generate at least 5 hook candidates" in hooks
     assert "viral-carousel metrics add" in performance
+    assert "The AI critic gate is required" in critic
+    assert "viral-carousel critic validate" in critic
+    assert "viral-carousel corpus import" in pattern_bank
+    assert "raw posts" in pattern_bank

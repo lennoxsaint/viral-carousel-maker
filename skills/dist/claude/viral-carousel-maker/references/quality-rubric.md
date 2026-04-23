@@ -37,7 +37,25 @@ Common revisions:
 - Make the CTA softer if the carousel has not earned a hard ask.
 - Remove words that feel like generic AI advice.
 
-## Gate 2: Per-slide finished image quality
+## Gate 2: AI critic red-team
+
+Run the AI critic gate in `ai-critic-gate.md` after the spec draft and before final rendering.
+
+The critic must pass:
+
+- Hook strength
+- Belief shift
+- Specificity
+- Proof integrity
+- CTA fit
+- Visual thesis
+- Slide density
+- Saveability
+- Shareability
+
+If the critic returns `revise` or `fail`, revise and rerun. Do not render the final pack while critic blockers remain.
+
+## Gate 3: Per-slide finished image quality
 
 Run this after rendering every slide. Every slide must pass before final delivery.
 
@@ -51,6 +69,7 @@ Hard blockers:
 - Hook uses fake urgency, generic trigger words, or unsupported transformation bait.
 - Selected hook does not create a clear old-belief-to-new-belief shift.
 - Text is clipped, too small, crowded, or visually unclear.
+- Browser visual QA fails contrast, crop safety, handle placement, dimensions, or text fit.
 - Hook or body copy is overlong for mobile feed speed.
 - CTA slide does not match the selected CTA type.
 - Offer CTA is missing the visible short URL.
@@ -95,6 +114,12 @@ Before final rendering, run:
 viral-carousel score path/to/spec.yaml
 ```
 
+If critic output is saved separately:
+
+```bash
+viral-carousel critic validate critic.json
+```
+
 After rendering, run:
 
 ```bash
@@ -102,6 +127,7 @@ viral-carousel qa output/run-name/manifest.json
 ```
 
 The manifest must include `virality`, `strategy`, `visual_thesis`, `design.contact_sheet`, and per-slide `visual_mode` metadata.
+It should also include `critic`, `pattern_bank`, `visual_qa`, and `design.design_pack` metadata.
 
 ## Final QA statement
 

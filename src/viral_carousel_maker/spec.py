@@ -8,7 +8,8 @@ from typing import Any
 
 import yaml
 
-from .models import ASPECT_RATIOS, SLIDE_ROLES, TEMPLATE_FAMILIES, VISUAL_MODES
+from .critic import validate_critic_output
+from .models import ASPECT_RATIOS, DESIGN_PACKS, SLIDE_ROLES, TEMPLATE_FAMILIES, VISUAL_MODES
 from .virality import audit_spec
 
 
@@ -61,6 +62,22 @@ def validate_spec(spec: dict[str, Any]) -> list[str]:
     template_family = str(spec["template_family"])
     if template_family not in TEMPLATE_FAMILIES:
         raise SpecError(f"Unsupported template_family '{template_family}'.")
+
+    design_pack = spec.get("design_pack")
+    if design_pack and str(design_pack) not in DESIGN_PACKS:
+        raise SpecError(f"Unsupported design_pack '{design_pack}'.")
+
+    render_engine = spec.get("render_engine")
+    if render_engine and str(render_engine) not in {"browser", "pillow"}:
+        raise SpecError("render_engine must be browser or pillow.")
+
+    critic = spec.get("critic")
+    if isinstance(critic, dict):
+        critic_ok, critic_errors = validate_critic_output(critic)
+        if not critic_ok:
+            warnings.extend(f"Critic gate: {error}" for error in critic_errors)
+    elif critic is not None:
+        raise SpecError("critic must be an object when provided.")
 
     strategy = spec.get("strategy", {})
     if strategy is not None and not isinstance(strategy, dict):

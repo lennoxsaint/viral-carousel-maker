@@ -39,9 +39,18 @@ def test_strategy_fields_and_visual_modes_validate():
         "visual_thesis": "Editorial paper with one orange system accent.",
         "virality_principles": ["observation-over-how-to"],
     }
+    spec["design_pack"] = "editorial-paper"
+    spec["render_engine"] = "browser"
     spec["slides"][0]["visual_mode"] = "shock-stat"
     warnings = validate_spec(spec)
     assert isinstance(warnings, list)
+
+
+def test_unknown_design_pack_fails():
+    spec = load_spec(ROOT / "examples" / "specs" / "ai-framework.yaml")
+    spec["design_pack"] = "glitter"
+    with pytest.raises(SpecError, match="design_pack"):
+        validate_spec(spec)
 
 
 def test_unknown_visual_mode_fails():

@@ -12,8 +12,11 @@ import yaml
 from PIL import Image, ImageDraw
 
 from .assets import paper_texture, write_prompts_jsonl
-from .models import DEFAULT_DESIGN_TOKENS, deep_merge_palette, dimensions_for
-from .qa import write_qa_report
+from .critic import normalize_critic_output
+from .design import resolve_design_pack, resolve_design_tokens, resolve_palette
+from .models import dimensions_for
+from .pattern_bank import select_pattern_bundle
+from .qa import build_visual_qa, write_qa_report, write_visual_qa_files
 from .spec import normalized_handle, validate_spec
 from .text import draw_multiline, fit_font, load_font, text_size, wrap_text
 from .virality import score_spec
@@ -24,12 +27,10 @@ class CarouselRenderer:
         self.spec = spec
         self.out_dir = Path(out_dir)
         self.dimensions = dimensions_for(str(spec.get("aspect_ratio", "vertical")))
-        self.palette = deep_merge_palette(spec.get("theme", {}).get("palette"))
         self.strategy = spec.get("strategy", {}) if isinstance(spec.get("strategy"), dict) else {}
-        self.design_tokens = {
-            **DEFAULT_DESIGN_TOKENS,
-            **(spec.get("theme", {}).get("design_tokens") or {}),
-        }
+        self.design_pack = resolve_design_pack(spec)
+        self.palette = resolve_palette(spec, self.design_pack)
+        self.design_tokens = resolve_design_tokens(spec, self.design_pack)
         self.handle = normalized_handle(str(spec["handle"]))
         self.warnings = validate_spec(spec)
         self.slide_dir = self.out_dir / "slides"
@@ -64,8 +65,14 @@ class CarouselRenderer:
             "template_family": self.spec["template_family"],
             "strategy": self.strategy,
             "visual_thesis": self.strategy.get("visual_thesis", ""),
+            "critic": normalize_critic_output(self.spec.get("critic")),
+            "pattern_bank": self.spec.get("pattern_bank") or select_pattern_bundle(self.spec),
+            "learning": self.spec.get("learning", {}),
             "virality": virality,
             "design": {
+                "render_engine": "pillow",
+                "design_pack": self.design_pack,
+                "palette": self.palette,
                 "tokens": self.design_tokens,
                 "visual_modes": sorted(
                     {
@@ -79,8 +86,10 @@ class CarouselRenderer:
             "slides": slides_meta,
             "prompts": str(prompts_path),
         }
+        manifest["visual_qa"] = build_visual_qa(manifest)
         manifest_path = self.out_dir / "manifest.json"
         manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+        write_visual_qa_files(manifest, self.out_dir)
         self._write_supporting_files(manifest)
         write_qa_report(manifest, self.out_dir / "qa_report.md")
         return manifest

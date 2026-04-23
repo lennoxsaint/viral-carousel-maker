@@ -1,5 +1,9 @@
 import pytest
 
+import viral_carousel_maker.corpus as corpus
+from viral_carousel_maker.corpus import import_private_corpus, summarize_corpus_texts
+from viral_carousel_maker.critic import validate_critic_output
+from viral_carousel_maker.pattern_bank import select_pattern_bundle
 from viral_carousel_maker.spec import SpecError, validate_spec
 from viral_carousel_maker.virality import (
     detect_weak_hook_opener,
@@ -59,3 +63,58 @@ def test_soft_cta_detects_high_pressure_offer():
         {"title": "Buy the kit"},
     )
     assert pressure >= 6
+
+
+def test_ai_critic_output_validation():
+    critic = {
+        "verdict": "pass",
+        "scores": {
+            "hook_strength": 9,
+            "belief_shift": 9,
+            "specificity": 8.5,
+            "proof_integrity": 9,
+            "cta_fit": 8,
+            "visual_thesis": 9,
+            "slide_density": 8.5,
+            "saveability": 9,
+            "shareability": 8.5,
+        },
+        "blockers": [],
+    }
+    ok, errors = validate_critic_output(critic)
+    assert ok, errors
+
+
+def test_pattern_bank_selects_goal_appropriate_bundle():
+    spec = base_spec()
+    spec["strategy"] = {"goal": "authority", "hook_archetype": "proof_receipt"}
+    bundle = select_pattern_bundle(spec)
+    assert bundle["selected_hook_archetype"] == "proof_receipt"
+    assert bundle["source_policy"] == "derived-principles-only"
+
+
+def test_private_corpus_summary_does_not_store_raw_posts():
+    summary = summarize_corpus_texts(
+        [
+            "Threads growth is a lie\n\nThe real signal is saves.",
+            "You are not bad at writing\n\nYour hook is too polite.",
+        ]
+    )
+    assert summary["post_count"] == 2
+    assert summary["raw_posts_stored"] is False
+    assert "Threads growth is a lie" not in str(summary)
+
+
+def test_private_corpus_import_writes_local_summary_only(tmp_path, monkeypatch):
+    source = tmp_path / "posts"
+    source.mkdir()
+    (source / "posts.md").write_text(
+        "Threads growth is a lie\n\nYou are not bad at hooks",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(corpus, "CORPUS_DIR", tmp_path / "local-corpus")
+    summary = import_private_corpus(source, local_only=True)
+    summary_path = tmp_path / "local-corpus" / "posts-summary.json"
+    assert summary["raw_posts_stored"] is False
+    assert summary_path.exists()
+    assert "Threads growth is a lie" not in summary_path.read_text(encoding="utf-8")

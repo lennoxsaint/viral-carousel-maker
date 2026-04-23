@@ -2,6 +2,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
+from viral_carousel_maker.browser_renderer import BrowserCarouselRenderer
 from viral_carousel_maker.qa import run_manifest_qa
 from viral_carousel_maker.renderer import CarouselRenderer
 from viral_carousel_maker.spec import load_spec
@@ -26,6 +27,8 @@ def test_renderer_writes_pack(tmp_path):
     first_slide = Path(manifest["slides"][0]["path"])
     with Image.open(first_slide) as image:
         assert image.size == (1080, 1350)
+    assert (tmp_path / "out" / "visual_qa.json").exists()
+    assert (tmp_path / "out" / "visual_qa_report.md").exists()
 
 
 def test_renderer_honors_custom_paper_palette(tmp_path):
@@ -73,3 +76,21 @@ def test_renderer_records_visual_mode_metadata(tmp_path):
     manifest = CarouselRenderer(spec, tmp_path / "out").render()
     assert manifest["slides"][0]["visual_mode"] == "shock-stat"
     assert "shock-stat" in manifest["design"]["visual_modes"]
+
+
+def test_browser_renderer_writes_pack(tmp_path):
+    spec = load_spec(ROOT / "examples" / "specs" / "threads-shock-stat.yaml")
+    spec["design_pack"] = "brutal-proof"
+    spec.pop("theme", None)
+    manifest = BrowserCarouselRenderer(spec, tmp_path / "browser").render()
+    assert manifest["render_engine"] == "browser"
+    assert manifest["design_pack"] == "brutal-proof"
+    assert manifest["visual_qa"]["status"] == "pass"
+    assert (tmp_path / "browser" / "visual_qa.json").exists()
+    assert (tmp_path / "browser" / "visual_qa_report.md").exists()
+    assert (tmp_path / "browser" / "assets" / "html" / "01-hook.html").exists()
+    ok, messages = run_manifest_qa(manifest)
+    assert ok, messages
+    first_slide = Path(manifest["slides"][0]["path"])
+    with Image.open(first_slide) as image:
+        assert image.size == (1080, 1350)

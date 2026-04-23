@@ -13,8 +13,11 @@ After the user posts manually, capture:
 - Saves
 - Clicks
 - Conversions, if known
+- Publish time
 - Hook category
+- Visual pack
 - CTA type and pressure
+- Body-slide count
 - Notes about comments or audience reaction
 
 ## CLI commands
@@ -30,6 +33,15 @@ Report recent performance:
 ```bash
 viral-carousel metrics report --days 30
 ```
+
+The report returns a `learning_summary` with:
+
+- Winning hooks
+- Weak hooks
+- Best visual packs
+- Best CTA pressure
+- Best body-slide count
+- Topics that earned saves
 
 The local ledger lives under:
 

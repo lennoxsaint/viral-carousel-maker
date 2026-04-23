@@ -20,6 +20,22 @@ Textured white editorial paper, sharp navy/orange hierarchy, one proof-stat obje
 - Avoid decorative visuals that do not teach, prove, or create tension.
 - Keep final readable text code-rendered, never baked into generated images.
 - Keep visual assets text-free unless they are deliberately non-final background elements.
+- Default to the browser renderer for final production. Use Pillow only as a fallback.
+- Choose a named `design_pack` before rendering so the carousel has a coherent visual system.
+- Generate image assets only when they carry meaning: proof, contrast, scene, object, texture, or emotional setting.
+
+## Design packs
+
+Use `design_pack` at the spec root:
+
+- `editorial-paper`: textured paper, big hierarchy, navy/orange creator-education energy.
+- `brutal-proof`: black/white/red, stark receipts, confrontational proof-first posts.
+- `quiet-luxury`: refined minimalism for premium, advisory, finance, or high-trust topics.
+- `founder-field-notes`: notebook/research energy for founder lessons and build-in-public insights.
+- `photo-anchor`: image-led layouts where a visual object or scene carries the narrative.
+- `data-lab`: grids, proof, numbers, and technical clarity.
+- `myth-truth`: visual contrast between false belief and useful replacement.
+- `template-marketplace`: clear modular layouts for reusable systems, checklists, and templates.
 
 ## Visual modes
 
@@ -38,7 +54,7 @@ Use `visual_mode` per slide when helpful:
 
 ## Contact-sheet QA
 
-The renderer writes `contact_sheet.png`. Review it before final delivery:
+The renderer writes `contact_sheet.png`, `visual_qa.json`, and `visual_qa_report.md`. Review them before final delivery:
 
 - Does slide 1 stop the eye immediately?
 - Does the sequence alternate tension and payoff?
@@ -47,5 +63,6 @@ The renderer writes `contact_sheet.png`. Review it before final delivery:
 - Are any slides visually redundant?
 - Is the bottom-left handle visible on every slide?
 - Would the carousel still make sense on a phone crop?
+- Did machine QA pass text fit, contrast, crop safety, handle placement, dimensions, and slide count?
 
 If the contact sheet looks flat, fix the visual thesis or mode mix before regenerating.

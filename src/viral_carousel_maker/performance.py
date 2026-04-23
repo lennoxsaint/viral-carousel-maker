@@ -30,8 +30,11 @@ def add_metrics(
         "title": manifest.get("title", ""),
         "handle": manifest.get("handle", ""),
         "template_family": manifest.get("template_family", ""),
+        "design_pack": _design_pack_from_manifest(manifest, safe_metrics),
+        "visual_modes": (manifest.get("design") or {}).get("visual_modes", []),
         "hook": _hook_from_manifest(manifest),
         "strategy": _safe_strategy(manifest.get("strategy", {})),
+        "body_slide_count": _body_slide_count(manifest, safe_metrics),
         "virality_score": (manifest.get("virality") or {}).get("score"),
         **safe_metrics,
     }
@@ -57,6 +60,7 @@ def summarize_metrics(days: int = 30, ledger_path: str | Path | None = None) -> 
     hook_categories = Counter(
         str((record.get("strategy") or {}).get("hook_archetype") or "unknown") for record in recent
     )
+    visual_packs = Counter(str(record.get("design_pack") or "unknown") for record in recent)
     diagnoses = Counter(str(record.get("diagnosis") or "unknown") for record in recent)
     return {
         "days": days,
@@ -64,7 +68,51 @@ def summarize_metrics(days: int = 30, ledger_path: str | Path | None = None) -> 
         "records": len(recent),
         "totals": totals,
         "top_hook_categories": hook_categories.most_common(5),
+        "top_visual_packs": visual_packs.most_common(5),
+        "learning_summary": build_learning_summary(recent),
         "diagnoses": diagnoses.most_common(),
+    }
+
+
+def build_learning_summary(records: list[dict[str, Any]]) -> dict[str, Any]:
+    if not records:
+        return {
+            "winning_hooks": [],
+            "weak_hooks": [],
+            "best_visual_packs": [],
+            "best_cta_pressure": "unknown",
+            "best_body_slide_count": "unknown",
+            "topics_that_earned_saves": [],
+        }
+    ranked = sorted(records, key=lambda record: _save_rate(record), reverse=True)
+    weak = sorted(records, key=lambda record: int(record.get("views", 0)), reverse=True)
+    weak = [record for record in weak if _save_rate(record) < 0.002]
+    cta = Counter(str((record.get("strategy") or {}).get("cta_pressure") or record.get("cta_pressure") or "unknown") for record in ranked[:10])
+    body_counts = Counter(str(record.get("body_slide_count") or "unknown") for record in ranked[:10])
+    visual_packs = Counter(str(record.get("design_pack") or "unknown") for record in ranked[:10])
+    return {
+        "winning_hooks": [
+            {
+                "hook": record.get("hook", ""),
+                "category": (record.get("strategy") or {}).get("hook_archetype", "unknown"),
+                "save_rate": round(_save_rate(record), 4),
+            }
+            for record in ranked[:5]
+        ],
+        "weak_hooks": [
+            {
+                "hook": record.get("hook", ""),
+                "category": (record.get("strategy") or {}).get("hook_archetype", "unknown"),
+                "diagnosis": record.get("diagnosis", ""),
+            }
+            for record in weak[:5]
+        ],
+        "best_visual_packs": visual_packs.most_common(5),
+        "best_cta_pressure": cta.most_common(1)[0][0] if cta else "unknown",
+        "best_body_slide_count": body_counts.most_common(1)[0][0] if body_counts else "unknown",
+        "topics_that_earned_saves": [
+            record.get("title", "") for record in ranked[:5] if int(record.get("saves", 0)) > 0
+        ],
     }
 
 
@@ -98,6 +146,11 @@ def _sanitize_metrics(metrics: dict[str, Any]) -> dict[str, Any]:
         "clicks",
         "conversions",
         "published_at",
+        "publish_time",
+        "hook_category",
+        "visual_pack",
+        "cta_pressure",
+        "body_slide_count",
         "notes",
     }
     sanitized: dict[str, Any] = {}
@@ -126,6 +179,7 @@ def _safe_strategy(strategy: Any) -> dict[str, Any]:
         "cta_pressure",
         "visual_thesis",
         "virality_principles",
+        "design_pack",
     ):
         value = strategy.get(key)
         if isinstance(value, str):
@@ -141,6 +195,27 @@ def _hook_from_manifest(manifest: dict[str, Any]) -> str:
         if slide.get("role") == "hook":
             return str(slide.get("title", ""))
     return str(manifest.get("title", ""))
+
+
+def _design_pack_from_manifest(manifest: dict[str, Any], metrics: dict[str, Any]) -> str:
+    return str(
+        metrics.get("visual_pack")
+        or manifest.get("design_pack")
+        or (manifest.get("design") or {}).get("design_pack")
+        or "unknown"
+    )
+
+
+def _body_slide_count(manifest: dict[str, Any], metrics: dict[str, Any]) -> int:
+    if metrics.get("body_slide_count") is not None:
+        return int(metrics.get("body_slide_count") or 0)
+    return sum(1 for slide in manifest.get("slides", []) if slide.get("role") == "body")
+
+
+def _save_rate(record: dict[str, Any]) -> float:
+    views = max(0, int(record.get("views", 0)))
+    saves = max(0, int(record.get("saves", 0)))
+    return saves / views if views else 0
 
 
 def _write_record(record: dict[str, Any], ledger_path: Path) -> None:

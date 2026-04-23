@@ -13,6 +13,7 @@ def write_manifest(tmp_path):
                 "title": "Threads growth is a lie",
                 "handle": "@tester",
                 "template_family": "debate",
+                "design": {"design_pack": "brutal-proof", "visual_modes": ["shock-stat"]},
                 "strategy": {
                     "goal": "reach",
                     "hook_archetype": "lie",
@@ -41,6 +42,8 @@ def test_metrics_add_and_report(tmp_path):
     assert report["records"] == 1
     assert report["totals"]["views"] == 12000
     assert report["top_hook_categories"][0][0] == "lie"
+    assert report["top_visual_packs"][0][0] == "brutal-proof"
+    assert report["learning_summary"]["best_visual_packs"][0][0] == "brutal-proof"
 
 
 def test_metrics_refuses_secret_storage(tmp_path):

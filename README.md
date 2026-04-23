@@ -4,7 +4,7 @@ Viral Carousel Maker is a public Claude Code + Codex skill for turning an idea, 
 
 It is built for creators who want useful, saveable carousels that feel native to a social feed, not generic slide decks.
 
-The current version adds a Threads Virality Engine: hook lab, corpus-derived rules, visual art direction, quality gates, and a local performance loop.
+The current version adds a Threads Virality Engine: hook lab, corpus-derived rules, AI critic gate, browser-rendered visual systems, quality gates, and a local performance loop.
 
 ## What it creates
 
@@ -78,13 +78,22 @@ The API image workflow targets `gpt-image-2`.
 
 ```bash
 cd /Users/lennoxsaint/viral-carousel-maker
-PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema python -m viral_carousel_maker.cli render examples/specs/ai-framework.yaml --out-dir output/ai-framework
+uv run python -m playwright install chromium
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli render examples/specs/ai-framework.yaml --out-dir output/ai-framework
+```
+
+The default renderer is the Playwright/browser renderer. It uses HTML/CSS/SVG-style layouts and screenshots them into exact PNGs.
+
+Pillow is still available as the simple fallback:
+
+```bash
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli render examples/specs/ai-framework.yaml --out-dir output/ai-framework-pillow --renderer pillow
 ```
 
 Validate the output:
 
 ```bash
-PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema python -m viral_carousel_maker.cli qa output/ai-framework/manifest.json
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli qa output/ai-framework/manifest.json
 ```
 
 Render the Claude and Codex skill copies:
@@ -108,12 +117,15 @@ When invoked, the skill:
 - Uses `request_user_input` when the host provides it, or asks direct question batches when it does not
 - Runs a Hook Lab with at least 5 candidate hooks
 - Applies the Threads Virality Constitution before template selection
+- Applies the public pattern bank and optional private local corpus summaries
 - Chooses the carousel job: reach, saves, authority, conversion, or community
 - Sets CTA pressure deliberately: none, soft, medium, or hard
 - Creates a `visual_thesis` before rendering
+- Chooses a named `design_pack`
 - Chooses one of 12 content-mechanic template families
 - Drafts the carousel spec
 - Scores hook strength, saveability, shareability, clarity, CTA fit, and proof quality
+- Runs a required AI critic gate before final rendering
 - Shows the spec before paid or native image generation
 - Renders final PNGs and a production pack
 - Creates or updates `~/.viral-carousel-maker/profile.yaml` after the first successful carousel
@@ -128,31 +140,44 @@ The production workflow is:
 1. Interrogate the idea and profile.
 2. Generate and score hook candidates.
 3. Select a corpus-backed virality principle.
-4. Choose template family, body-slide count, CTA pressure, and visual thesis.
+4. Choose template family, body-slide count, CTA pressure, design pack, and visual thesis.
 5. Draft the YAML spec.
 6. Run `viral-carousel score`.
-7. Render.
-8. Review `contact_sheet.png`.
-9. Run QA.
-10. Publish manually.
-11. Paste metrics later with `viral-carousel metrics add`.
+7. Run the AI critic gate and revise until it passes.
+8. Render with the browser renderer.
+9. Review `contact_sheet.png`, `visual_qa.json`, and `visual_qa_report.md`.
+10. Run QA.
+11. Publish manually.
+12. Paste metrics later with `viral-carousel metrics add`.
 
 Score before rendering:
 
 ```bash
-PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema python -m viral_carousel_maker.cli score examples/specs/threads-shock-stat.yaml
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli score examples/specs/threads-shock-stat.yaml
+```
+
+Validate critic output if you saved it as JSON:
+
+```bash
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli critic validate critic.json
 ```
 
 Record metrics after posting:
 
 ```bash
-PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema python -m viral_carousel_maker.cli metrics add output/run-name/manifest.json --views 12000 --likes 300 --replies 40 --reposts 18 --saves 90 --clicks 12
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli metrics add output/run-name/manifest.json --views 12000 --likes 300 --replies 40 --reposts 18 --saves 90 --clicks 12
 ```
 
 Review recent performance:
 
 ```bash
-PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema python -m viral_carousel_maker.cli metrics report --days 30
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli metrics report --days 30
+```
+
+Import a private local corpus summary:
+
+```bash
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli corpus import /path/to/posts --local-only
 ```
 
 ## Template families
@@ -186,6 +211,21 @@ Visual modes can be mixed inside those families:
 - `field-note`
 - `photo-anchor`
 
+## Design packs
+
+The browser renderer supports named visual systems:
+
+- `editorial-paper`
+- `brutal-proof`
+- `quiet-luxury`
+- `founder-field-notes`
+- `photo-anchor`
+- `data-lab`
+- `myth-truth`
+- `template-marketplace`
+
+Specs without a design pack default to `editorial-paper`.
+
 ## Output pack
 
 Each run writes:
@@ -196,10 +236,16 @@ Each run writes:
 - `prompts.jsonl`
 - `profile_snapshot.yaml`
 - `qa_report.md`
+- `visual_qa.json`
+- `visual_qa_report.md`
 - `manifest.json`
 - `contact_sheet.png`
 
-`manifest.json` records selected strategy fields, visual thesis, virality score, design modes, and contact-sheet path.
+`manifest.json` records selected strategy fields, visual thesis, critic result, pattern bank, virality score, design pack, visual modes, visual QA, and contact-sheet path.
+
+## Gallery
+
+See [docs/gallery.md](docs/gallery.md) for curated example packs and contact sheets.
 
 ## Threadify staging
 
@@ -228,6 +274,6 @@ The public repo contains derived principles and templates only. It does not comm
 ## Development
 
 ```bash
-uv run --with pytest --with Pillow --with PyYAML --with jsonschema pytest
+uv run --with pytest --with Pillow --with PyYAML --with jsonschema --with playwright pytest
 python scripts/render_skills.py --check
 ```

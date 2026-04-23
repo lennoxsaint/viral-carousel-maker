@@ -10,6 +10,8 @@ title: "The carousel title"
 handle: "@creator"
 template_family: "framework"
 aspect_ratio: "vertical"
+design_pack: "editorial-paper"
+render_engine: "browser"
 theme:
   palette:
     text: "#05063f"
@@ -24,6 +26,19 @@ strategy:
   virality_principles:
     - "observation-over-how-to"
     - "one-idea-per-slide"
+critic:
+  verdict: "pass"
+  scores:
+    hook_strength: 9
+    belief_shift: 9
+    specificity: 8.5
+    proof_integrity: 9
+    cta_fit: 8
+    visual_thesis: 9
+    slide_density: 8.5
+    saveability: 9
+    shareability: 8.5
+  blockers: []
 slides:
   - role: hook
     title: "Stop wasting your best ideas"
@@ -68,6 +83,14 @@ Use `strategy` whenever possible:
 - `visual_thesis`: mood, material, energy, and one dominant visual idea.
 - `virality_principles`: short list of constitution rules applied.
 
+## V2 fields
+
+- `design_pack`: one of `editorial-paper`, `brutal-proof`, `quiet-luxury`, `founder-field-notes`, `photo-anchor`, `data-lab`, `myth-truth`, or `template-marketplace`.
+- `render_engine`: `browser` by default, `pillow` only for fallback.
+- `critic`: structured AI critic output from `ai-critic-gate.md`.
+- `pattern_bank`: selected public or private pattern summary.
+- `learning`: optional profile/performance prior used to shape the carousel.
+
 ## Slide fields
 
 Prefer adding:
@@ -84,3 +107,15 @@ viral-carousel score path/to/spec.yaml
 ```
 
 Revise if the score is below `8.5/10`, if the hook uses a banned opener, or if body slides are too dense.
+
+Render with the browser engine:
+
+```bash
+viral-carousel render path/to/spec.yaml --out-dir output/run-name
+```
+
+Use Pillow fallback only when browser rendering is unavailable:
+
+```bash
+viral-carousel render path/to/spec.yaml --out-dir output/run-name --renderer pillow
+```
