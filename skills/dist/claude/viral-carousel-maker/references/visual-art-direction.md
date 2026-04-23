@@ -64,5 +64,30 @@ The renderer writes `contact_sheet.png`, `visual_qa.json`, and `visual_qa_report
 - Is the bottom-left handle visible on every slide?
 - Would the carousel still make sense on a phone crop?
 - Did machine QA pass text fit, contrast, crop safety, handle placement, dimensions, and slide count?
+- If this is a makeover, did `visual_qa.makeover_scale.score` clear the requested bar?
 
 If the contact sheet looks flat, fix the visual thesis or mode mix before regenerating.
+
+## Hook slide standards (Threads plus thumbnail logic)
+
+For slide 1, adapt strong thumbnail principles to Threads:
+
+- One dominant claim, not a paragraph.
+- A conflict word that creates tension (for example: not, wrong, dead, invisible, stop).
+- One focal visual element that supports the claim.
+- No visual overlap with readable text blocks.
+- Clear hierarchy in under one second.
+
+Use `strategy.hook_priority: high|extreme|thumbnail` when the user explicitly asks for maximum scroll-stop performance.
+
+## Makeover Rule
+
+When upgrading an older weak carousel, the new version must not be a polite rerender.
+
+Require:
+
+- A named non-default design pack when the old version looked generic.
+- At least 3 distinct visual modes for 6+ slide carousels.
+- A visible rhythm shift between hook, body, recap, and CTA.
+- Stronger first-slide visual gravity than the old version.
+- A `makeover_scale.score` of `8.5/10` or higher when the user asks for a large upgrade.

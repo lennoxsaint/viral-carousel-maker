@@ -1,0 +1,131 @@
+version: 1
+title: "Why your Threads posts feel weak"
+handle: "@lennox_saint"
+template_family: "mistakes"
+aspect_ratio: "vertical"
+design_pack: "brutal-proof"
+render_engine: "browser"
+render_quality: "ultra"
+strategy:
+  goal: "saves"
+  hook_archetype: "enemy_belief"
+  hook_priority: "extreme"
+  scroll_stop_priority: "extreme"
+  belief_shift: "Old: weak posts need more tricks. New: weak posts need one saveable reason to exist."
+  proof_level: "lived-experience"
+  cta_pressure: "soft"
+  visual_upgrade_target: "extreme"
+  makeover_intensity: "extreme"
+  visual_thesis: "A brutal black proof-board carousel with coral signal marks, rotating evidence modes, oversized tension symbols, and tool-like save logic."
+  virality_principles:
+    - "observation-over-how-to"
+    - "one-idea-per-slide"
+    - "make-the-save-earned"
+theme:
+  palette:
+    paper: "#0d0d0d"
+    background: "#090909"
+    text: "#ffffff"
+    muted: "#a3a3a3"
+    accent: "#ff6b4a"
+    accent_2: "#4ecdc4"
+    line: "#2a2a2a"
+profile:
+  creator: "Lennox Saint"
+  niche: "creator systems and content software"
+  audience: "creators, founders, and operators growing from their own ideas"
+  tone: "premium practical, simple, direct, lived-experience based"
+  proof_policy: "lived experience only; no unsupported stats or public research claims"
+caption: |
+  Most weak Threads posts do not fail because the idea is bad.
+
+  They fail because the idea has no tension, no single job, and no reason to come back to it.
+
+  A useful post should feel like a small tool:
+  - easy to understand
+  - specific enough to trust
+  - valuable enough to save
+
+  Follow @lennox_saint for practical creator systems.
+cta:
+  type: follow
+  description: "For practical creator systems."
+critic:
+  verdict: "pass"
+  scores:
+    hook_strength: 9
+    belief_shift: 9
+    specificity: 8.5
+    proof_integrity: 9
+    cta_fit: 8.5
+    visual_thesis: 9.5
+    slide_density: 9
+    saveability: 9
+    shareability: 8.5
+  blockers: []
+  revision_notes:
+    - "The hook rejects a common false fix and creates a clear saveability shift."
+slides:
+  - id: hook
+    role: hook
+    title: "Your Threads posts do not need more tricks"
+    subtitle: "They need one reason to be saved."
+    visual_mode: "shock-stat"
+    main_idea: "Reject the surface-level fix and reframe the real job."
+    badge: "SAVE"
+    alt: "Hook slide with the headline: Your Threads posts do not need more tricks. Subtitle: They need one reason to be saved."
+  - id: start-with-tension
+    role: body
+    title: "Start with tension"
+    body: "Weak posts announce a topic. Strong posts name the problem your reader already feels."
+    visual_mode: "myth-truth"
+    main_idea: "A post needs tension before it earns attention."
+    alt: "Body slide 1 explaining that stronger Threads posts start with reader tension instead of broad topics."
+  - id: make-one-point
+    role: body
+    title: "Make one useful point"
+    body: "If a post tries to teach three things, none of them lands. Give every post one job."
+    visual_mode: "proof-grid"
+    main_idea: "One job makes the post easier to remember and save."
+    alt: "Body slide 2 explaining that each post should make one useful point instead of teaching too many things."
+  - id: earn-the-save
+    role: body
+    title: "Earn the save"
+    body: "Likes come from recognition. Saves come from future usefulness. Build the post like a tool."
+    visual_mode: "receipt"
+    main_idea: "Saveability comes from future usefulness."
+    alt: "Body slide 3 explaining that saveable posts are useful enough for readers to revisit later."
+  - id: sound-observed
+    role: body
+    title: "Sound observed"
+    body: "Generic advice feels borrowed. Use details from the work: mistakes, phrases, choices, tradeoffs."
+    visual_mode: "field-note"
+    main_idea: "Observed details make advice feel earned."
+    alt: "Body slide 4 explaining that specific observed details make creator advice feel more trustworthy."
+  - id: give-the-next-move
+    role: body
+    title: "Give the next move"
+    body: "Do not end with a shrug. Tell the reader what to notice, change, or try after they close the app."
+    visual_mode: "photo-anchor"
+    main_idea: "A strong post leaves the reader with a concrete action."
+    alt: "Body slide 5 explaining that strong posts leave the reader with a clear next move."
+  - id: recap
+    role: recap
+    title: "TL;DR"
+    visual_mode: "taxonomy"
+    bullets:
+      - "Start with tension, not a topic."
+      - "Give each post one job."
+      - "Make the value worth saving."
+      - "Use details that feel observed."
+      - "Leave the reader with a next move."
+    alt: "Recap slide summarizing five ways to make Threads posts stronger and more saveable."
+  - id: follow
+    role: cta
+    title: "Follow"
+    visual_mode: "photo-anchor"
+    cta:
+      type: follow
+      handle: "@lennox_saint"
+      description: "For practical creator systems that turn ideas into posts people actually save."
+    alt: "Call to action slide asking viewers to follow @lennox_saint for practical creator systems."

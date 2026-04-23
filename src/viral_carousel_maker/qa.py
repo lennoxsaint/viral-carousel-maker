@@ -21,6 +21,7 @@ def run_manifest_qa(manifest: dict[str, Any]) -> tuple[bool, list[str]]:
     warnings = list(manifest.get("warnings", []))
     slides = manifest.get("slides", [])
     expected_size = tuple(manifest.get("dimensions", []))
+    expected_hq_size = tuple((manifest.get("design") or {}).get("dimensions_hq", []))
     virality = manifest.get("virality") or {}
     design = manifest.get("design") or {}
     critic = manifest.get("critic") if isinstance(manifest.get("critic"), dict) else {}
@@ -70,6 +71,15 @@ def run_manifest_qa(manifest: dict[str, Any]) -> tuple[bool, list[str]]:
         with Image.open(path) as image:
             if expected_size and image.size != expected_size:
                 errors.append(f"{path.name} is {image.size}, expected {expected_size}.")
+        hq_path_value = slide.get("path_hq")
+        if hq_path_value:
+            hq_path = Path(str(hq_path_value))
+            if not hq_path.exists():
+                errors.append(f"Missing HQ slide image: {hq_path}")
+            elif expected_hq_size:
+                with Image.open(hq_path) as hq_image:
+                    if hq_image.size != expected_hq_size:
+                        errors.append(f"{hq_path.name} is {hq_image.size}, expected {expected_hq_size}.")
         if not slide.get("handle_drawn"):
             errors.append(f"{path.name} is missing bottom-left handle metadata.")
         if slide.get("text_fit") is False:
@@ -88,6 +98,7 @@ def build_visual_qa(manifest: dict[str, Any]) -> dict[str, Any]:
     slides = manifest.get("slides", [])
     dimensions = tuple(manifest.get("dimensions", []))
     design = manifest.get("design") if isinstance(manifest.get("design"), dict) else {}
+    strategy = manifest.get("strategy") if isinstance(manifest.get("strategy"), dict) else {}
     tokens = design.get("tokens") if isinstance(design.get("tokens"), dict) else {}
     palette = design.get("palette") if isinstance(design.get("palette"), dict) else {}
     min_contrast = float(tokens.get("minimum_contrast_ratio", 4.5) or 4.5)
@@ -107,8 +118,12 @@ def build_visual_qa(manifest: dict[str, Any]) -> dict[str, Any]:
             )
 
     modes = [str(slide.get("visual_mode", "")) for slide in slides if slide.get("visual_mode")]
-    if len(set(modes)) == 1 and len(modes) >= 6:
-        warnings.append("All slides use the same visual mode; review pacing for repetition.")
+    if (
+        len(set(modes)) == 1
+        and len(modes) >= 6
+        and str(design.get("render_engine") or manifest.get("render_engine") or "") == "browser"
+    ):
+        blockers.append("All slides use the same visual mode; this fails pacing and upgrade quality.")
 
     for slide in slides:
         path = Path(str(slide.get("path", "")))
@@ -123,6 +138,7 @@ def build_visual_qa(manifest: dict[str, Any]) -> dict[str, Any]:
             "contrast_ratio": float(slide.get("contrast_ratio", global_contrast or min_contrast)),
             "hierarchy_score": float(slide.get("hierarchy_score", 8.0)),
             "visual_mode": slide.get("visual_mode"),
+            "visual_overlap_ratio": float(slide.get("visual_overlap_ratio") or 0),
         }
         if not path.exists():
             blockers.append(f"Missing slide file for visual QA: {path}.")
@@ -149,7 +165,32 @@ def build_visual_qa(manifest: dict[str, Any]) -> dict[str, Any]:
             )
         if report["hierarchy_score"] < 7:
             warnings.append(f"{path.name} hierarchy score is below 7; review first-read clarity.")
+        visual_mode = str(slide.get("visual_mode") or "")
+        overlap_ratio = float(slide.get("visual_overlap_ratio") or 0)
+        if visual_mode in {"receipt", "photo-anchor", "proof-grid"} and overlap_ratio > 0.08:
+            blockers.append(
+                f"{path.name} visual object overlaps readable content "
+                f"({overlap_ratio:.2f}); move the object or narrow the copy block."
+            )
         slide_reports.append(report)
+
+    makeover = _makeover_scale(manifest, modes)
+    hook_stop = _hook_visual_stop_score(manifest, slide_reports)
+    hook_priority = str(strategy.get("hook_priority") or strategy.get("scroll_stop_priority") or "").lower()
+    if hook_priority in {"high", "extreme", "thumbnail"} and hook_stop["score"] < 8.5:
+        blockers.append(
+            f"Hook visual stop score is {hook_stop['score']}/10; {hook_priority} priority requires 8.5+."
+        )
+    elif hook_stop["score"] < 7.5:
+        warnings.append(
+            f"Hook visual stop score is {hook_stop['score']}/10; strengthen first-slide hierarchy and tension."
+        )
+    if makeover["intensity"] in {"high", "large", "extreme"} and makeover["score"] < 8.5:
+        blockers.append(
+            f"Makeover scale is {makeover['score']}/10; high-intensity upgrades must clear 8.5."
+        )
+    elif makeover["score"] < 7.0:
+        warnings.append(f"Makeover scale is only {makeover['score']}/10; output may feel too incremental.")
 
     return {
         "status": "pass" if not blockers else "fail",
@@ -160,8 +201,113 @@ def build_visual_qa(manifest: dict[str, Any]) -> dict[str, Any]:
             "dimensions": list(dimensions),
             "global_contrast_ratio": global_contrast,
             "visual_modes": sorted(set(modes)),
+            "design_pack": design.get("design_pack"),
+            "hook_visual_stop_score": hook_stop["score"],
         },
+        "hook_stop": hook_stop,
+        "makeover_scale": makeover,
         "slides": slide_reports,
+    }
+
+
+def _makeover_scale(manifest: dict[str, Any], modes: list[str]) -> dict[str, Any]:
+    design = manifest.get("design") if isinstance(manifest.get("design"), dict) else {}
+    strategy = manifest.get("strategy") if isinstance(manifest.get("strategy"), dict) else {}
+    slides = manifest.get("slides", [])
+    design_pack = str(design.get("design_pack") or manifest.get("design_pack") or "editorial-paper")
+    render_engine = str(design.get("render_engine") or manifest.get("render_engine") or "unknown")
+    unique_modes = len(set(modes))
+    mode_target = min(5, max(3, len(slides) // 2)) if len(slides) >= 6 else 2
+    score = 3.0
+    reasons: list[str] = []
+    if render_engine == "browser":
+        score += 1.2
+        reasons.append("browser-rendered")
+    if design_pack != "editorial-paper":
+        score += 1.5
+        reasons.append(f"non-default design pack: {design_pack}")
+    if unique_modes >= mode_target:
+        score += 2.2
+        reasons.append(f"{unique_modes} visual modes")
+    elif unique_modes >= 3:
+        score += 1.2
+        reasons.append(f"{unique_modes} visual modes")
+    if str(manifest.get("visual_thesis") or strategy.get("visual_thesis") or "").strip():
+        score += 0.8
+        reasons.append("visual thesis present")
+    avg_hierarchy = 0.0
+    if slides:
+        avg_hierarchy = sum(float(slide.get("hierarchy_score", 0) or 0) for slide in slides) / len(slides)
+        if avg_hierarchy >= 8.5:
+            score += 1.0
+            reasons.append("strong hierarchy")
+        elif avg_hierarchy >= 7.5:
+            score += 0.5
+            reasons.append("acceptable hierarchy")
+    intensity = str(
+        strategy.get("makeover_intensity")
+        or strategy.get("visual_upgrade_target")
+        or "standard"
+    ).lower()
+    return {
+        "score": round(min(10.0, score), 2),
+        "intensity": intensity,
+        "design_pack": design_pack,
+        "render_engine": render_engine,
+        "unique_visual_modes": unique_modes,
+        "visual_mode_target": mode_target,
+        "average_hierarchy_score": round(avg_hierarchy, 2),
+        "reasons": reasons,
+    }
+
+
+def _hook_visual_stop_score(manifest: dict[str, Any], slide_reports: list[dict[str, Any]]) -> dict[str, Any]:
+    design = manifest.get("design") if isinstance(manifest.get("design"), dict) else {}
+    hook_slide = next((slide for slide in manifest.get("slides", []) if slide.get("role") == "hook"), {})
+    hook_report = next((item for item in slide_reports if item.get("role") == "hook"), {})
+    title = str(hook_slide.get("title", ""))
+    title_words = len(title.split())
+    score = 4.8
+    reasons: list[str] = []
+
+    if str(design.get("design_pack") or manifest.get("design_pack") or "") != "editorial-paper":
+        score += 1.2
+        reasons.append("non-default pack")
+    if hook_report.get("text_fit"):
+        score += 0.8
+        reasons.append("text fits")
+    hierarchy = float(hook_report.get("hierarchy_score") or 0)
+    if hierarchy >= 8.8:
+        score += 1.0
+        reasons.append("strong hierarchy")
+    elif hierarchy >= 8.0:
+        score += 0.6
+        reasons.append("clear hierarchy")
+    if title_words <= 8:
+        score += 0.9
+        reasons.append("tight headline")
+    elif title_words <= 11:
+        score += 0.5
+    overlap = float(hook_report.get("visual_overlap_ratio") or 0)
+    if overlap <= 0.08:
+        score += 0.6
+        reasons.append("clean visual separation")
+    mode = str(hook_slide.get("visual_mode") or hook_report.get("visual_mode") or "")
+    if mode in {"shock-stat", "myth-truth", "proof-grid", "photo-anchor"}:
+        score += 0.8
+        reasons.append(f"high-impact mode: {mode}")
+    contrast = float(hook_report.get("contrast_ratio") or 0)
+    if contrast >= 7.0:
+        score += 0.5
+        reasons.append("high contrast")
+
+    return {
+        "score": round(min(10.0, score), 2),
+        "title_words": title_words,
+        "hierarchy_score": round(hierarchy, 2),
+        "visual_mode": mode,
+        "overlap_ratio": round(overlap, 3),
+        "reasons": reasons,
     }
 
 

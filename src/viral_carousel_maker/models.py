@@ -192,6 +192,8 @@ DEFAULT_DESIGN_TOKENS = {
     "crop_safe_margin_ratio": 0.085,
     "minimum_contrast_ratio": 4.5,
     "browser_render_scale": 1,
+    "render_supersample_scale": 2,
+    "hook_stop_score_target": 8.5,
 }
 
 DEFAULT_PALETTE = {

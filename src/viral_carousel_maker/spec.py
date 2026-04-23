@@ -71,6 +71,10 @@ def validate_spec(spec: dict[str, Any]) -> list[str]:
     if render_engine and str(render_engine) not in {"browser", "pillow"}:
         raise SpecError("render_engine must be browser or pillow.")
 
+    render_quality = spec.get("render_quality")
+    if render_quality and str(render_quality).lower() not in {"standard", "high", "ultra"}:
+        raise SpecError("render_quality must be standard, high, or ultra.")
+
     critic = spec.get("critic")
     if isinstance(critic, dict):
         critic_ok, critic_errors = validate_critic_output(critic)

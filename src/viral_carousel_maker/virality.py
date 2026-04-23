@@ -114,6 +114,7 @@ def audit_spec(spec: dict[str, Any]) -> ViralityAudit:
     }
 
     hook_title = str(hook.get("title", "")).strip()
+    hook_subtitle = str(hook.get("subtitle", "")).strip()
     hook_text = _slide_text(hook, include_body=False)
     hook_lower = _normalize(hook_title)
 
@@ -172,9 +173,21 @@ def audit_spec(spec: dict[str, Any]) -> ViralityAudit:
             warnings.append("CTA is high-pressure; make sure the carousel earns it.")
 
     hook_score = score_hook(hook_title, hook_text, belief_shift)
+    hook_stop_score = score_hook_stop(hook_title, hook_subtitle, belief_shift)
     density_score = max(0.0, 10.0 - max(0, metrics["max_body_words"] - 32) * 0.12)
     cta_score = max(0.0, 10.0 - metrics.get("cta_pressure_score", 0) * 0.6)
     score = round((hook_score * 0.46) + (density_score * 0.34) + (cta_score * 0.20), 2)
+    metrics["hook_stop_score"] = round(hook_stop_score, 2)
+
+    hook_priority = str(strategy.get("hook_priority") or strategy.get("scroll_stop_priority") or "").lower()
+    if hook_priority in {"high", "extreme", "thumbnail"} and hook_stop_score < 8.5:
+        errors.append(
+            f"Hook scroll-stop score is {hook_stop_score:.2f}/10; {hook_priority} priority requires 8.5+."
+        )
+    elif hook_stop_score < 7.8:
+        warnings.append(
+            f"Hook scroll-stop score is {hook_stop_score:.2f}/10; compress and polarize the opener further."
+        )
 
     if hook_lower.startswith("the ") and not any(term in hook_lower for term in ("lie", "wrong", "trap", "cost")):
         warnings.append("Hook starts broad. Strong Threads hooks usually start with tension, not a neutral label.")
@@ -268,6 +281,44 @@ def score_hook(title: str, full_text: str, belief_shift: str = "") -> float:
     if contains_fake_urgency(full_text):
         score -= 1.5
     return min(10.0, max(0.0, score))
+
+
+def score_hook_stop(title: str, subtitle: str = "", belief_shift: str = "") -> float:
+    """Score copy-only hook stop power for opening slides."""
+
+    normalized_title = _normalize(title)
+    normalized_subtitle = _normalize(subtitle)
+    score = 5.0
+    title_words = count_words(title)
+    subtitle_words = count_words(subtitle)
+
+    if title_words <= 8:
+        score += 1.5
+    elif title_words <= 11:
+        score += 0.8
+    elif title_words > 14:
+        score -= 0.8
+
+    if subtitle:
+        if subtitle_words <= 12:
+            score += 0.7
+        elif subtitle_words > 18:
+            score -= 0.4
+
+    if any(token in normalized_title for token in ("not ", "lie", "wrong", "dead", "invisible", "never", "stop")):
+        score += 1.2
+    if any(token in normalized_title for token in ("you ", "your ", "creators", "founders")):
+        score += 0.6
+    if belief_shift:
+        score += 0.8
+    if detect_weak_hook_opener(title):
+        score -= 2.2
+    if "?" in title and not looks_like_identity_mirror_question(title):
+        score -= 1.4
+    if subtitle and normalized_title == normalized_subtitle:
+        score -= 0.8
+
+    return max(0.0, min(10.0, round(score, 2)))
 
 
 def guess_hook_archetype(hook: dict[str, Any]) -> str:

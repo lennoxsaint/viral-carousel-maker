@@ -29,14 +29,31 @@ class BrowserCarouselRenderer:
         self.out_dir = Path(out_dir)
         self.dimensions = dimensions_for(str(spec.get("aspect_ratio", "vertical")))
         self.strategy = spec.get("strategy", {}) if isinstance(spec.get("strategy"), dict) else {}
+        self.hook_priority = str(
+            self.strategy.get("hook_priority") or self.strategy.get("scroll_stop_priority") or ""
+        ).lower()
         self.design_pack = resolve_design_pack(spec)
         self.palette = resolve_palette(spec, self.design_pack)
         self.design_tokens = resolve_design_tokens(spec, self.design_pack)
         self.handle = normalized_handle(str(spec["handle"]))
         self.warnings = validate_spec(spec)
         self.slide_dir = self.out_dir / "slides"
+        self.slide_hq_dir = self.out_dir / "slides_hq"
         self.asset_dir = self.out_dir / "assets"
         self.html_dir = self.asset_dir / "html"
+        quality = str(spec.get("render_quality") or self.strategy.get("render_quality") or "high").lower()
+        if quality not in {"standard", "high", "ultra"}:
+            quality = "high"
+        self.render_quality = quality
+        quality_scale = {"standard": 1, "high": 2, "ultra": 3}[quality]
+        theme = spec.get("theme") if isinstance(spec.get("theme"), dict) else {}
+        theme_tokens = theme.get("design_tokens") if isinstance(theme.get("design_tokens"), dict) else {}
+        user_scale = theme_tokens.get("render_supersample_scale")
+        self.supersample_scale = max(1, int(user_scale or quality_scale))
+        base_dpr = max(1, int(self.design_tokens.get("browser_render_scale", 1) or 1))
+        self.export_scale = base_dpr * self.supersample_scale
+        self.render_width = self.dimensions.width * self.export_scale
+        self.render_height = self.dimensions.height * self.export_scale
 
     def render(self) -> dict[str, Any]:
         try:
@@ -49,6 +66,7 @@ class BrowserCarouselRenderer:
 
         self.out_dir.mkdir(parents=True, exist_ok=True)
         self.slide_dir.mkdir(parents=True, exist_ok=True)
+        self.slide_hq_dir.mkdir(parents=True, exist_ok=True)
         self.asset_dir.mkdir(parents=True, exist_ok=True)
         self.html_dir.mkdir(parents=True, exist_ok=True)
 
@@ -60,20 +78,24 @@ class BrowserCarouselRenderer:
             browser = playwright.chromium.launch()
             page = browser.new_page(
                 viewport={"width": self.dimensions.width, "height": self.dimensions.height},
-                device_scale_factor=int(self.design_tokens.get("browser_render_scale", 1) or 1),
+                device_scale_factor=self.export_scale,
             )
             for index, slide in enumerate(self.spec["slides"], start=1):
                 if slide["role"] == "body":
                     body_seen += 1
                 filename = f"{index:02d}-{slide['role']}-{self._slug(slide['title'])}.png"
                 path = self.slide_dir / filename
+                hq_path = self.slide_hq_dir / filename
                 html_doc = self._html_document(slide, index, body_seen, body_total)
                 html_path = self.html_dir / f"{index:02d}-{slide['role']}.html"
                 html_path.write_text(html_doc, encoding="utf-8")
                 page.set_content(html_doc, wait_until="load")
                 fit = page.evaluate(self._fit_script())
-                page.screenshot(path=str(path), type="png", full_page=False)
-                slides_meta.append(self._slide_meta(slide, index, body_seen, body_total, path, fit))
+                page.screenshot(path=str(hq_path), type="png", full_page=False, scale="device")
+                self._write_standard_slide(hq_path, path)
+                slides_meta.append(
+                    self._slide_meta(slide, index, body_seen, body_total, path, hq_path, fit)
+                )
             browser.close()
 
         contact_sheet_path = self._write_contact_sheet(slides_meta)
@@ -96,11 +118,15 @@ class BrowserCarouselRenderer:
             "design": {
                 "render_engine": "browser",
                 "design_pack": self.design_pack,
+                "render_quality": self.render_quality,
+                "render_supersample_scale": self.export_scale,
                 "palette": self.palette,
                 "tokens": self.design_tokens,
                 "visual_modes": sorted({slide["visual_mode"] for slide in slides_meta}),
                 "contact_sheet": str(contact_sheet_path),
                 "html_dir": str(self.html_dir),
+                "slides_hq_dir": str(self.slide_hq_dir),
+                "dimensions_hq": [self.render_width, self.render_height],
             },
             "warnings": self.warnings,
             "slides": slides_meta,
@@ -122,8 +148,10 @@ class BrowserCarouselRenderer:
         body_total: int,
     ) -> str:
         role = str(slide["role"])
-        visual_mode = self._visual_mode_for(slide)
+        visual_mode = self._visual_mode_for(slide, index)
         classes = f"slide role-{role} mode-{visual_mode} pack-{self.design_pack}"
+        if role == "hook" and self.hook_priority in {"high", "extreme", "thumbnail"}:
+            classes += f" hook-priority-{self.hook_priority}"
         progress = ""
         arrow = ""
         if role == "body":
@@ -213,7 +241,13 @@ class BrowserCarouselRenderer:
     def _visual_layer(self, slide: dict[str, Any], visual_mode: str) -> str:
         badge = html.escape(str(slide.get("badge", "") or self._largest_number(slide) or ""))
         if visual_mode == "shock-stat":
-            return f'<div class="visual shock-number">{badge or "!"}</div>'
+            role = str(slide.get("role", ""))
+            signal = (
+                slide.get("hook_signal")
+                if role == "hook"
+                else None
+            ) or (self._hook_signal(slide) if role == "hook" else None) or badge or "!"
+            return f'<div class="visual shock-number">{html.escape(str(signal))}</div>'
         if visual_mode == "proof-grid":
             return '<div class="visual proof-grid"><i></i><i></i><i></i><i></i></div>'
         if visual_mode in {"myth-truth", "contrast-table"}:
@@ -237,9 +271,10 @@ class BrowserCarouselRenderer:
         body_seen: int,
         body_total: int,
         path: Path,
+        hq_path: Path,
         fit: dict[str, Any],
     ) -> dict[str, Any]:
-        visual_mode = self._visual_mode_for(slide)
+        visual_mode = self._visual_mode_for(slide, index)
         role = slide["role"]
         cta = slide.get("cta", self.spec.get("cta", {}))
         return {
@@ -254,12 +289,15 @@ class BrowserCarouselRenderer:
             "handle_position": "bottom-left",
             "text_fit": bool(fit.get("ok", True)),
             "fit_details": fit,
+            "visual_overlap_ratio": fit.get("visual_overlap_ratio", 0),
             "crop_safe": True,
             "contrast_ratio": fit.get("contrast_ratio", 7.0),
             "hierarchy_score": self._hierarchy_score(role, visual_mode),
             "cta_type": cta.get("type", "follow") if role == "cta" and isinstance(cta, dict) else None,
             "body_progress": f"{body_seen}/{body_total}" if role == "body" else None,
             "path": str(path),
+            "path_hq": str(hq_path),
+            "dimensions_hq": [self.render_width, self.render_height],
         }
 
     def _css(self) -> str:
@@ -488,6 +526,9 @@ class BrowserCarouselRenderer:
           font-size: 260px;
           line-height: .8;
           font-weight: 900;
+          white-space: nowrap;
+          letter-spacing: 0;
+          text-transform: uppercase;
         }}
         .proof-grid {{
           right: {margin}px;
@@ -584,10 +625,215 @@ class BrowserCarouselRenderer:
           border-radius: 999px;
           background: rgba(255,255,255,.78);
         }}
+        .pack-brutal-proof.role-hook {{
+          background:
+            linear-gradient(90deg, transparent 0 76%, {p["accent"]} 76% 100%),
+            linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(255,255,255,.05) 1px, transparent 1px),
+            {p["paper"]};
+          background-size: auto, 54px 54px, 54px 54px, auto;
+        }}
+        .pack-brutal-proof.role-hook .hook-content {{
+          padding-top: {int(height * .15)}px;
+          max-width: {int(width * .66)}px;
+        }}
+        .pack-brutal-proof.hook-priority-extreme.role-hook {{
+          background:
+            linear-gradient(90deg, transparent 0 73%, {p["accent"]} 73% 100%),
+            linear-gradient(0deg, rgba(255,255,255,.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px),
+            {p["paper"]};
+          background-size: auto, 108px 108px, 108px 108px, auto;
+        }}
+        .pack-brutal-proof.hook-priority-extreme.role-hook .hook-content {{
+          padding-top: {int(height * .12)}px;
+          max-width: {int(width * .58)}px;
+        }}
+        .pack-brutal-proof.hook-priority-extreme.role-hook h1.headline {{
+          font-size: 138px;
+          line-height: .9;
+          max-height: {int(height * .52)}px;
+          text-shadow: 0 12px 0 rgba(0,0,0,.45);
+        }}
+        .pack-brutal-proof.hook-priority-extreme.role-hook .accent-rule {{
+          margin-top: 42px;
+          width: {int(width * .30)}px;
+          height: 16px;
+        }}
+        .pack-brutal-proof.hook-priority-extreme.role-hook .subtitle {{
+          margin-top: 42px;
+          max-width: {int(width * .67)}px;
+          padding: 24px 30px;
+          border: 3px solid rgba(0,0,0,.22);
+          background: rgba(255,255,255,.94);
+          color: #0d0d0d;
+          font-size: 53px;
+          font-weight: 900;
+          line-height: 1.02;
+        }}
+        .pack-brutal-proof.hook-priority-extreme.role-hook .badge {{
+          min-height: 88px;
+          padding: 0 42px;
+          font-size: 52px;
+          background: {p["accent"]};
+          color: white;
+          border: 3px solid rgba(0,0,0,.22);
+          box-shadow: 0 10px 0 rgba(0,0,0,.30);
+        }}
+        .pack-brutal-proof.hook-priority-extreme.mode-shock-stat .shock-number {{
+          right: {int(width * -.05)}px;
+          bottom: {int(height * .09)}px;
+          font-size: 278px;
+          line-height: .76;
+          opacity: .96;
+          color: rgba(0,0,0,.84);
+          text-shadow: 0 8px 0 rgba(255,255,255,.14);
+        }}
+        .pack-brutal-proof.role-hook h1.headline {{
+          font-size: 120px;
+          max-height: {int(height * .50)}px;
+          text-shadow: 0 10px 0 rgba(0,0,0,.32);
+        }}
+        .pack-brutal-proof.role-hook .subtitle {{
+          display: inline-block;
+          margin-top: 56px;
+          padding: 24px 28px;
+          max-width: {int(width * .62)}px;
+          background: {p["text"]};
+          color: {p["paper"]};
+          font-size: 44px;
+          font-weight: 800;
+          line-height: 1.08;
+        }}
+        .pack-brutal-proof.mode-shock-stat .shock-number {{
+          right: {int(width * -.035)}px;
+          bottom: {int(height * .22)}px;
+          width: {int(width * .42)}px;
+          color: {p["paper"]};
+          opacity: .94;
+          font-size: 158px;
+          line-height: .82;
+          text-align: center;
+          transform: rotate(-6deg);
+        }}
+        .pack-brutal-proof.mode-shock-stat .badge {{
+          background: {p["accent"]};
+          color: white;
+          border-radius: 999px;
+        }}
+        .pack-brutal-proof.mode-myth-truth .contrast-split {{
+          opacity: .26;
+          grid-template-rows: 46% 54%;
+          font-size: 168px;
+          line-height: 1;
+        }}
+        .pack-brutal-proof.mode-myth-truth .contrast-split b {{
+          display: flex;
+          align-items: center;
+          padding-left: {margin}px;
+        }}
+        .pack-brutal-proof.mode-myth-truth .body-content {{
+          margin-top: {int(height * .06)}px;
+          padding: 42px 44px 48px;
+          max-width: {int(width * .78)}px;
+          background: rgba(9,9,9,.80);
+          border: 3px solid rgba(255,255,255,.16);
+        }}
+        .pack-brutal-proof.mode-proof-grid .proof-grid {{
+          right: {int(width * -.16)}px;
+          top: {int(height * .47)}px;
+          width: 430px;
+          transform: rotate(-3deg);
+        }}
+        .pack-brutal-proof.mode-proof-grid .body-content {{
+          max-width: {int(width * .49)}px;
+        }}
+        .pack-brutal-proof.mode-proof-grid .proof-grid i {{
+          height: 150px;
+          background: rgba(255,255,255,.88);
+          border-color: rgba(255,255,255,.9);
+        }}
+        .pack-brutal-proof.mode-proof-grid .proof-grid i:first-child {{
+          background: {p["accent"]};
+        }}
+        .pack-brutal-proof.mode-receipt .receipt-card {{
+          top: {int(height * .12)}px;
+          right: {int(width * -.04)}px;
+          width: 340px;
+          height: 650px;
+          background: rgba(255,255,255,.92);
+          box-shadow: -24px 28px 0 {p["accent"]};
+          transform: rotate(2.5deg);
+        }}
+        .pack-brutal-proof.mode-receipt .body-content {{
+          max-width: {int(width * .53)}px;
+        }}
+        .pack-brutal-proof.mode-field-note .field-label {{
+          left: auto;
+          right: {margin}px;
+          top: {margin}px;
+          padding: 24px 34px;
+          border-radius: 0;
+          transform: rotate(-2deg);
+        }}
+        .pack-brutal-proof.mode-field-note .body-content {{
+          padding-top: {int(height * .24)}px;
+        }}
+        .pack-brutal-proof.mode-photo-anchor .photo-object {{
+          right: {int(width * -.13)}px;
+          top: {int(height * .22)}px;
+          width: 430px;
+          height: 560px;
+          border-radius: 56px;
+          opacity: .96;
+          transform: rotate(4deg);
+        }}
+        .pack-brutal-proof.mode-photo-anchor .body-content {{
+          max-width: {int(width * .56)}px;
+        }}
+        .pack-brutal-proof.mode-taxonomy .taxonomy-lines {{
+          right: {int(width * .08)}px;
+          top: {int(height * .18)}px;
+          width: 430px;
+        }}
+        .pack-brutal-proof.mode-taxonomy .recap-content {{
+          max-width: {int(width * .68)}px;
+        }}
+        .pack-brutal-proof.role-cta .cta-content {{
+          padding-top: {int(height * .10)}px;
+          max-width: {int(width * .66)}px;
+        }}
+        .pack-brutal-proof.role-cta .photo-object {{
+          top: {int(height * .09)}px;
+          right: {int(width * -.20)}px;
+          width: 520px;
+          height: 820px;
+          border-radius: 70px;
+          opacity: .88;
+        }}
+        .pack-brutal-proof.role-cta .cta-title {{
+          margin-top: {int(height * .20)}px;
+          font-size: 176px;
+        }}
+        .pack-brutal-proof.role-cta .cta-description {{
+          justify-self: start;
+          text-align: left;
+          max-width: {int(width * .65)}px;
+        }}
         """
 
-    @staticmethod
-    def _fit_script() -> str:
+    def _write_standard_slide(self, hq_path: Path, path: Path) -> None:
+        from PIL import Image, ImageFilter
+
+        with Image.open(hq_path) as image:
+            if image.size == (self.dimensions.width, self.dimensions.height):
+                image.save(path, "PNG")
+                return
+            resized = image.resize((self.dimensions.width, self.dimensions.height), Image.Resampling.LANCZOS)
+            sharpened = resized.filter(ImageFilter.UnsharpMask(radius=1.4, percent=175, threshold=2))
+            sharpened.save(path, "PNG")
+
+    def _fit_script(self) -> str:
         return """
         () => {
           const items = Array.from(document.querySelectorAll('[data-fit]'));
@@ -596,7 +842,9 @@ class BrowserCarouselRenderer:
           for (const el of items) {
             const style = window.getComputedStyle(el);
             let size = parseFloat(style.fontSize);
-            const min = el.classList.contains('headline') || el.classList.contains('cta-title') ? 42 : 22;
+            const min = el.classList.contains('headline') || el.classList.contains('cta-title')
+              ? 42
+              : 22;
             const tolerance = 8;
             while ((el.scrollHeight > el.clientHeight + tolerance || el.scrollWidth > el.clientWidth + tolerance) && size > min) {
               size -= 2;
@@ -616,24 +864,47 @@ class BrowserCarouselRenderer:
             });
           }
           const text = getComputedStyle(document.querySelector('.slide')).color;
-          return {ok, details, contrast_ratio: 7.0, computedTextColor: text};
+          const visual = document.querySelector('.visual');
+          let visual_overlap_ratio = 0;
+          if (visual) {
+            const b = visual.getBoundingClientRect();
+            const protectedItems = Array.from(
+              document.querySelectorAll('[data-fit], .badge, .progress, .cta-eyebrow, .cta-handle')
+            );
+            for (const item of protectedItems) {
+              const a = item.getBoundingClientRect();
+              const xOverlap = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+              const yOverlap = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+              const overlapArea = xOverlap * yOverlap;
+              const itemArea = Math.max(1, a.width * a.height);
+              visual_overlap_ratio = Math.max(visual_overlap_ratio, overlapArea / itemArea);
+            }
+          }
+          return {ok, details, contrast_ratio: 7.0, computedTextColor: text, visual_overlap_ratio};
         }
         """
 
-    def _visual_mode_for(self, slide: dict[str, Any]) -> str:
-        return str(
-            slide.get("visual_mode")
-            or self.strategy.get("visual_mode")
-            or {
-                "brutal-proof": "proof-grid",
-                "quiet-luxury": "quiet-truth",
-                "founder-field-notes": "field-note",
-                "photo-anchor": "photo-anchor",
-                "data-lab": "shock-stat",
-                "myth-truth": "myth-truth",
-                "template-marketplace": "taxonomy",
-            }.get(self.design_pack, "editorial-paper")
-        )
+    def _visual_mode_for(self, slide: dict[str, Any], index: int = 0) -> str:
+        if slide.get("visual_mode"):
+            return str(slide["visual_mode"])
+        role = str(slide.get("role", "body"))
+        if role == "hook":
+            return "shock-stat"
+        if role == "recap":
+            return "taxonomy"
+        if role == "cta":
+            return "photo-anchor"
+        cycles = {
+            "brutal-proof": ["myth-truth", "proof-grid", "receipt", "field-note", "shock-stat"],
+            "quiet-luxury": ["quiet-truth", "receipt", "field-note", "taxonomy", "photo-anchor"],
+            "founder-field-notes": ["field-note", "receipt", "taxonomy", "quiet-truth", "proof-grid"],
+            "photo-anchor": ["photo-anchor", "field-note", "proof-grid", "myth-truth", "receipt"],
+            "data-lab": ["shock-stat", "proof-grid", "taxonomy", "receipt", "contrast-table"],
+            "myth-truth": ["myth-truth", "contrast-table", "proof-grid", "field-note", "receipt"],
+            "template-marketplace": ["taxonomy", "proof-grid", "receipt", "field-note", "contrast-table"],
+        }
+        mode_cycle = cycles.get(self.design_pack, ["field-note", "proof-grid", "myth-truth", "receipt", "taxonomy"])
+        return mode_cycle[max(0, index - 2) % len(mode_cycle)]
 
     def _write_contact_sheet(self, slides_meta: list[dict[str, Any]]) -> Path:
         from PIL import Image, ImageDraw
@@ -720,6 +991,19 @@ class BrowserCarouselRenderer:
         )
         numbers = [match.group(0) for match in re.finditer(r"\b\d+(?:[.,]\d+)?%?\b", text)]
         return numbers[0] if numbers else None
+
+    @staticmethod
+    def _hook_signal(slide: dict[str, Any]) -> str | None:
+        title = str(slide.get("title", ""))
+        candidates = [word for word in re.findall(r"[A-Za-z0-9']+", title) if len(word) >= 4]
+        if not candidates:
+            return None
+        priority = {"not", "lie", "wrong", "stop", "dead", "invisible", "save", "proof", "cost"}
+        for word in candidates:
+            lowered = word.lower()
+            if lowered in priority:
+                return word.upper()
+        return candidates[-1].upper()
 
     @staticmethod
     def _slug(value: str) -> str:

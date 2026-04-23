@@ -43,6 +43,14 @@ def test_validate_spec_rejects_homework_hook_question():
         validate_spec(spec)
 
 
+def test_extreme_hook_priority_requires_higher_scroll_stop_score():
+    spec = base_spec()
+    spec["slides"][0]["title"] = "How to write better Threads"
+    spec["strategy"] = {"hook_priority": "extreme", "belief_shift": "Old: tips win. New: tension wins."}
+    with pytest.raises(SpecError, match="Hook scroll-stop score"):
+        validate_spec(spec)
+
+
 def test_score_spec_rewards_belief_shift_and_low_density():
     spec = base_spec()
     spec["strategy"] = {

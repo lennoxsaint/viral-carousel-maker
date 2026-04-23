@@ -1,0 +1,129 @@
+version: 1
+title: "Why smart Threads creators get ignored"
+handle: "@lennox_saint"
+template_family: "mistakes"
+aspect_ratio: "vertical"
+design_pack: "brutal-proof"
+render_engine: "browser"
+render_quality: "ultra"
+strategy:
+  goal: "reach"
+  hook_priority: "extreme"
+  scroll_stop_priority: "extreme"
+  hook_archetype: "enemy_belief"
+  belief_shift: "Old: more tips means better posts. New: sharper tension means more swipes."
+  proof_level: "lived-experience"
+  cta_pressure: "soft"
+  makeover_intensity: "extreme"
+  visual_upgrade_target: "extreme"
+  visual_thesis: "Brutal black editorial board with high-contrast coral interruptions, oversized keyword signal, and clear command-style typography."
+  virality_principles:
+    - "observation-over-how-to"
+    - "short-certain-language"
+    - "one-idea-per-slide"
+theme:
+  palette:
+    paper: "#0a0a0a"
+    background: "#050505"
+    text: "#ffffff"
+    muted: "#a3a3a3"
+    accent: "#ff6b4a"
+    accent_2: "#4ecdc4"
+    line: "#2a2a2a"
+profile:
+  creator: "Lennox Saint"
+  niche: "creator systems and content software"
+  audience: "creators and operators trying to grow on Threads"
+  tone: "assertive, practical, polarizing, proof-first"
+  proof_policy: "lived-experience only; no unsupported external claims"
+caption: |
+  If your opening slide feels safe, the feed scrolls right past it.
+
+  Use tension before teaching.
+  Use one point before details.
+  Use direction before CTA.
+
+  Follow @lennox_saint for creator systems that convert into saves.
+cta:
+  type: follow
+  description: "For creator systems that turn ideas into saved posts."
+critic:
+  verdict: "pass"
+  scores:
+    hook_strength: 9.5
+    belief_shift: 9.2
+    specificity: 8.8
+    proof_integrity: 9.0
+    cta_fit: 8.4
+    visual_thesis: 9.4
+    slide_density: 8.9
+    saveability: 9.0
+    shareability: 9.2
+  blockers: []
+  revision_notes:
+    - "Hook language is concise and confrontational enough for feed interruption."
+slides:
+  - id: hook
+    role: hook
+    title: "Your Threads look smart. Nobody cares."
+    subtitle: "Safe hooks die before slide two."
+    badge: "STOP"
+    hook_signal: "CARES?"
+    visual_mode: "shock-stat"
+    main_idea: "The opener should trigger urgency to verify, not comfort."
+    alt: "Hook slide saying most Threads advice gets ignored because safe hooks die before slide two."
+  - id: body-1
+    role: body
+    title: "Lead with tension"
+    body: "Name the painful truth your reader already feels. Do not open with a lesson title."
+    visual_mode: "myth-truth"
+    main_idea: "Tension earns the first swipe."
+    alt: "Body slide explaining that tension beats neutral topic openers."
+  - id: body-2
+    role: body
+    title: "One idea per slide"
+    body: "Stacking advice kills retention. Give each slide one clear job."
+    visual_mode: "proof-grid"
+    main_idea: "Single-focus slides are easier to save."
+    alt: "Body slide teaching one idea per slide."
+  - id: body-3
+    role: body
+    title: "Earn the save"
+    body: "Recognition gets likes. Reusability gets saves. Write for future use."
+    visual_mode: "receipt"
+    main_idea: "Save-worthy posts solve future problems."
+    alt: "Body slide linking save behavior to future usefulness."
+  - id: body-4
+    role: body
+    title: "Sound observed"
+    body: "Use details from real work: mistakes, phrases, tradeoffs, and decisions."
+    visual_mode: "field-note"
+    main_idea: "Specificity creates trust."
+    alt: "Body slide emphasizing observed details over generic advice."
+  - id: body-5
+    role: body
+    title: "Give a next move"
+    body: "End with one action they can take in ten minutes after closing Threads."
+    visual_mode: "photo-anchor"
+    main_idea: "Clear direction keeps momentum after the swipe."
+    alt: "Body slide prompting a concrete next move."
+  - id: recap
+    role: recap
+    title: "TL;DR"
+    visual_mode: "taxonomy"
+    bullets:
+      - "Open with tension, not a lesson."
+      - "Keep one idea per slide."
+      - "Make each point save-worthy."
+      - "Use observed details."
+      - "Close with one next move."
+    alt: "Recap slide listing five principles for scroll-stopping Threads carousels."
+  - id: cta
+    role: cta
+    title: "Follow"
+    visual_mode: "photo-anchor"
+    cta:
+      type: follow
+      handle: "@lennox_saint"
+      description: "For creator systems that turn ideas into saved posts."
+    alt: "CTA slide asking viewers to follow @lennox_saint."

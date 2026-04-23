@@ -19,6 +19,9 @@ Default export size is `1080x1350` for Threads-friendly mobile viewing. Square a
 
 Every slide includes the creator's Threads handle in the bottom-left corner.
 
+For premium clarity, set `render_quality: high` or `render_quality: ultra` in the spec.
+This writes both standard slides and high-resolution masters for sharper exports.
+
 ## Preferred path: Codex, no API key needed
 
 If you are using this skill inside Codex, you do not need to set an OpenAI API key for the preferred workflow.
@@ -89,6 +92,17 @@ Pillow is still available as the simple fallback:
 ```bash
 PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli render examples/specs/ai-framework.yaml --out-dir output/ai-framework-pillow --renderer pillow
 ```
+
+For maximum first-slide impact and sharpness, add these fields to your spec:
+
+```yaml
+render_quality: "ultra"
+strategy:
+  hook_priority: "extreme"
+  scroll_stop_priority: "extreme"
+```
+
+`hook_priority: extreme` activates stricter hook-stop quality gates before delivery.
 
 Validate the output:
 
@@ -231,6 +245,7 @@ Specs without a design pack default to `editorial-paper`.
 Each run writes:
 
 - `slides/*.png`
+- `slides_hq/*.png` (browser renderer high-resolution masters)
 - `caption.md`
 - `alt_text.md`
 - `prompts.jsonl`
@@ -241,7 +256,16 @@ Each run writes:
 - `manifest.json`
 - `contact_sheet.png`
 
-`manifest.json` records selected strategy fields, visual thesis, critic result, pattern bank, virality score, design pack, visual modes, visual QA, and contact-sheet path.
+`manifest.json` records selected strategy fields, visual thesis, critic result, pattern bank, virality score, design pack, visual modes, visual QA, makeover scale, and contact-sheet path.
+
+When recreating a weak older carousel, treat `visual_qa.makeover_scale.score` as the upgrade bar. Anything below `8.5/10` is still too incremental for a high-intensity makeover.
+
+When `hook_priority` is `high`, `extreme`, or `thumbnail`, the run must also pass:
+
+- `virality.metrics.hook_stop_score >= 8.5`
+- `visual_qa.hook_stop.score >= 8.5`
+
+If either fails, the carousel is blocked and must be revised before final output.
 
 ## Gallery
 

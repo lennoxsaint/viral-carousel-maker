@@ -70,6 +70,10 @@ Hard blockers:
 - Selected hook does not create a clear old-belief-to-new-belief shift.
 - Text is clipped, too small, crowded, or visually unclear.
 - Browser visual QA fails contrast, crop safety, handle placement, dimensions, or text fit.
+- All slides use the same visual mode in a 6+ slide carousel.
+- A requested high-intensity makeover has a `makeover_scale.score` below `8.5/10`.
+- A high-priority hook (`hook_priority` or `scroll_stop_priority` = high/extreme/thumbnail) has `hook_stop_score` below `8.5/10`.
+- The first slide's visual stop score (`visual_qa.hook_stop.score`) is below `8.5/10` for a high-priority hook.
 - Hook or body copy is overlong for mobile feed speed.
 - CTA slide does not match the selected CTA type.
 - Offer CTA is missing the visible short URL.
@@ -83,12 +87,14 @@ Hard blockers:
 Per-slide review checklist:
 
 - Hook slide: strong pain/desire, clear curiosity gap, no generic headline.
+- Hook slide: headline+visual combination is forceful enough to interrupt fast feed scanning.
 - Body slides: one idea per slide, each slide advances the reader, no filler.
 - Recap slide: compresses the body into a memorable TL;DR.
 - CTA slide: asks for one action and feels earned.
 - Visual hierarchy: headline, body, accent, and handle are clearly separated.
 - Visual thesis: mood, material, energy, and one dominant visual idea are clear.
 - Contact sheet: the full sequence has rhythm and does not repeat the same visual beat.
+- Makeover scale: when improving a weak prior version, the upgrade must feel visibly non-incremental.
 - Mobile readability: all text can be read on a phone without zooming.
 - Pacing: the carousel alternates tension, clarity, and reward.
 - Brand fit: colors, tone, and layout match the user's profile.
@@ -127,7 +133,32 @@ viral-carousel qa output/run-name/manifest.json
 ```
 
 The manifest must include `virality`, `strategy`, `visual_thesis`, `design.contact_sheet`, and per-slide `visual_mode` metadata.
-It should also include `critic`, `pattern_bank`, `visual_qa`, and `design.design_pack` metadata.
+It should also include `critic`, `pattern_bank`, `visual_qa`, `visual_qa.makeover_scale`, and `design.design_pack` metadata.
+
+For browser renders, include:
+
+- `design.render_quality`
+- `design.dimensions_hq`
+- per-slide `path_hq`
+
+## Makeover Scale
+
+Use this when recreating or upgrading an older carousel.
+
+- `0-4`: mostly the same carousel with new rendering.
+- `5-6`: cleaner, but still incremental.
+- `7-8`: meaningfully better visual system and pacing.
+- `8.5-10`: obvious premium upgrade; different enough that the old version feels obsolete.
+
+If the old version was weak or visually generic, do not accept anything below `8.5`.
+
+## First-slide stop gate
+
+When the user requests aggressive scroll stopping:
+
+- Set `strategy.hook_priority` to `high` or `extreme`.
+- Prefer `render_quality: high` or `ultra`.
+- Block final output unless both copy and visual hook-stop scores clear `8.5/10`.
 
 ## Final QA statement
 

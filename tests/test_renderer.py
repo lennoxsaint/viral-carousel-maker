@@ -92,5 +92,19 @@ def test_browser_renderer_writes_pack(tmp_path):
     ok, messages = run_manifest_qa(manifest)
     assert ok, messages
     first_slide = Path(manifest["slides"][0]["path"])
+    first_slide_hq = Path(manifest["slides"][0]["path_hq"])
     with Image.open(first_slide) as image:
         assert image.size == (1080, 1350)
+    with Image.open(first_slide_hq) as image:
+        assert image.size == tuple(manifest["slides"][0]["dimensions_hq"])
+        assert image.size[0] > 1080
+        assert image.size[1] > 1350
+
+
+def test_browser_renderer_ultra_quality_exports_3x_hq(tmp_path):
+    spec = load_spec(ROOT / "examples" / "specs" / "threads-shock-stat.yaml")
+    spec["render_quality"] = "ultra"
+    manifest = BrowserCarouselRenderer(spec, tmp_path / "ultra").render()
+    first_slide_hq = Path(manifest["slides"][0]["path_hq"])
+    with Image.open(first_slide_hq) as image:
+        assert image.size == (3240, 4050)

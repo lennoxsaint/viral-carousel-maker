@@ -18,12 +18,14 @@ def normalize_design_pack(value: Any) -> str:
 def resolve_design_pack(spec: dict[str, Any]) -> str:
     strategy = spec.get("strategy") if isinstance(spec.get("strategy"), dict) else {}
     theme = spec.get("theme") if isinstance(spec.get("theme"), dict) else {}
-    return normalize_design_pack(
-        spec.get("design_pack")
-        or theme.get("design_pack")
-        or strategy.get("design_pack")
-        or DEFAULT_DESIGN_PACK
-    )
+    explicit_pack = spec.get("design_pack") or theme.get("design_pack") or strategy.get("design_pack")
+    if explicit_pack:
+        return normalize_design_pack(explicit_pack)
+    palette = theme.get("palette") if isinstance(theme.get("palette"), dict) else {}
+    surface = str(palette.get("paper") or palette.get("background") or "")
+    if surface and _is_dark_hex(surface):
+        return "brutal-proof"
+    return DEFAULT_DESIGN_PACK
 
 
 def resolve_palette(spec: dict[str, Any], design_pack: str | None = None) -> dict[str, str]:
@@ -67,3 +69,14 @@ def contrast_ratio(hex_a: str, hex_b: str) -> float:
     lighter = max(l1, l2)
     darker = min(l1, l2)
     return round((lighter + 0.05) / (darker + 0.05), 2)
+
+
+def _is_dark_hex(hex_value: str) -> bool:
+    value = hex_value.strip().lstrip("#")
+    if len(value) != 6:
+        return False
+    try:
+        red, green, blue = (int(value[i : i + 2], 16) for i in (0, 2, 4))
+    except ValueError:
+        return False
+    return (0.2126 * red + 0.7152 * green + 0.0722 * blue) < 70

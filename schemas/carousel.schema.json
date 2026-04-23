@@ -33,6 +33,10 @@
       "type": "string",
       "enum": ["browser", "pillow"]
     },
+    "render_quality": {
+      "type": "string",
+      "enum": ["standard", "high", "ultra"]
+    },
     "visual_qa": {
       "type": "object",
       "additionalProperties": true

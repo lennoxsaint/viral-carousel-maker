@@ -12,6 +12,7 @@ template_family: "framework"
 aspect_ratio: "vertical"
 design_pack: "editorial-paper"
 render_engine: "browser"
+render_quality: "high"
 theme:
   palette:
     text: "#05063f"
@@ -22,6 +23,8 @@ strategy:
   belief_shift: "Old: more ideas creates better content. New: one sharper idea travels farther."
   proof_level: "lived-experience"
   cta_pressure: "soft"
+  hook_priority: "high"
+  scroll_stop_priority: "high"
   visual_thesis: "Textured paper, bold navy/orange hierarchy, one simple system accent per slide."
   virality_principles:
     - "observation-over-how-to"
@@ -87,6 +90,7 @@ Use `strategy` whenever possible:
 
 - `design_pack`: one of `editorial-paper`, `brutal-proof`, `quiet-luxury`, `founder-field-notes`, `photo-anchor`, `data-lab`, `myth-truth`, or `template-marketplace`.
 - `render_engine`: `browser` by default, `pillow` only for fallback.
+- `render_quality`: `standard`, `high`, or `ultra` (browser renderer).
 - `critic`: structured AI critic output from `ai-critic-gate.md`.
 - `pattern_bank`: selected public or private pattern summary.
 - `learning`: optional profile/performance prior used to shape the carousel.
@@ -97,6 +101,7 @@ Prefer adding:
 
 - `main_idea`: one sentence explaining the slide's job.
 - `visual_mode`: one of `editorial-paper`, `shock-stat`, `proof-grid`, `myth-truth`, `taxonomy`, `quiet-truth`, `receipt`, `contrast-table`, `field-note`, or `photo-anchor`.
+- `hook_signal`: optional oversized hook keyword for `shock-stat` hooks.
 
 ## Scoring
 
@@ -107,6 +112,11 @@ viral-carousel score path/to/spec.yaml
 ```
 
 Revise if the score is below `8.5/10`, if the hook uses a banned opener, or if body slides are too dense.
+
+If `strategy.hook_priority` or `strategy.scroll_stop_priority` is `high`, `extreme`, or `thumbnail`, the hook must also clear:
+
+- `virality.metrics.hook_stop_score >= 8.5`
+- `visual_qa.hook_stop.score >= 8.5`
 
 Render with the browser engine:
 
