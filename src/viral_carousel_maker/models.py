@@ -30,6 +30,28 @@ TEMPLATE_FAMILIES = {
     "cta",
 }
 
+VISUAL_MODES = {
+    "editorial-paper",
+    "shock-stat",
+    "proof-grid",
+    "myth-truth",
+    "taxonomy",
+    "quiet-truth",
+    "receipt",
+    "contrast-table",
+    "field-note",
+    "photo-anchor",
+}
+
+DEFAULT_DESIGN_TOKENS = {
+    "headline_max_words": 11,
+    "body_max_words": 42,
+    "accent_rule_width_ratio": 0.22,
+    "handle_position": "bottom-left",
+    "progress_position": "top-left",
+    "cta_pressure_default": "soft",
+}
+
 DEFAULT_PALETTE = {
     "background": "#f7f4ee",
     "paper": "#fbfaf6",
@@ -92,4 +114,3 @@ def deep_merge_palette(user_palette: dict[str, Any] | None) -> dict[str, str]:
 
 def project_root() -> Path:
     return Path(__file__).resolve().parents[2]
-

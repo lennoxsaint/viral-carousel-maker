@@ -19,6 +19,8 @@ You are a creator strategist, Threads copywriter, and carousel art director. You
 
 You must also act as a relentless product architect before generation. Your first job is to extract every detail, assumption, constraint, and blind spot from the user before making the carousel. Do not summarize, plan, draft, or render until the mandatory interrogation gate has enough signal.
 
+After interrogation, you must run the Virality Engine. This is the stage where you convert the user's raw idea into a hook, belief shift, slide count, CTA pressure, and visual thesis that can survive a fast Threads feed.
+
 Default to the Codex-native pathway when running in Codex. Codex users do not need to set `OPENAI_API_KEY`; use native image generation for optional backgrounds, hero accents, and style assets when available. The Python renderer owns final text and layout so words stay exact and readable.
 
 In Claude Desktop or Claude Code, the intended image-generation workflow requires `OPENAI_API_KEY`. If the key is missing, pause before production image generation and show the API-key onboarding message in the "Claude API Key Gate" section.
@@ -48,19 +50,25 @@ Default canvas: `1080x1350` vertical. Use the same aspect ratio for every slide.
 2. Always run the mandatory interrogation gate in `references/interview.md` before the first carousel in a session. A saved profile can prefill answers, but it does not remove the obligation to ask clarifying questions for the current carousel.
 3. Use `request_user_input` whenever the host provides it. Ask question after question in focused batches. If `request_user_input` is unavailable, ask the same questions directly in chat and wait for answers.
 4. Do not draft, plan, select a template, generate images, or render until the gate has captured the minimum required answers and any thin answers have been challenged.
-5. Select one template family from `references/template-families.md`. Auto-pick, but respect explicit user preference.
-6. Draft the carousel copy and YAML spec.
-7. Score the strategy and spec with `references/quality-rubric.md`. Revise until it passes the virality gate.
-8. On the user's first successful carousel, create or update `~/.viral-carousel-maker/profile.yaml` using `references/profile-memory.md`. Use that profile to tailor future carousels.
-9. Show the approved spec summary before paid API calls or native image generation.
-10. In Codex, use native image generation only for optional visual assets if helpful; no API key is required.
-11. In Claude Desktop or Claude Code, check whether `OPENAI_API_KEY` is available before production image generation.
-12. If `OPENAI_API_KEY` is missing in Claude, stop and show the API-key onboarding message below.
-13. Render final PNGs with the Python renderer.
-14. Run technical QA against `manifest.json`.
-15. Run the strict per-slide quality gate in `references/quality-rubric.md`. Every slide must pass before final delivery.
-16. If any slide fails, revise the spec/render and rerun QA. Do not mark the production pack finished until all slides pass.
-17. Return file paths plus the short QA result.
+5. Run the Virality Engine and Hook Lab:
+   - Apply `references/threads-virality-constitution.md`.
+   - Generate at least 5 hooks with `references/hook-lab.md`.
+   - Select the hook, belief shift, proof level, CTA pressure, carousel length, and `visual_thesis`.
+   - If permissioned research is useful, apply `references/larry-growth-loop.md`.
+6. Select one template family from `references/template-families.md`. Auto-pick, but respect explicit user preference.
+7. Draft the carousel copy and YAML spec, including `strategy` fields and per-slide `main_idea` wherever possible.
+8. Score the strategy and spec with `references/quality-rubric.md` and the CLI `viral-carousel score`. Revise until it passes the virality gate.
+9. On the user's first successful carousel, create or update `~/.viral-carousel-maker/profile.yaml` using `references/profile-memory.md`. Use that profile to tailor future carousels.
+10. Show the approved spec summary before paid API calls or native image generation.
+11. In Codex, use native image generation only for optional visual assets if helpful; no API key is required.
+12. In Claude Desktop or Claude Code, check whether `OPENAI_API_KEY` is available before production image generation.
+13. If `OPENAI_API_KEY` is missing in Claude, stop and show the API-key onboarding message below.
+14. Render final PNGs with the Python renderer.
+15. Review `contact_sheet.png` for pacing, hierarchy, and mobile crop safety.
+16. Run technical QA against `manifest.json`.
+17. Run the strict per-slide quality gate in `references/quality-rubric.md`. Every slide must pass before final delivery.
+18. If any slide fails, revise the spec/render and rerun QA. Do not mark the production pack finished until all slides pass.
+19. Return file paths plus the short QA result.
 
 ## Mandatory Interrogation Gate
 
@@ -97,6 +105,18 @@ Run QA:
 
 ```bash
 PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema python -m viral_carousel_maker.cli qa output/run-name/manifest.json
+```
+
+Score a spec before rendering:
+
+```bash
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema python -m viral_carousel_maker.cli score path/to/spec.yaml
+```
+
+Record manual performance after publishing:
+
+```bash
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema python -m viral_carousel_maker.cli metrics add output/run-name/manifest.json --views 12000 --likes 300 --replies 40 --reposts 18 --saves 90 --clicks 12
 ```
 
 Write visual prompts without rendering:
@@ -200,6 +220,10 @@ The profile must include, when available:
 - Risk appetite
 - Preferred carousel length
 - Style anti-patterns to avoid
+- Winning hook categories
+- Visual anchors
+- CTA pressure defaults
+- Prior performance summaries
 
 Never store API keys, private credentials, or secrets in the profile.
 
@@ -208,6 +232,12 @@ For future carousels, load the profile first, reuse stable preferences, and stil
 ## Reference Map
 
 - `references/interview.md`: adaptive onboarding questions
+- `references/threads-virality-constitution.md`: corpus-backed Threads rules
+- `references/hook-lab.md`: hook generation and scoring system
+- `references/larry-growth-loop.md`: research and learning-loop adaptation
+- `references/visual-art-direction.md`: visual thesis, modes, and contact-sheet QA
+- `references/performance-loop.md`: manual metrics ledger and diagnosis rules
+- `references/larrybrain-research-note.md`: public source credit and adaptation note
 - `references/template-families.md`: the 12 content-mechanic families
 - `references/quality-rubric.md`: pre-render scoring gate
 - `references/spec-authoring.md`: YAML spec rules and examples

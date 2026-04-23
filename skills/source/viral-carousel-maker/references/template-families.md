@@ -54,3 +54,26 @@ Use this as one visual family only:
 
 Do not copy exact reference layouts. Extract spacing, hierarchy, and pacing.
 
+## Visual modes
+
+Template family decides the content mechanic. `visual_mode` decides the slide art direction.
+
+Use these modes across families:
+
+- `shock-stat`: best for data, proof, and contrarian hooks.
+- `proof-grid`: best for receipts, metrics, examples, and proof stacks.
+- `myth-truth`: best for debate, mistakes, and belief shifts.
+- `taxonomy`: best for map, framework, and category breakdowns.
+- `quiet-truth`: best for emotional, premium, or reflective slides.
+- `receipt`: best for research notes, audits, and proof-backed claims.
+- `contrast-table`: best for bad/good, before/after, and old/new belief.
+- `field-note`: best for founder observations and lived-experience insights.
+- `photo-anchor`: best when one generated image/object should carry the story.
+
+Default pairings:
+
+- Reach + shock stat: `data` or `debate` family with `shock-stat`.
+- Identity challenge: `mistakes` or `debate` with `quiet-truth`.
+- Myth teardown: `debate` with `myth-truth` or `contrast-table`.
+- Proof carousel: `data` or `examples` with `proof-grid` and `receipt`.
+- Soft CTA education: `framework` or `list` with `editorial-paper`.

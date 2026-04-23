@@ -1,0 +1,53 @@
+version: 1
+title: "The consistency trap"
+handle: "@samplecoach"
+template_family: "mistakes"
+aspect_ratio: "vertical"
+strategy:
+  goal: "saves"
+  hook_archetype: "identity_mirror"
+  belief_shift: "Old: inconsistency means laziness. New: inconsistency often means the system is too fragile."
+  proof_level: "lived-experience"
+  cta_pressure: "soft"
+  visual_thesis: "Quiet paper texture, blunt identity mirror, soft orange proof marks, generous whitespace."
+  virality_principles:
+    - "identity-mirror-over-homework-question"
+    - "one-idea-per-slide"
+slides:
+  - id: hook
+    role: hook
+    title: "You are not inconsistent"
+    subtitle: "Your content system is probably too fragile."
+    visual_mode: "quiet-truth"
+    main_idea: "Challenge the viewer's self-blame."
+  - id: fragile
+    role: body
+    title: "Fragile systems break"
+    body: "If posting requires perfect energy, perfect time, and perfect ideas, it was never a system."
+    visual_mode: "field-note"
+    main_idea: "Fragile systems need ideal conditions."
+  - id: defaults
+    role: body
+    title: "Defaults survive"
+    body: "A strong system gives you a next move even when your brain is tired."
+    visual_mode: "taxonomy"
+    main_idea: "Defaults protect consistency."
+  - id: smallest
+    role: body
+    title: "Shrink the promise"
+    body: "Build the version you can keep on your worst normal week."
+    visual_mode: "receipt"
+    main_idea: "The sustainable promise beats the impressive one."
+  - id: recap
+    role: recap
+    title: "TL;DR"
+    bullets:
+      - "Stop moralizing inconsistency."
+      - "Make the system less fragile."
+      - "Build for normal bad weeks."
+  - id: cta
+    role: cta
+    title: "Follow"
+    cta:
+      type: follow
+      description: "For simple systems creators can actually keep."

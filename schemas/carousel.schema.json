@@ -30,6 +30,22 @@
       "type": "object",
       "additionalProperties": true
     },
+    "strategy": {
+      "type": "object",
+      "properties": {
+        "goal": { "type": "string", "enum": ["reach", "saves", "conversion", "authority", "community"] },
+        "hook_archetype": { "type": "string" },
+        "belief_shift": { "type": "string" },
+        "proof_level": { "type": "string", "enum": ["none", "lived-experience", "example", "data", "receipt"] },
+        "cta_pressure": { "type": "string", "enum": ["none", "soft", "medium", "hard"] },
+        "visual_thesis": { "type": "string" },
+        "virality_principles": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    },
     "caption": { "type": "string" },
     "cta": {
       "type": "object",
@@ -54,6 +70,22 @@
           "subtitle": { "type": "string" },
           "body": { "type": "string" },
           "badge": { "type": "string" },
+          "main_idea": { "type": "string" },
+          "visual_mode": {
+            "type": "string",
+            "enum": [
+              "editorial-paper",
+              "shock-stat",
+              "proof-grid",
+              "myth-truth",
+              "taxonomy",
+              "quiet-truth",
+              "receipt",
+              "contrast-table",
+              "field-note",
+              "photo-anchor"
+            ]
+          },
           "visual_prompt": { "type": "string" },
           "alt": { "type": "string" },
           "bullets": {
@@ -79,4 +111,3 @@
   },
   "additionalProperties": true
 }
-

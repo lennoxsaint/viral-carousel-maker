@@ -8,7 +8,8 @@ from typing import Any
 
 import yaml
 
-from .models import ASPECT_RATIOS, SLIDE_ROLES, TEMPLATE_FAMILIES
+from .models import ASPECT_RATIOS, SLIDE_ROLES, TEMPLATE_FAMILIES, VISUAL_MODES
+from .virality import audit_spec
 
 
 class SpecError(ValueError):
@@ -61,6 +62,10 @@ def validate_spec(spec: dict[str, Any]) -> list[str]:
     if template_family not in TEMPLATE_FAMILIES:
         raise SpecError(f"Unsupported template_family '{template_family}'.")
 
+    strategy = spec.get("strategy", {})
+    if strategy is not None and not isinstance(strategy, dict):
+        raise SpecError("strategy must be an object when provided.")
+
     handle = str(spec["handle"]).strip()
     if not handle:
         raise SpecError("handle cannot be empty.")
@@ -88,6 +93,9 @@ def validate_spec(spec: dict[str, Any]) -> list[str]:
         role = str(slide.get("role", ""))
         if role not in SLIDE_ROLES:
             raise SpecError(f"Slide {index} has unsupported role '{role}'.")
+        visual_mode = slide.get("visual_mode")
+        if visual_mode and str(visual_mode) not in VISUAL_MODES:
+            raise SpecError(f"Slide {index} has unsupported visual_mode '{visual_mode}'.")
         if not str(slide.get("title", "")).strip():
             raise SpecError(f"Slide {index} is missing title.")
         if role == "cta":
@@ -100,6 +108,10 @@ def validate_spec(spec: dict[str, Any]) -> list[str]:
             if cta_type == "offer" and not str(cta.get("url", "")).strip():
                 raise SpecError("Offer CTA must include a url.")
 
+    virality = audit_spec(spec)
+    if virality.errors:
+        raise SpecError("; ".join(virality.errors))
+    warnings.extend(virality.warnings)
     warnings.extend(validate_with_jsonschema(spec))
     return warnings
 
@@ -107,4 +119,3 @@ def validate_spec(spec: dict[str, Any]) -> list[str]:
 def normalized_handle(value: str) -> str:
     value = value.strip()
     return value if value.startswith("@") else f"@{value}"
-

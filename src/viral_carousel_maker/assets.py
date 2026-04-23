@@ -10,23 +10,31 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageColor, ImageDraw, ImageFilter
 
 
-def paper_texture(size: tuple[int, int], seed: str = "viral-carousel-maker") -> Image.Image:
+def paper_texture(
+    size: tuple[int, int],
+    seed: str = "viral-carousel-maker",
+    base_color: str = "#fbfaf6",
+) -> Image.Image:
     """Create a reusable paper-like texture without external assets."""
 
     width, height = size
     rng = random.Random(seed)
-    base = Image.new("RGB", size, "#fbfaf6")
-    noise = Image.new("L", size, 0)
+    try:
+        base_rgb = ImageColor.getrgb(base_color)
+    except ValueError:
+        base_rgb = ImageColor.getrgb("#fbfaf6")
+    base = Image.new("RGB", size, base_rgb)
+    noise = Image.new("RGB", size, base_rgb)
     pixels = noise.load()
     for y in range(height):
         for x in range(width):
-            pixels[x, y] = rng.randint(226, 255)
+            jitter = rng.randint(-10, 10)
+            pixels[x, y] = tuple(max(0, min(255, channel + jitter)) for channel in base_rgb)
     noise = noise.filter(ImageFilter.GaussianBlur(radius=1.1))
-    texture = Image.merge("RGB", (noise, noise, noise))
-    return Image.blend(base, texture, alpha=0.18)
+    return Image.blend(base, noise, alpha=0.32)
 
 
 def draw_logo_badge(
@@ -149,4 +157,3 @@ def generate_openai_asset(prompt: str, out_path: Path, model: str = "gpt-image-2
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_bytes(base64.b64decode(result.data[0].b64_json))
     return out_path
-

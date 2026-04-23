@@ -64,12 +64,17 @@ Do not generate until you know:
 - Why this should exist now.
 - The user's credibility, proof, experience, examples, or evidence boundaries.
 - CTA type: follow or offer.
+- Carousel job: reach, saves, authority, conversion, or community.
+- CTA pressure: none, soft, medium, or hard.
 - Offer URL and offer promise, if CTA is an offer.
 - Carousel length preference: 3, 5, 7, or 9 body slides.
 - Tone: practical, emotional, contrarian, premium, funny, direct, etc.
 - Visual taste and anti-taste.
 - Brand colors or style constraints.
 - Risk appetite for punchy hooks.
+- Enemy belief, bad advice, or false assumption the carousel should attack.
+- Raw personal stakes, lived experience, or story available.
+- Proof strength: none, lived experience, example, data, or receipt.
 - Claims to avoid or claims that need evidence.
 - What would make the viewer save this.
 - What would make the viewer share this.
@@ -87,19 +92,23 @@ Start here for a new user or thin profile:
 5. What should the viewer believe, do, or feel after swiping?
 6. Why does this topic matter right now?
 7. What proof, examples, lived experience, numbers, or client/customer evidence can we safely use?
-8. What is the CTA: follow, comment, save, share, or visit an offer?
-9. If there is an offer, what is the short URL and what does the offer promise?
-10. What tone should this use?
-11. What should it never sound like?
-12. What visual style should it lean toward?
-13. What visual style should it avoid?
-14. What colors, fonts, logos, or assets matter?
-15. How aggressive should the hook be on a 1-10 scale?
-16. Do you want the carousel to feel dense and saveable or sparse and punchy?
-17. How many body slides do you want: 3, 5, 7, or 9?
-18. What is one generic version of this post that you would hate?
-19. What would make someone save this instead of just liking it?
-20. What would make someone send this to a friend?
+8. Is the primary job reach, saves, authority, conversion, or community?
+9. What is the enemy belief, bad advice, bad habit, or false assumption we should challenge?
+10. What raw personal stakes or lived experience can we include without exaggerating?
+11. What is the CTA: follow, no CTA, soft offer, or hard offer?
+12. If there is an offer, what is the short URL and what does the offer promise?
+13. How much CTA pressure is acceptable: none, soft, medium, or hard?
+14. What tone should this use?
+15. What should it never sound like?
+16. What visual style should it lean toward?
+17. What visual style should it avoid?
+18. What colors, fonts, logos, or assets matter?
+19. How aggressive should the hook be on a 1-10 scale?
+20. Do you want the carousel to feel dense and saveable or sparse and punchy?
+21. How many body slides do you want: 3, 5, 7, or 9?
+22. What is one generic version of this post that you would hate?
+23. What would make someone save this instead of just liking it?
+24. What would make someone send this to a friend?
 
 ## Follow-up questions for vague answers
 

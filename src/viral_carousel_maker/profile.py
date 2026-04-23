@@ -19,6 +19,14 @@ DEFAULT_PROFILE = {
     "tone": "strategic but friendly",
     "cta_default": "follow",
     "visual_preferences": ["clean", "high contrast", "mobile-first"],
+    "winning_hook_categories": [],
+    "visual_anchors": [],
+    "style_anti_patterns": [],
+    "performance_summary": {
+        "top_hooks": [],
+        "best_cta_pressure": "soft",
+        "last_reviewed_at": None,
+    },
 }
 
 
@@ -39,4 +47,3 @@ def write_profile(profile: dict[str, Any], path: str | Path | None = None) -> Pa
 
 def init_profile(path: str | Path | None = None) -> Path:
     return write_profile(DEFAULT_PROFILE, path)
-

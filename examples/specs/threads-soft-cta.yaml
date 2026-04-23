@@ -1,0 +1,53 @@
+version: 1
+title: "The earned ask"
+handle: "@samplefounder"
+template_family: "framework"
+aspect_ratio: "vertical"
+strategy:
+  goal: "conversion"
+  hook_archetype: "enemy_belief"
+  belief_shift: "Old: every post should sell. New: some posts should earn the right to sell later."
+  proof_level: "lived-experience"
+  cta_pressure: "soft"
+  visual_thesis: "Editorial paper, soft CTA arc, orange progress marks, restrained founder-note energy."
+  virality_principles:
+    - "cta-is-a-reach-tax"
+    - "earn-before-asking"
+slides:
+  - id: hook
+    role: hook
+    title: "Your CTA is taxing the post"
+    subtitle: "The ask can be true and still be too early."
+    visual_mode: "field-note"
+    main_idea: "Frame CTA as friction."
+  - id: job
+    role: body
+    title: "Name the job"
+    body: "Reach posts earn attention. Conversion posts harvest trust. Mixing the jobs creates friction."
+    visual_mode: "myth-truth"
+    main_idea: "Each post needs one job."
+  - id: earn
+    role: body
+    title: "Earn the ask"
+    body: "A CTA feels natural only after the carousel has solved a small real problem."
+    visual_mode: "receipt"
+    main_idea: "Value must precede the ask."
+  - id: soften
+    role: body
+    title: "Soften"
+    body: "When in doubt, make the next step lighter than your instinct."
+    visual_mode: "quiet-truth"
+    main_idea: "Lower-pressure CTAs preserve trust."
+  - id: recap
+    role: recap
+    title: "TL;DR"
+    bullets:
+      - "Every post needs one job."
+      - "Value earns the ask."
+      - "Softer CTAs often travel farther."
+  - id: cta
+    role: cta
+    title: "Follow"
+    cta:
+      type: follow
+      description: "For founder content that earns trust before asking."

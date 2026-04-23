@@ -54,6 +54,26 @@ cta_default:
   offer_url: ""
 risk_appetite: 7
 preferred_body_slide_count: 5
+hook_preferences:
+  winning_categories: []
+  weak_categories: []
+  banned_openers:
+    - "How to"
+    - "Here are"
+visual_anchors:
+  - "paper texture"
+  - "large condensed headlines"
+style_anti_patterns:
+  - "generic AI voice"
+  - "fake urgency"
+cta_defaults:
+  pressure: "soft"
+  follow_copy: "Follow for sharper systems."
+performance_summary:
+  top_hooks: []
+  best_visual_modes: []
+  best_cta_pressure: "soft"
+  last_reviewed_at: ""
 proof_boundaries:
   - "do not invent stats"
   - "flag unsupported claims"
@@ -88,10 +108,13 @@ On future carousels:
    - desired outcome
    - current audience pain
    - proof for this claim
+   - hook archetype and belief shift
    - CTA for this post
+   - CTA pressure
    - any style changes
-4. Use the profile to tailor tone, visuals, CTA defaults, and risk level.
+4. Use the profile to tailor tone, visuals, CTA defaults, hook categories, visual anchors, and risk level.
 5. Update the profile only with stable new information.
+6. If the user provides performance metrics, update only summarized learnings. Do not paste private raw comments or secrets into the profile.
 
 ## Profile write message
 

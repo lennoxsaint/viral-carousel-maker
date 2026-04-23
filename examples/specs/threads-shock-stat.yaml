@@ -1,0 +1,59 @@
+version: 1
+title: "The how-to hook tax"
+handle: "@samplecreator"
+template_family: "data"
+aspect_ratio: "vertical"
+strategy:
+  goal: "reach"
+  hook_archetype: "shock_stat"
+  belief_shift: "Old: instruction creates attention. New: contradiction creates attention before instruction earns trust."
+  proof_level: "data"
+  cta_pressure: "soft"
+  visual_thesis: "Textured editorial paper, one huge stat, navy/orange proof energy, sparse and confrontational."
+  virality_principles:
+    - "no-how-to-hooks"
+    - "short-certain-language"
+theme:
+  palette:
+    text: "#05063f"
+    accent: "#e84b05"
+    accent_2: "#ff1f83"
+slides:
+  - id: hook
+    role: hook
+    title: "0% used how-to hooks"
+    subtitle: "The strongest posts started with tension before teaching."
+    badge: "0%"
+    visual_mode: "shock-stat"
+    main_idea: "The stat contradicts default creator advice."
+  - id: observation
+    role: body
+    title: "Instruction waits"
+    body: "A feed does not reward lessons before the reader cares."
+    visual_mode: "quiet-truth"
+    main_idea: "Teaching works after attention is earned."
+  - id: tension
+    role: body
+    title: "Tension opens"
+    body: "Observation, confession, or contradiction gives the reader a reason to swipe."
+    visual_mode: "field-note"
+    main_idea: "Tension creates the first swipe."
+  - id: rewrite
+    role: body
+    title: "Rewrite the opener"
+    body: "Turn 'how to grow' into the belief your audience is afraid might be true."
+    visual_mode: "myth-truth"
+    main_idea: "Rewrite instruction into belief tension."
+  - id: recap
+    role: recap
+    title: "TL;DR"
+    bullets:
+      - "Instruction is not a hook."
+      - "Tension earns the lesson."
+      - "Teach after the reader cares."
+  - id: cta
+    role: cta
+    title: "Follow"
+    cta:
+      type: follow
+      description: "For sharper creator systems."

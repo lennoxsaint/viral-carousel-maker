@@ -1,0 +1,55 @@
+version: 1
+title: "The proof stack"
+handle: "@samplesaas"
+template_family: "data"
+aspect_ratio: "vertical"
+strategy:
+  goal: "conversion"
+  hook_archetype: "proof_receipt"
+  belief_shift: "Old: a claim is enough. New: every strong claim needs a nearby receipt."
+  proof_level: "receipt"
+  cta_pressure: "medium"
+  visual_thesis: "Proof grid with compact receipts, strong navy labels, orange audit marks, polished but not corporate."
+  virality_principles:
+    - "proof-near-claim"
+    - "cta-must-be-earned"
+slides:
+  - id: hook
+    role: hook
+    title: "Claims die without receipts"
+    subtitle: "Put proof close enough that doubt has less room."
+    visual_mode: "receipt"
+    main_idea: "The hook reframes proof as survival."
+  - id: metric
+    role: body
+    title: "Metric"
+    body: "Use one number that directly supports the promise."
+    visual_mode: "proof-grid"
+    main_idea: "One relevant metric beats vague credibility."
+  - id: example
+    role: body
+    title: "Example"
+    body: "Show the before-and-after moment the audience can recognize."
+    visual_mode: "proof-grid"
+    main_idea: "Examples make proof concrete."
+  - id: quote
+    role: body
+    title: "Quote"
+    body: "Use a short customer phrase only when it says something specific."
+    visual_mode: "proof-grid"
+    main_idea: "Specific customer language beats generic praise."
+  - id: recap
+    role: recap
+    title: "TL;DR"
+    bullets:
+      - "One claim."
+      - "One nearby receipt."
+      - "One specific proof point."
+  - id: cta
+    role: cta
+    title: "Proof Kit"
+    cta:
+      type: offer
+      label: "Proof Kit"
+      url: "threadify.app/proof"
+      description: "Get the checklist for turning claims into receipts."

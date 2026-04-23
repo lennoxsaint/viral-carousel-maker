@@ -27,3 +27,25 @@ def test_offer_cta_requires_url():
     with pytest.raises(SpecError, match="Offer CTA"):
         validate_spec(spec)
 
+
+def test_strategy_fields_and_visual_modes_validate():
+    spec = load_spec(ROOT / "examples" / "specs" / "ai-framework.yaml")
+    spec["strategy"] = {
+        "goal": "saves",
+        "hook_archetype": "enemy_belief",
+        "belief_shift": "Old: prompts are one-offs. New: prompts are reusable systems.",
+        "proof_level": "lived-experience",
+        "cta_pressure": "soft",
+        "visual_thesis": "Editorial paper with one orange system accent.",
+        "virality_principles": ["observation-over-how-to"],
+    }
+    spec["slides"][0]["visual_mode"] = "shock-stat"
+    warnings = validate_spec(spec)
+    assert isinstance(warnings, list)
+
+
+def test_unknown_visual_mode_fails():
+    spec = load_spec(ROOT / "examples" / "specs" / "ai-framework.yaml")
+    spec["slides"][0]["visual_mode"] = "glitter"
+    with pytest.raises(SpecError, match="visual_mode"):
+        validate_spec(spec)

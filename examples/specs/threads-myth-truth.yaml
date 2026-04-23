@@ -1,0 +1,53 @@
+version: 1
+title: "The value post myth"
+handle: "@samplemarketer"
+template_family: "debate"
+aspect_ratio: "vertical"
+strategy:
+  goal: "authority"
+  hook_archetype: "lie"
+  belief_shift: "Old: value means more information. New: value means sharper recognition."
+  proof_level: "example"
+  cta_pressure: "soft"
+  visual_thesis: "Myth/truth contrast table, stark navy type, orange separators, no filler decoration."
+  virality_principles:
+    - "delete-fake-urgency"
+    - "avoid-homework-questions"
+slides:
+  - id: hook
+    role: hook
+    title: "Value posts are overrated"
+    subtitle: "Recognition beats information when the feed is moving fast."
+    visual_mode: "myth-truth"
+    main_idea: "Challenge the information-equals-value belief."
+  - id: myth
+    role: body
+    title: "Myth"
+    body: "More points make the post more valuable."
+    visual_mode: "contrast-table"
+    main_idea: "Name the old belief."
+  - id: truth
+    role: body
+    title: "Truth"
+    body: "One sentence that names the reader's hidden problem can travel farther than seven tips."
+    visual_mode: "quiet-truth"
+    main_idea: "Recognition creates shareability."
+  - id: move
+    role: body
+    title: "Move"
+    body: "Cut the weakest points until the strongest one has nowhere to hide."
+    visual_mode: "receipt"
+    main_idea: "Compression makes the best idea visible."
+  - id: recap
+    role: recap
+    title: "TL;DR"
+    bullets:
+      - "More points are not more value."
+      - "Recognition creates the first save."
+      - "Cut until one idea dominates."
+  - id: cta
+    role: cta
+    title: "Follow"
+    cta:
+      type: follow
+      description: "For cleaner content strategy."

@@ -39,9 +39,13 @@ def test_skill_render_script_creates_dist():
     assert "request_user_input" in claude_text
     assert "profile.yaml" in claude_text
     assert "per-slide quality gate" in claude_text
+    assert "Virality Engine" in claude_text
+    assert "Hook Lab" in claude_text
+    assert "contact_sheet.png" in claude_text
     assert "Mandatory Interrogation Gate" in codex_text
     assert "request_user_input" in codex_text
     assert "profile.yaml" in codex_text
+    assert "Virality Engine" in codex_text
 
 
 def test_skill_reference_docs_include_interview_profile_and_quality_gates():
@@ -49,6 +53,9 @@ def test_skill_reference_docs_include_interview_profile_and_quality_gates():
     interview = (source_root / "interview.md").read_text(encoding="utf-8")
     profile = (source_root / "profile-memory.md").read_text(encoding="utf-8")
     quality = (source_root / "quality-rubric.md").read_text(encoding="utf-8")
+    constitution = (source_root / "threads-virality-constitution.md").read_text(encoding="utf-8")
+    hooks = (source_root / "hook-lab.md").read_text(encoding="utf-8")
+    performance = (source_root / "performance-loop.md").read_text(encoding="utf-8")
 
     assert "This gate is mandatory before carousel generation." in interview
     assert "Use `request_user_input` whenever the host provides it." in interview
@@ -57,3 +64,6 @@ def test_skill_reference_docs_include_interview_profile_and_quality_gates():
     assert "Never store" in profile
     assert "Quality gates are mandatory" in quality
     assert "Per-slide finished image quality" in quality
+    assert "No how-to hooks by default" in constitution
+    assert "Generate at least 5 hook candidates" in hooks
+    assert "viral-carousel metrics add" in performance

@@ -19,9 +19,21 @@ def run_manifest_qa(manifest: dict[str, Any]) -> tuple[bool, list[str]]:
     warnings = list(manifest.get("warnings", []))
     slides = manifest.get("slides", [])
     expected_size = tuple(manifest.get("dimensions", []))
+    virality = manifest.get("virality") or {}
+    design = manifest.get("design") or {}
 
     if not slides:
         errors.append("Manifest has no slides.")
+
+    if virality and not virality.get("ok", False):
+        errors.extend(f"Virality gate: {message}" for message in virality.get("errors", []))
+    for message in virality.get("warnings", []):
+        if message not in warnings:
+            warnings.append(message)
+
+    contact_sheet = design.get("contact_sheet")
+    if contact_sheet and not Path(contact_sheet).exists():
+        errors.append(f"Missing contact sheet: {contact_sheet}")
 
     roles = [slide.get("role") for slide in slides]
     for role in ("hook", "recap", "cta"):
@@ -45,6 +57,8 @@ def run_manifest_qa(manifest: dict[str, Any]) -> tuple[bool, list[str]]:
             warnings.append(f"{path.name} required minimum text sizing; review manually.")
         if slide.get("role") == "cta" and not slide.get("cta_type"):
             errors.append(f"{path.name} missing CTA type metadata.")
+        if not slide.get("visual_mode"):
+            warnings.append(f"{path.name} missing visual mode metadata.")
 
     return not errors, errors + warnings
 
@@ -68,4 +82,3 @@ def write_qa_report(manifest: dict[str, Any], output_path: str | Path) -> Path:
     path = Path(output_path)
     path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     return path
-

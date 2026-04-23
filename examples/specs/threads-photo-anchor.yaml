@@ -1,0 +1,53 @@
+version: 1
+title: "The visual anchor rule"
+handle: "@sampledesigner"
+template_family: "examples"
+aspect_ratio: "vertical"
+strategy:
+  goal: "saves"
+  hook_archetype: "private_room_observation"
+  belief_shift: "Old: visuals decorate the point. New: visuals should carry part of the point."
+  proof_level: "example"
+  cta_pressure: "soft"
+  visual_thesis: "Minimal paper layout with one image anchor per slide, designerly whitespace, no decorative clutter."
+  virality_principles:
+    - "one-dominant-visual-idea"
+    - "visuals-carry-meaning"
+slides:
+  - id: hook
+    role: hook
+    title: "Your visuals are doing nothing"
+    subtitle: "A slide should not need decoration to feel alive."
+    visual_mode: "photo-anchor"
+    main_idea: "Challenge decorative visuals."
+  - id: anchor
+    role: body
+    title: "Anchor"
+    body: "Choose one object, scene, chart, or receipt that explains the slide faster than a paragraph."
+    visual_mode: "photo-anchor"
+    main_idea: "One visual anchor should carry meaning."
+  - id: remove
+    role: body
+    title: "Remove"
+    body: "Delete any icon, badge, or shape that does not teach, prove, or intensify the idea."
+    visual_mode: "quiet-truth"
+    main_idea: "Decoration without meaning weakens hierarchy."
+  - id: repeat
+    role: body
+    title: "Repeat"
+    body: "Keep the visual language consistent so the carousel feels like one thought, not nine templates."
+    visual_mode: "taxonomy"
+    main_idea: "Consistency makes the sequence feel intentional."
+  - id: recap
+    role: recap
+    title: "TL;DR"
+    bullets:
+      - "One visual anchor."
+      - "No filler decoration."
+      - "Repeat the visual language."
+  - id: cta
+    role: cta
+    title: "Follow"
+    cta:
+      type: follow
+      description: "For sharper carousel design."
