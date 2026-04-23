@@ -43,6 +43,7 @@ def test_skill_render_script_creates_dist():
     assert "Hook Lab" in claude_text
     assert "AI critic gate" in claude_text
     assert "browser renderer" in claude_text
+    assert "visual_priority" in claude_text
     assert "visual_qa.json" in claude_text
     assert "contact_sheet.png" in claude_text
     assert "Mandatory Interrogation Gate" in codex_text
@@ -51,6 +52,7 @@ def test_skill_render_script_creates_dist():
     assert "Virality Engine" in codex_text
     assert "AI critic gate" in codex_text
     assert "browser renderer" in codex_text
+    assert "visual_priority" in codex_text
 
 
 def test_skill_reference_docs_include_interview_profile_and_quality_gates():
@@ -71,6 +73,7 @@ def test_skill_reference_docs_include_interview_profile_and_quality_gates():
     assert "Never store" in profile
     assert "Quality gates are mandatory" in quality
     assert "Per-slide finished image quality" in quality
+    assert "visual-area threshold" in quality
     assert "No how-to hooks by default" in constitution
     assert "Generate at least 5 hook candidates" in hooks
     assert "viral-carousel metrics add" in performance

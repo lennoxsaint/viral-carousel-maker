@@ -98,11 +98,13 @@ For maximum first-slide impact and sharpness, add these fields to your spec:
 ```yaml
 render_quality: "ultra"
 strategy:
+  visual_priority: "extreme"
   hook_priority: "extreme"
   scroll_stop_priority: "extreme"
 ```
 
 `hook_priority: extreme` activates stricter hook-stop quality gates before delivery.
+`visual_priority: extreme` enforces visual-dominance and lower-copy-density gates on every slide.
 
 Validate the output:
 
@@ -136,6 +138,7 @@ When invoked, the skill:
 - Sets CTA pressure deliberately: none, soft, medium, or hard
 - Creates a `visual_thesis` before rendering
 - Chooses a named `design_pack`
+- Forces a visual component (icon/object/diagram) on every slide
 - Chooses one of 12 content-mechanic template families
 - Drafts the carousel spec
 - Scores hook strength, saveability, shareability, clarity, CTA fit, and proof quality
@@ -264,6 +267,12 @@ When `hook_priority` is `high`, `extreme`, or `thumbnail`, the run must also pas
 
 - `virality.metrics.hook_stop_score >= 8.5`
 - `visual_qa.hook_stop.score >= 8.5`
+
+When `visual_priority` is `high` or `extreme`, the run must also pass:
+
+- per-slide `visual_component_present = true`
+- per-slide visual area ratio minimums (hook/body/recap/cta)
+- stricter body-copy density gates for visual-first pacing
 
 If either fails, the carousel is blocked and must be revised before final output.
 

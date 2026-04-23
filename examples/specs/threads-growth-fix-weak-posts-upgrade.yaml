@@ -8,6 +8,7 @@ render_engine: "browser"
 render_quality: "ultra"
 strategy:
   goal: "saves"
+  visual_priority: "extreme"
   hook_archetype: "enemy_belief"
   hook_priority: "extreme"
   scroll_stop_priority: "extreme"

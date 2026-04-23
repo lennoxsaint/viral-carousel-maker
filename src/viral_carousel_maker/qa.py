@@ -24,6 +24,7 @@ def run_manifest_qa(manifest: dict[str, Any]) -> tuple[bool, list[str]]:
     expected_hq_size = tuple((manifest.get("design") or {}).get("dimensions_hq", []))
     virality = manifest.get("virality") or {}
     design = manifest.get("design") or {}
+    render_engine = str(design.get("render_engine") or manifest.get("render_engine") or "")
     critic = manifest.get("critic") if isinstance(manifest.get("critic"), dict) else {}
 
     if not slides:
@@ -88,6 +89,11 @@ def run_manifest_qa(manifest: dict[str, Any]) -> tuple[bool, list[str]]:
             errors.append(f"{path.name} missing CTA type metadata.")
         if not slide.get("visual_mode"):
             warnings.append(f"{path.name} missing visual mode metadata.")
+        if render_engine == "browser":
+            if not slide.get("visual_component_present"):
+                errors.append(f"{path.name} is missing required visual component metadata.")
+            if float(slide.get("visual_area_ratio", 0) or 0) <= 0:
+                errors.append(f"{path.name} has zero visual area ratio; add a visual icon/object.")
 
     return not errors, errors + warnings
 
@@ -98,9 +104,17 @@ def build_visual_qa(manifest: dict[str, Any]) -> dict[str, Any]:
     slides = manifest.get("slides", [])
     dimensions = tuple(manifest.get("dimensions", []))
     design = manifest.get("design") if isinstance(manifest.get("design"), dict) else {}
+    render_engine = str(design.get("render_engine") or manifest.get("render_engine") or "")
     strategy = manifest.get("strategy") if isinstance(manifest.get("strategy"), dict) else {}
     tokens = design.get("tokens") if isinstance(design.get("tokens"), dict) else {}
     palette = design.get("palette") if isinstance(design.get("palette"), dict) else {}
+    visual_priority = str(
+        strategy.get("visual_priority")
+        or design.get("visual_priority")
+        or "high"
+    ).lower()
+    if visual_priority not in {"standard", "high", "extreme", "thumbnail"}:
+        visual_priority = "high"
     min_contrast = float(tokens.get("minimum_contrast_ratio", 4.5) or 4.5)
     blockers: list[str] = []
     warnings: list[str] = []
@@ -139,6 +153,10 @@ def build_visual_qa(manifest: dict[str, Any]) -> dict[str, Any]:
             "hierarchy_score": float(slide.get("hierarchy_score", 8.0)),
             "visual_mode": slide.get("visual_mode"),
             "visual_overlap_ratio": float(slide.get("visual_overlap_ratio") or 0),
+            "visual_area_ratio": float(slide.get("visual_area_ratio") or 0),
+            "visual_component_present": bool(slide.get("visual_component_present", False)),
+            "visual_component_count": int(slide.get("visual_component_count", 0) or 0),
+            "copy_word_count": int(slide.get("copy_word_count", 0) or 0),
         }
         if not path.exists():
             blockers.append(f"Missing slide file for visual QA: {path}.")
@@ -165,6 +183,25 @@ def build_visual_qa(manifest: dict[str, Any]) -> dict[str, Any]:
             )
         if report["hierarchy_score"] < 7:
             warnings.append(f"{path.name} hierarchy score is below 7; review first-read clarity.")
+        if render_engine == "browser":
+            if not report["visual_component_present"] or report["visual_component_count"] < 1:
+                blockers.append(f"{path.name} is missing a required icon/object visual component.")
+            visual_area_min = _visual_area_threshold(str(report.get("role") or ""), visual_priority)
+            if report["visual_area_ratio"] < visual_area_min:
+                blockers.append(
+                    f"{path.name} visual area ratio is {report['visual_area_ratio']:.3f}; "
+                    f"{visual_priority} priority requires at least {visual_area_min:.3f}."
+                )
+        if str(report.get("role") or "") == "body":
+            copy_words = int(report.get("copy_word_count") or 0)
+            if visual_priority in {"extreme", "thumbnail"} and copy_words > 34:
+                blockers.append(
+                    f"{path.name} has {copy_words} words; extreme visual priority limits body copy to 34."
+                )
+            elif visual_priority == "high" and copy_words > 40:
+                warnings.append(
+                    f"{path.name} has {copy_words} words; visual-first runs work better under 40."
+                )
         visual_mode = str(slide.get("visual_mode") or "")
         overlap_ratio = float(slide.get("visual_overlap_ratio") or 0)
         if visual_mode in {"receipt", "photo-anchor", "proof-grid"} and overlap_ratio > 0.08:
@@ -202,7 +239,12 @@ def build_visual_qa(manifest: dict[str, Any]) -> dict[str, Any]:
             "global_contrast_ratio": global_contrast,
             "visual_modes": sorted(set(modes)),
             "design_pack": design.get("design_pack"),
+            "visual_priority": visual_priority,
             "hook_visual_stop_score": hook_stop["score"],
+            "average_visual_area_ratio": round(
+                sum(item["visual_area_ratio"] for item in slide_reports) / max(1, len(slide_reports)),
+                3,
+            ),
         },
         "hook_stop": hook_stop,
         "makeover_scale": makeover,
@@ -292,6 +334,16 @@ def _hook_visual_stop_score(manifest: dict[str, Any], slide_reports: list[dict[s
     if overlap <= 0.08:
         score += 0.6
         reasons.append("clean visual separation")
+    visual_area = float(hook_report.get("visual_area_ratio") or 0)
+    if visual_area >= 0.14:
+        score += 0.8
+        reasons.append("high visual dominance")
+    elif visual_area >= 0.10:
+        score += 0.4
+        reasons.append("visible visual dominance")
+    elif visual_area < 0.07:
+        score -= 0.9
+        reasons.append("visual dominance too low")
     mode = str(hook_slide.get("visual_mode") or hook_report.get("visual_mode") or "")
     if mode in {"shock-stat", "myth-truth", "proof-grid", "photo-anchor"}:
         score += 0.8
@@ -307,8 +359,19 @@ def _hook_visual_stop_score(manifest: dict[str, Any], slide_reports: list[dict[s
         "hierarchy_score": round(hierarchy, 2),
         "visual_mode": mode,
         "overlap_ratio": round(overlap, 3),
+        "visual_area_ratio": round(visual_area, 3),
         "reasons": reasons,
     }
+
+
+def _visual_area_threshold(role: str, visual_priority: str) -> float:
+    if visual_priority in {"extreme", "thumbnail"}:
+        thresholds = {"hook": 0.14, "body": 0.085, "recap": 0.085, "cta": 0.12}
+    elif visual_priority == "high":
+        thresholds = {"hook": 0.08, "body": 0.06, "recap": 0.06, "cta": 0.09}
+    else:
+        thresholds = {"hook": 0.09, "body": 0.05, "recap": 0.05, "cta": 0.08}
+    return thresholds.get(role, 0.06)
 
 
 def write_visual_qa_files(manifest: dict[str, Any], out_dir: str | Path) -> tuple[Path, Path]:

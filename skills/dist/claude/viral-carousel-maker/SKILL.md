@@ -61,7 +61,7 @@ Default canvas: `1080x1350` vertical. Use the same aspect ratio for every slide.
    - Select the hook, belief shift, proof level, CTA pressure, carousel length, and `visual_thesis`.
    - If permissioned research is useful, apply `references/larry-growth-loop.md`.
 6. Select one template family from `references/template-families.md`. Auto-pick, but respect explicit user preference.
-7. Select a `design_pack`, `render_engine`, and `render_quality`. Default to `browser` + `high`; use `pillow` only as fallback.
+7. Select a `design_pack`, `render_engine`, `render_quality`, and `visual_priority`. Default to `browser` + `high`; use `pillow` only as fallback.
 8. Draft the carousel copy and YAML spec, including `strategy`, `design_pack`, `render_engine`, `pattern_bank`, and per-slide `main_idea` wherever possible.
 9. Score the strategy and spec with `references/quality-rubric.md` and the CLI `viral-carousel score`. Revise until it passes the virality gate.
 10. Run the required AI critic gate in `references/ai-critic-gate.md`. Revise until critic verdict is `pass`.
@@ -71,12 +71,13 @@ Default canvas: `1080x1350` vertical. Use the same aspect ratio for every slide.
 14. In Claude Desktop or Claude Code, check whether `OPENAI_API_KEY` is available before production image generation.
 15. If `OPENAI_API_KEY` is missing in Claude, stop and show the API-key onboarding message below.
 16. Render final PNGs with the browser renderer. Use Pillow fallback only if browser rendering is unavailable.
-17. For aggressive first-slide requests, enforce both copy and visual hook-stop scores at `8.5+` before final delivery.
-18. Review `contact_sheet.png` for pacing, hierarchy, and mobile crop safety.
-19. Run technical QA against `manifest.json` and visual QA from `visual_qa.json`.
-20. Run the strict per-slide quality gate in `references/quality-rubric.md`. Every slide must pass before final delivery.
-21. If any slide fails, revise the spec/render and rerun QA. Do not mark the production pack finished until all slides pass.
-22. Return file paths plus the short QA result.
+17. Ensure every slide has an explicit visual component (icon/object/diagram), not text-only layout.
+18. For aggressive first-slide requests, enforce both copy and visual hook-stop scores at `8.5+` before final delivery.
+19. Review `contact_sheet.png` for pacing, hierarchy, and mobile crop safety.
+20. Run technical QA against `manifest.json` and visual QA from `visual_qa.json`.
+21. Run the strict per-slide quality gate in `references/quality-rubric.md`. Every slide must pass before final delivery.
+22. If any slide fails, revise the spec/render and rerun QA. Do not mark the production pack finished until all slides pass.
+23. Return file paths plus the short QA result.
 
 ## Mandatory Interrogation Gate
 

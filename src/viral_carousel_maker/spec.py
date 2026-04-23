@@ -86,6 +86,10 @@ def validate_spec(spec: dict[str, Any]) -> list[str]:
     strategy = spec.get("strategy", {})
     if strategy is not None and not isinstance(strategy, dict):
         raise SpecError("strategy must be an object when provided.")
+    if isinstance(strategy, dict):
+        visual_priority = strategy.get("visual_priority")
+        if visual_priority and str(visual_priority).lower() not in {"standard", "high", "extreme", "thumbnail"}:
+            raise SpecError("strategy.visual_priority must be standard, high, extreme, or thumbnail.")
 
     handle = str(spec["handle"]).strip()
     if not handle:

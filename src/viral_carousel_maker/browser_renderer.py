@@ -32,6 +32,9 @@ class BrowserCarouselRenderer:
         self.hook_priority = str(
             self.strategy.get("hook_priority") or self.strategy.get("scroll_stop_priority") or ""
         ).lower()
+        self.visual_priority = str(self.strategy.get("visual_priority") or "high").lower()
+        if self.visual_priority not in {"standard", "high", "extreme", "thumbnail"}:
+            self.visual_priority = "high"
         self.design_pack = resolve_design_pack(spec)
         self.palette = resolve_palette(spec, self.design_pack)
         self.design_tokens = resolve_design_tokens(spec, self.design_pack)
@@ -120,6 +123,7 @@ class BrowserCarouselRenderer:
                 "design_pack": self.design_pack,
                 "render_quality": self.render_quality,
                 "render_supersample_scale": self.export_scale,
+                "visual_priority": self.visual_priority,
                 "palette": self.palette,
                 "tokens": self.design_tokens,
                 "visual_modes": sorted({slide["visual_mode"] for slide in slides_meta}),
@@ -149,7 +153,10 @@ class BrowserCarouselRenderer:
     ) -> str:
         role = str(slide["role"])
         visual_mode = self._visual_mode_for(slide, index)
-        classes = f"slide role-{role} mode-{visual_mode} pack-{self.design_pack}"
+        classes = (
+            f"slide role-{role} mode-{visual_mode} pack-{self.design_pack} "
+            f"visual-priority-{self.visual_priority}"
+        )
         if role == "hook" and self.hook_priority in {"high", "extreme", "thumbnail"}:
             classes += f" hook-priority-{self.hook_priority}"
         progress = ""
@@ -240,29 +247,69 @@ class BrowserCarouselRenderer:
 
     def _visual_layer(self, slide: dict[str, Any], visual_mode: str) -> str:
         badge = html.escape(str(slide.get("badge", "") or self._largest_number(slide) or ""))
+        role = str(slide.get("role", "body"))
+        icon = self._visual_icon_layer(visual_mode, role)
+        burst = self._hook_burst_layer(role)
         if visual_mode == "shock-stat":
-            role = str(slide.get("role", ""))
             signal = (
                 slide.get("hook_signal")
                 if role == "hook"
                 else None
             ) or (self._hook_signal(slide) if role == "hook" else None) or badge or "!"
-            return f'<div class="visual shock-number">{html.escape(str(signal))}</div>'
+            return (
+                f'<div class="visual shock-number" data-visual="true" data-visual-kind="symbol">'
+                f'<span class="shock-word">{html.escape(str(signal))}</span>'
+                '<i class="shock-ring"></i>'
+                "</div>"
+                f"{icon}{burst}"
+            )
         if visual_mode == "proof-grid":
-            return '<div class="visual proof-grid"><i></i><i></i><i></i><i></i></div>'
+            return (
+                '<div class="visual proof-grid" data-visual="true" data-visual-kind="diagram">'
+                '<i></i><i></i><i></i><i></i>'
+                "</div>"
+                f"{icon}{burst}"
+            )
         if visual_mode in {"myth-truth", "contrast-table"}:
-            return '<div class="visual contrast-split"><b>OLD</b><b>NEW</b></div>'
+            return (
+                '<div class="visual contrast-split" data-visual="true" data-visual-kind="diagram">'
+                "<b>OLD</b><b>NEW</b>"
+                "</div>"
+                f"{icon}{burst}"
+            )
         if visual_mode == "taxonomy":
-            return '<div class="visual taxonomy-lines"><i></i><i></i><i></i><i></i><i></i></div>'
+            return (
+                '<div class="visual taxonomy-lines" data-visual="true" data-visual-kind="map">'
+                '<i></i><i></i><i></i><i></i><i></i>'
+                "</div>"
+                f"{icon}{burst}"
+            )
         if visual_mode == "quiet-truth":
-            return '<div class="visual quiet-frame"></div>'
+            return (
+                '<div class="visual quiet-frame" data-visual="true" data-visual-kind="frame"></div>'
+                f"{icon}{burst}"
+            )
         if visual_mode == "receipt":
-            return '<div class="visual receipt-card"><i></i><i></i><i></i><i></i><i></i></div>'
+            return (
+                '<div class="visual receipt-card" data-visual="true" data-visual-kind="receipt">'
+                '<i></i><i></i><i></i><i></i><i></i>'
+                "</div>"
+                f"{icon}{burst}"
+            )
         if visual_mode == "field-note":
-            return '<div class="visual field-label">FIELD NOTE</div>'
+            return (
+                '<div class="visual field-label" data-visual="true" data-visual-kind="note">FIELD NOTE</div>'
+                f"{icon}{burst}"
+            )
         if visual_mode == "photo-anchor":
-            return '<div class="visual photo-object"><i></i><b></b></div>'
-        return '<div class="visual editorial-mark"></div>'
+            return (
+                '<div class="visual photo-object" data-visual="true" data-visual-kind="object"><i></i><b></b></div>'
+                f"{icon}{burst}"
+            )
+        return (
+            '<div class="visual editorial-mark" data-visual="true" data-visual-kind="symbol"></div>'
+            f"{icon}{burst}"
+        )
 
     def _slide_meta(
         self,
@@ -284,15 +331,22 @@ class BrowserCarouselRenderer:
             "title": slide["title"],
             "main_idea": slide.get("main_idea", ""),
             "visual_mode": visual_mode,
+            "visual_component_type": self._visual_component_type_for_mode(visual_mode),
             "design_pack": self.design_pack,
             "handle_drawn": True,
             "handle_position": "bottom-left",
             "text_fit": bool(fit.get("ok", True)),
             "fit_details": fit,
             "visual_overlap_ratio": fit.get("visual_overlap_ratio", 0),
+            "visual_area_ratio": fit.get("visual_area_ratio", 0),
+            "visual_component_present": bool(fit.get("visual_count", 0) > 0),
+            "visual_component_count": int(fit.get("visual_count", 0) or 0),
+            "visual_component_kinds": fit.get("visual_kinds", []),
             "crop_safe": True,
             "contrast_ratio": fit.get("contrast_ratio", 7.0),
             "hierarchy_score": self._hierarchy_score(role, visual_mode),
+            "copy_word_count": self._word_count_for_slide(slide),
+            "visual_priority": self.visual_priority,
             "cta_type": cta.get("type", "follow") if role == "cta" and isinstance(cta, dict) else None,
             "body_progress": f"{body_seen}/{body_total}" if role == "body" else None,
             "path": str(path),
@@ -509,6 +563,96 @@ class BrowserCarouselRenderer:
           z-index: 1;
           pointer-events: none;
         }}
+        .visual-icon {{
+          top: {int(height * .085)}px;
+          right: {margin}px;
+          width: 140px;
+          height: 140px;
+          border-radius: 28px;
+          border: 3px solid rgba(255,255,255,.42);
+          background: rgba(0,0,0,.40);
+          box-shadow: 0 18px 42px rgba(0,0,0,.33);
+        }}
+        .visual-icon.role-cta {{
+          top: auto;
+          bottom: {int(height * .115)}px;
+        }}
+        .hook-burst {{
+          right: {int(width * -.14)}px;
+          top: {int(height * .15)}px;
+          width: 430px;
+          height: 430px;
+          border-radius: 64px;
+          background: linear-gradient(145deg, rgba(255,255,255,.16), rgba(255,255,255,.03));
+          transform: rotate(-12deg);
+          opacity: .74;
+        }}
+        .hook-burst::before {{
+          content: "";
+          position: absolute;
+          inset: 42px;
+          border: 10px solid rgba(255,255,255,.34);
+          border-radius: 50%;
+        }}
+        .hook-burst::after {{
+          content: "";
+          position: absolute;
+          left: 172px;
+          top: 52px;
+          width: 16px;
+          height: 326px;
+          border-radius: 999px;
+          background: rgba(255,255,255,.44);
+          transform: rotate(18deg);
+        }}
+        .visual-priority-extreme .hook-burst,
+        .visual-priority-thumbnail .hook-burst {{
+          right: {int(width * -.17)}px;
+          top: {int(height * .11)}px;
+          width: 540px;
+          height: 540px;
+          opacity: .86;
+        }}
+        .visual-priority-extreme .visual-icon,
+        .visual-priority-thumbnail .visual-icon {{
+          width: 176px;
+          height: 176px;
+          border-width: 4px;
+        }}
+        .visual-priority-extreme .visual-icon::before,
+        .visual-priority-thumbnail .visual-icon::before {{
+          font-size: 48px;
+        }}
+        .visual-priority-extreme .icon-taxonomy::before,
+        .visual-priority-thumbnail .icon-taxonomy::before {{
+          font-size: 34px;
+        }}
+        .visual-priority-extreme .icon-receipt::before,
+        .visual-priority-thumbnail .icon-receipt::before {{
+          font-size: 30px;
+        }}
+        .visual-icon::before {{
+          content: attr(data-icon);
+          position: absolute;
+          inset: 0;
+          display: grid;
+          place-items: center;
+          color: rgba(255,255,255,.95);
+          font-size: 34px;
+          font-weight: 900;
+          letter-spacing: 0;
+          text-transform: uppercase;
+        }}
+        .icon-shock-stat::before {{ content: "!"; font-size: 48px; }}
+        .icon-proof-grid::before {{ content: "#"; font-size: 46px; }}
+        .icon-myth-truth::before {{ content: "VS"; font-size: 28px; }}
+        .icon-contrast-table::before {{ content: "VS"; font-size: 28px; }}
+        .icon-taxonomy::before {{ content: "MAP"; font-size: 24px; }}
+        .icon-quiet-truth::before {{ content: "CALM"; font-size: 22px; }}
+        .icon-receipt::before {{ content: "PROOF"; font-size: 21px; }}
+        .icon-field-note::before {{ content: "LOG"; font-size: 31px; }}
+        .icon-photo-anchor::before {{ content: "IMG"; font-size: 30px; }}
+        .icon-editorial-paper::before {{ content: "IDEA"; font-size: 24px; }}
         .editorial-mark {{
           right: {int(width * .08)}px;
           bottom: {int(height * .17)}px;
@@ -530,6 +674,36 @@ class BrowserCarouselRenderer:
           letter-spacing: 0;
           text-transform: uppercase;
         }}
+        .shock-word {{
+          position: relative;
+          z-index: 2;
+        }}
+        .shock-ring {{
+          position: absolute;
+          top: -42px;
+          right: -34px;
+          width: 108px;
+          height: 108px;
+          border-radius: 999px;
+          border: 8px solid currentColor;
+          opacity: .62;
+        }}
+        .visual-priority-extreme .shock-number,
+        .visual-priority-thumbnail .shock-number {{
+          width: {int(width * .56)}px;
+          right: {int(width * .01)}px;
+          bottom: {int(height * .12)}px;
+          font-size: 236px;
+          opacity: .92;
+        }}
+        .visual-priority-extreme .shock-ring,
+        .visual-priority-thumbnail .shock-ring {{
+          width: 168px;
+          height: 168px;
+          border-width: 12px;
+          top: -62px;
+          right: -48px;
+        }}
         .proof-grid {{
           right: {margin}px;
           top: {int(height * .52)}px;
@@ -544,6 +718,15 @@ class BrowserCarouselRenderer:
           border-radius: 24px;
           background: rgba(255,255,255,.58);
           box-shadow: 0 18px 50px rgba(0,0,0,.08);
+        }}
+        .visual-priority-extreme .proof-grid,
+        .visual-priority-thumbnail .proof-grid {{
+          width: 500px;
+          gap: 28px;
+        }}
+        .visual-priority-extreme .proof-grid i,
+        .visual-priority-thumbnail .proof-grid i {{
+          height: 146px;
         }}
         .contrast-split {{
           inset: 0;
@@ -569,13 +752,25 @@ class BrowserCarouselRenderer:
           background: {p["text"]};
           opacity: .32;
         }}
+        .visual-priority-extreme .taxonomy-lines,
+        .visual-priority-thumbnail .taxonomy-lines {{
+          width: 560px;
+          gap: 64px;
+        }}
         .quiet-frame {{
-          top: {crop}px;
-          right: {crop}px;
-          width: 120px;
-          height: 120px;
-          border: 2px solid {p["line"]};
-          border-radius: 28px;
+          top: {int(height * .26)}px;
+          right: {int(width * .06)}px;
+          width: 330px;
+          height: 330px;
+          border: 3px solid {p["line"]};
+          border-radius: 42px;
+          background: linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.0));
+        }}
+        .visual-priority-extreme .quiet-frame,
+        .visual-priority-thumbnail .quiet-frame {{
+          width: 390px;
+          height: 390px;
+          top: {int(height * .22)}px;
         }}
         .receipt-card {{
           right: {margin}px;
@@ -591,14 +786,33 @@ class BrowserCarouselRenderer:
         }}
         .receipt-card i {{ height: 4px; border-radius: 999px; background: {p["muted"]}; opacity: .7; }}
         .field-label {{
-          right: {margin}px;
-          top: {margin}px;
-          padding: 20px 28px;
-          border-radius: 18px;
-          background: {p["accent"]};
+          right: {int(width * .05)}px;
+          top: {int(height * .23)}px;
+          width: 410px;
+          min-height: 232px;
+          padding: 34px 34px 44px;
+          border-radius: 26px;
+          background: linear-gradient(160deg, {p["accent"]}, {p["accent_2"]});
           color: white;
-          font-size: 28px;
+          font-size: 30px;
           font-weight: 900;
+          box-shadow: 0 24px 66px rgba(0,0,0,.22);
+        }}
+        .visual-priority-extreme .field-label,
+        .visual-priority-thumbnail .field-label {{
+          width: 460px;
+          min-height: 270px;
+          top: {int(height * .20)}px;
+          padding-top: 40px;
+        }}
+        .field-label::after {{
+          content: "OBSERVED DETAIL";
+          position: absolute;
+          left: 34px;
+          bottom: 34px;
+          font-size: 24px;
+          letter-spacing: 0;
+          opacity: .92;
         }}
         .photo-object {{
           right: {margin}px;
@@ -609,6 +823,13 @@ class BrowserCarouselRenderer:
           background: linear-gradient(145deg, {p["accent"]}, {p["accent_2"]});
           box-shadow: 0 24px 80px rgba(0,0,0,.18);
           opacity: .88;
+        }}
+        .role-cta .photo-object {{
+          right: {int(width * -.18)}px;
+          top: {int(height * .18)}px;
+          width: 430px;
+          height: 600px;
+          opacity: .82;
         }}
         .photo-object i {{
           position: absolute;
@@ -706,15 +927,46 @@ class BrowserCarouselRenderer:
           line-height: 1.08;
         }}
         .pack-brutal-proof.mode-shock-stat .shock-number {{
-          right: {int(width * -.035)}px;
-          bottom: {int(height * .22)}px;
-          width: {int(width * .42)}px;
+          right: {int(width * .04)}px;
+          bottom: {int(height * .16)}px;
+          width: {int(width * .46)}px;
           color: {p["paper"]};
           opacity: .94;
-          font-size: 158px;
+          font-size: 212px;
           line-height: .82;
           text-align: center;
-          transform: rotate(-6deg);
+          transform: rotate(-4deg);
+        }}
+        .pack-brutal-proof.visual-priority-extreme.mode-shock-stat .shock-number,
+        .pack-brutal-proof.visual-priority-thumbnail.mode-shock-stat .shock-number {{
+          right: {int(width * -.04)}px;
+          bottom: {int(height * .08)}px;
+          width: {int(width * .70)}px;
+          font-size: 310px;
+          opacity: .98;
+          transform: rotate(-2deg);
+        }}
+        .pack-brutal-proof .visual-icon {{
+          border-color: rgba(255,255,255,.30);
+          background: rgba(0,0,0,.62);
+        }}
+        .pack-brutal-proof .hook-burst {{
+          background: linear-gradient(145deg, rgba(255,255,255,.22), rgba(255,255,255,.05));
+        }}
+        .pack-brutal-proof .hook-burst::before {{
+          border-color: rgba(255,255,255,.48);
+        }}
+        .pack-brutal-proof .visual-icon::before {{
+          color: rgba(255,255,255,.97);
+        }}
+        .pack-brutal-proof.hook-priority-extreme .visual-icon {{
+          width: 132px;
+          height: 132px;
+          top: {int(height * .08)}px;
+          border-width: 4px;
+        }}
+        .pack-brutal-proof.hook-priority-extreme .visual-icon::before {{
+          font-size: 56px;
         }}
         .pack-brutal-proof.mode-shock-stat .badge {{
           background: {p["accent"]};
@@ -864,13 +1116,25 @@ class BrowserCarouselRenderer:
             });
           }
           const text = getComputedStyle(document.querySelector('.slide')).color;
-          const visual = document.querySelector('.visual');
+          const slide = document.querySelector('.slide');
+          const slideRect = slide.getBoundingClientRect();
+          const visuals = Array.from(document.querySelectorAll('.visual[data-visual=\"true\"]'));
           let visual_overlap_ratio = 0;
-          if (visual) {
+          let visual_area_ratio = 0;
+          const visualKinds = [];
+          const protectedItems = Array.from(
+            document.querySelectorAll('[data-fit], .badge, .progress, .cta-eyebrow, .cta-handle')
+          );
+          const slideArea = Math.max(1, slideRect.width * slideRect.height);
+          for (const visual of visuals) {
             const b = visual.getBoundingClientRect();
-            const protectedItems = Array.from(
-              document.querySelectorAll('[data-fit], .badge, .progress, .cta-eyebrow, .cta-handle')
-            );
+            const xClip = Math.max(0, Math.min(b.right, slideRect.right) - Math.max(b.left, slideRect.left));
+            const yClip = Math.max(0, Math.min(b.bottom, slideRect.bottom) - Math.max(b.top, slideRect.top));
+            visual_area_ratio += (xClip * yClip) / slideArea;
+            const kind = visual.getAttribute('data-visual-kind');
+            if (kind && !visualKinds.includes(kind)) {
+              visualKinds.push(kind);
+            }
             for (const item of protectedItems) {
               const a = item.getBoundingClientRect();
               const xOverlap = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
@@ -880,7 +1144,16 @@ class BrowserCarouselRenderer:
               visual_overlap_ratio = Math.max(visual_overlap_ratio, overlapArea / itemArea);
             }
           }
-          return {ok, details, contrast_ratio: 7.0, computedTextColor: text, visual_overlap_ratio};
+          return {
+            ok,
+            details,
+            contrast_ratio: 7.0,
+            computedTextColor: text,
+            visual_overlap_ratio,
+            visual_area_ratio: Math.min(1, visual_area_ratio),
+            visual_count: visuals.length,
+            visual_kinds: visualKinds
+          };
         }
         """
 
@@ -1004,6 +1277,47 @@ class BrowserCarouselRenderer:
             if lowered in priority:
                 return word.upper()
         return candidates[-1].upper()
+
+    @staticmethod
+    def _visual_component_type_for_mode(visual_mode: str) -> str:
+        mapping = {
+            "shock-stat": "symbol",
+            "proof-grid": "diagram",
+            "myth-truth": "diagram",
+            "contrast-table": "diagram",
+            "taxonomy": "map",
+            "quiet-truth": "frame",
+            "receipt": "receipt",
+            "field-note": "note",
+            "photo-anchor": "object",
+            "editorial-paper": "symbol",
+        }
+        return mapping.get(visual_mode, "symbol")
+
+    def _visual_icon_layer(self, visual_mode: str, role: str) -> str:
+        return (
+            f'<div class="visual visual-icon icon-{visual_mode} role-{role}" '
+            'data-visual="true" data-visual-kind="icon"></div>'
+        )
+
+    def _hook_burst_layer(self, role: str) -> str:
+        if role != "hook" or self.visual_priority not in {"extreme", "thumbnail"}:
+            return ""
+        return '<div class="visual hook-burst" data-visual="true" data-visual-kind="object"></div>'
+
+    @staticmethod
+    def _word_count_for_slide(slide: dict[str, Any]) -> int:
+        text = " ".join(
+            str(part)
+            for part in (
+                slide.get("title", ""),
+                slide.get("subtitle", ""),
+                slide.get("body", ""),
+                " ".join(str(item) for item in slide.get("bullets", []) or []),
+            )
+            if part
+        )
+        return len(re.findall(r"[A-Za-z0-9]+(?:'[A-Za-z0-9]+)?", text))
 
     @staticmethod
     def _slug(value: str) -> str:

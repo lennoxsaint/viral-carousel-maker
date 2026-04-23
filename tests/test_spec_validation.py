@@ -65,3 +65,10 @@ def test_unknown_render_quality_fails():
     spec["render_quality"] = "insane"
     with pytest.raises(SpecError, match="render_quality"):
         validate_spec(spec)
+
+
+def test_unknown_visual_priority_fails():
+    spec = load_spec(ROOT / "examples" / "specs" / "ai-framework.yaml")
+    spec["strategy"] = {"visual_priority": "maximum"}
+    with pytest.raises(SpecError, match="strategy.visual_priority"):
+        validate_spec(spec)

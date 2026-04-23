@@ -19,6 +19,7 @@ theme:
     accent: "#e84b05"
 strategy:
   goal: "saves"
+  visual_priority: "high"
   hook_archetype: "enemy_belief"
   belief_shift: "Old: more ideas creates better content. New: one sharper idea travels farther."
   proof_level: "lived-experience"
@@ -79,6 +80,7 @@ Keep final slide text concise. If the CTA is an offer, include `url`.
 Use `strategy` whenever possible:
 
 - `goal`: reach, saves, authority, conversion, or community.
+- `visual_priority`: `standard`, `high`, `extreme`, or `thumbnail` visual dominance target.
 - `hook_archetype`: selected Hook Lab archetype.
 - `belief_shift`: old belief to new belief.
 - `proof_level`: none, lived-experience, example, data, or receipt.
@@ -117,6 +119,8 @@ If `strategy.hook_priority` or `strategy.scroll_stop_priority` is `high`, `extre
 
 - `virality.metrics.hook_stop_score >= 8.5`
 - `visual_qa.hook_stop.score >= 8.5`
+
+If `strategy.visual_priority` is `high`, `extreme`, or `thumbnail`, every slide must include a visual component and pass visual-area thresholds in QA.
 
 Render with the browser engine:
 

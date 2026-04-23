@@ -91,6 +91,7 @@ def test_browser_renderer_writes_pack(tmp_path):
     assert (tmp_path / "browser" / "assets" / "html" / "01-hook.html").exists()
     ok, messages = run_manifest_qa(manifest)
     assert ok, messages
+    assert manifest["design"]["visual_priority"] == "high"
     first_slide = Path(manifest["slides"][0]["path"])
     first_slide_hq = Path(manifest["slides"][0]["path_hq"])
     with Image.open(first_slide) as image:
@@ -99,6 +100,11 @@ def test_browser_renderer_writes_pack(tmp_path):
         assert image.size == tuple(manifest["slides"][0]["dimensions_hq"])
         assert image.size[0] > 1080
         assert image.size[1] > 1350
+    for slide in manifest["slides"]:
+        assert slide["visual_component_present"] is True
+        assert slide["visual_component_count"] >= 1
+        assert slide["visual_area_ratio"] > 0
+        assert slide["visual_component_type"]
 
 
 def test_browser_renderer_ultra_quality_exports_3x_hq(tmp_path):

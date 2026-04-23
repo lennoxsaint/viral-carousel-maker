@@ -11,6 +11,7 @@ Textured white editorial paper, sharp navy/orange hierarchy, one proof-stat obje
 ## Design principles
 
 - One dominant visual idea per slide.
+- Every slide must include at least one explicit visual component (icon, object, or diagram).
 - One dominant message per slide.
 - Strong hierarchy: headline first, proof/body second, handle last.
 - Use whitespace as structure.
@@ -79,6 +80,7 @@ For slide 1, adapt strong thumbnail principles to Threads:
 - Clear hierarchy in under one second.
 
 Use `strategy.hook_priority: high|extreme|thumbnail` when the user explicitly asks for maximum scroll-stop performance.
+Use `strategy.visual_priority: high|extreme|thumbnail` when the full carousel should be visual-first.
 
 ## Makeover Rule
 

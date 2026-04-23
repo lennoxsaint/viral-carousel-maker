@@ -112,6 +112,10 @@ def audit_spec(spec: dict[str, Any]) -> ViralityAudit:
         "max_body_words": 0,
         "slides_with_multiple_ideas": [],
     }
+    visual_priority = str(strategy.get("visual_priority") or "high").lower()
+    if visual_priority not in {"standard", "high", "extreme", "thumbnail"}:
+        visual_priority = "high"
+    metrics["visual_priority"] = visual_priority
 
     hook_title = str(hook.get("title", "")).strip()
     hook_subtitle = str(hook.get("subtitle", "")).strip()
@@ -129,6 +133,10 @@ def audit_spec(spec: dict[str, Any]) -> ViralityAudit:
         errors.append("Hook headline is too long for feed speed; compress it under 16 words.")
     elif count_words(hook_title) > 11:
         warnings.append("Hook headline is usable but long; consider compressing it under 11 words.")
+    if visual_priority in {"high", "extreme", "thumbnail"} and count_words(hook_title) > 14:
+        errors.append("Visual-first runs need a tighter hook. Keep the hook title under 14 words.")
+    elif visual_priority in {"extreme", "thumbnail"} and count_words(hook_title) > 11:
+        errors.append("Extreme visual priority needs a hook under 12 words.")
 
     if contains_fake_urgency(hook_text):
         errors.append("Hook uses fake urgency. Replace urgency with tension, proof, or a sharper belief shift.")
@@ -158,6 +166,13 @@ def audit_spec(spec: dict[str, Any]) -> ViralityAudit:
             errors.append(f"Body slide {index} is too dense at {words} words; cut to one main idea.")
         elif words > 42:
             warnings.append(f"Body slide {index} is dense at {words} words; consider cutting it.")
+        if visual_priority in {"high", "extreme", "thumbnail"}:
+            if words > 38:
+                errors.append(f"Body slide {index} has {words} words; visual-first output caps at 38.")
+            elif words > 30:
+                warnings.append(f"Body slide {index} has {words} words; visual-first output works better under 30.")
+        if visual_priority in {"extreme", "thumbnail"} and words > 34:
+            errors.append(f"Body slide {index} has {words} words; extreme visual priority caps at 34.")
         if has_multiple_ideas(slide):
             metrics["slides_with_multiple_ideas"].append(slide.get("id") or slide.get("title") or index)
             warnings.append(f"Body slide {index} may contain multiple ideas; split or compress it.")

@@ -74,6 +74,8 @@ Hard blockers:
 - A requested high-intensity makeover has a `makeover_scale.score` below `8.5/10`.
 - A high-priority hook (`hook_priority` or `scroll_stop_priority` = high/extreme/thumbnail) has `hook_stop_score` below `8.5/10`.
 - The first slide's visual stop score (`visual_qa.hook_stop.score`) is below `8.5/10` for a high-priority hook.
+- Any slide is missing a visual component (icon/object/diagram).
+- Any slide fails the visual-area threshold for the selected `visual_priority`.
 - Hook or body copy is overlong for mobile feed speed.
 - CTA slide does not match the selected CTA type.
 - Offer CTA is missing the visible short URL.
@@ -88,6 +90,7 @@ Per-slide review checklist:
 
 - Hook slide: strong pain/desire, clear curiosity gap, no generic headline.
 - Hook slide: headline+visual combination is forceful enough to interrupt fast feed scanning.
+- Every slide: clear visual anchor first, copy second.
 - Body slides: one idea per slide, each slide advances the reader, no filler.
 - Recap slide: compresses the body into a memorable TL;DR.
 - CTA slide: asks for one action and feels earned.
@@ -139,7 +142,10 @@ For browser renders, include:
 
 - `design.render_quality`
 - `design.dimensions_hq`
+- `design.visual_priority`
 - per-slide `path_hq`
+- per-slide `visual_component_present`
+- per-slide `visual_area_ratio`
 
 ## Makeover Scale
 
@@ -157,6 +163,7 @@ If the old version was weak or visually generic, do not accept anything below `8
 When the user requests aggressive scroll stopping:
 
 - Set `strategy.hook_priority` to `high` or `extreme`.
+- Set `strategy.visual_priority` to `high` or `extreme`.
 - Prefer `render_quality: high` or `ultra`.
 - Block final output unless both copy and visual hook-stop scores clear `8.5/10`.
 

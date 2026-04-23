@@ -65,5 +65,6 @@ Select the hook only when:
 - It can be supported by the carousel body.
 - It is short enough to read instantly on mobile.
 - It does not require fake urgency.
+- It can be paired with one clear visual icon/object that amplifies the tension.
 
 If no candidate clears `8.5/10`, generate a new batch before drafting.

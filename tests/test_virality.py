@@ -51,6 +51,18 @@ def test_extreme_hook_priority_requires_higher_scroll_stop_score():
         validate_spec(spec)
 
 
+def test_visual_first_priority_rejects_dense_body_copy():
+    spec = base_spec()
+    spec["strategy"] = {"visual_priority": "extreme", "belief_shift": "Old: volume wins. New: visual tension wins."}
+    spec["slides"][1]["body"] = (
+        "Weak posts fail when they over-explain every caveat, stack too many frameworks, add multiple side notes, "
+        "include defensive disclaimers, and bury the one point people can act on immediately after they swipe. "
+        "A visual-first slide should not read like a mini essay."
+    )
+    with pytest.raises(SpecError, match="extreme visual priority caps at 34"):
+        validate_spec(spec)
+
+
 def test_score_spec_rewards_belief_shift_and_low_density():
     spec = base_spec()
     spec["strategy"] = {

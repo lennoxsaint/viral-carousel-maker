@@ -82,6 +82,7 @@
         "belief_shift": { "type": "string" },
         "proof_level": { "type": "string", "enum": ["none", "lived-experience", "example", "data", "receipt"] },
         "cta_pressure": { "type": "string", "enum": ["none", "soft", "medium", "hard"] },
+        "visual_priority": { "type": "string", "enum": ["standard", "high", "extreme", "thumbnail"] },
         "visual_thesis": { "type": "string" },
         "design_pack": { "type": "string" },
         "virality_principles": {
