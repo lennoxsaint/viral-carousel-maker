@@ -52,31 +52,32 @@ Default canvas: `1080x1350` vertical. Use the same aspect ratio for every slide.
 2. If the user provides pasted copy, markdown/text, or Threadify JSON, normalize it first with the Threadify draft intake workflow below. Treat extracted fields as provisional answers, not final truth.
 3. Always run the mandatory two-stage interrogation gate in `references/interview.md` before the first carousel in a session. A saved profile or draft intake can prefill answers, but it does not remove the obligation to ask current-carousel questions.
 4. Use `request_user_input` whenever the host provides it. Ask Stage A essentials first, then Stage B follow-ups only for missing, weak, or conflicting answers. If `request_user_input` is unavailable, ask the same questions directly in chat and wait for answers.
-5. Do not draft, plan, select a template, generate images, or render until the gate has captured the minimum required answers and any thin answers have been challenged.
-6. Run the Virality Engine and Hook Lab:
+5. Save the current answer state to a local YAML/JSON file and run `viral-carousel interview next` after each batch. Continue asking the returned focused batch until `viral-carousel interview validate --require-ready` reports `ready_to_draft: true`.
+6. Do not draft, plan, select a template, generate images, or render until the gate has captured the minimum required answers and any thin answers have been challenged.
+7. Run the Virality Engine and Hook Lab:
    - Apply `references/threads-virality-constitution.md`.
    - Generate at least 5 hooks with `references/hook-lab.md`.
    - Apply the public pattern bank and any local-only corpus summaries in `references/pattern-bank.md`.
    - Select the hook, belief shift, proof level, CTA pressure, carousel length, and `visual_thesis`.
    - If permissioned research is useful, apply `references/larry-growth-loop.md`.
-7. Select one template family from `references/template-families.md`. Auto-pick, but respect explicit user preference.
-8. Select a `design_pack`, `render_engine`, `render_quality`, and `visual_priority`. Default to `browser` + `high`; use `pillow` only as fallback.
-9. Draft the carousel copy and YAML spec, including `strategy`, `design_pack`, `render_engine`, `pattern_bank`, and per-slide `main_idea` wherever possible.
-10. Score the strategy and spec with `references/quality-rubric.md` and the CLI `viral-carousel score`. Revise until it passes the virality gate.
-11. Run the required AI critic gate in `references/ai-critic-gate.md`. Revise until critic verdict is `pass`.
-12. Show the approved spec summary before paid API calls or native image generation.
-13. In Codex, use native image generation only for optional visual assets if helpful; no API key is required.
-14. In Claude Desktop or Claude Code, check whether `OPENAI_API_KEY` is available before production image generation.
-15. If `OPENAI_API_KEY` is missing in Claude, show the API-key onboarding message below and offer procedural draft rendering as the safe fallback.
-16. Render final PNGs with the browser renderer. Use Pillow fallback only if browser rendering is unavailable.
-17. Ensure every slide has an explicit visual component (icon/object/diagram), not text-only layout.
-18. For aggressive first-slide requests, enforce both copy and visual hook-stop scores at `8.5+` before final delivery.
-19. Review `contact_sheet.png` for pacing, hierarchy, and mobile crop safety.
-20. Run technical QA against `manifest.json` and visual QA from `visual_qa.json`.
-21. Run the strict per-slide quality gate in `references/quality-rubric.md`. Every slide must pass before final delivery.
-22. If any slide fails, revise the spec/render and rerun QA. Do not mark the production pack finished until all slides pass.
-23. After successful QA, create or update `~/.viral-carousel-maker/profile.yaml` using `references/profile-memory.md` or the CLI `--update-profile` flag. Use that profile to tailor future carousels.
-24. Return file paths plus the short QA result.
+8. Select one template family from `references/template-families.md`. Auto-pick, but respect explicit user preference.
+9. Select a `design_pack`, `render_engine`, `render_quality`, and `visual_priority`. Default to `browser` + `high`; use `pillow` only as fallback.
+10. Draft the carousel copy and YAML spec, including `strategy`, `design_pack`, `render_engine`, `pattern_bank`, and per-slide `main_idea` wherever possible.
+11. Score the strategy and spec with `references/quality-rubric.md` and the CLI `viral-carousel score`. Revise until it passes the virality gate.
+12. Run the required AI critic gate in `references/ai-critic-gate.md`. Revise until critic verdict is `pass`.
+13. Show the approved spec summary before paid API calls or native image generation.
+14. In Codex, use native image generation only for optional visual assets if helpful; no API key is required.
+15. In Claude Desktop or Claude Code, check whether `OPENAI_API_KEY` is available before production image generation.
+16. If `OPENAI_API_KEY` is missing in Claude, show the API-key onboarding message below and offer procedural draft rendering as the safe fallback.
+17. Render final PNGs with the browser renderer, passing `--require-interview --interview-answers path/to/interview.yaml --update-profile`. Use Pillow fallback only if browser rendering is unavailable.
+18. Ensure every slide has an explicit visual component (icon/object/diagram), not text-only layout.
+19. For aggressive first-slide requests, enforce both copy and visual hook-stop scores at `8.5+` before final delivery.
+20. Review `contact_sheet.png` for pacing, hierarchy, and mobile crop safety.
+21. Run technical QA against `manifest.json` and visual QA from `visual_qa.json`.
+22. Run the strict per-slide quality gate in `references/quality-rubric.md`. Every slide must pass before final delivery.
+23. If any slide fails, revise the spec/render and rerun QA. Do not mark the production pack finished until all slides pass.
+24. After successful QA, confirm `~/.viral-carousel-maker/profile.yaml` was created or updated by the CLI `--update-profile` flag. Use that profile to tailor future carousels.
+25. Return file paths plus the short QA result.
 
 ## Mandatory Interrogation Gate
 
@@ -91,6 +92,8 @@ Required behavior:
 - Pull on new threads when answers reveal hidden assumptions.
 - Do not move forward just because the user gave one or two answers.
 - Stop only when the minimum answer checklist in `references/interview.md` is complete.
+- Use `viral-carousel interview next` for each answer batch and `viral-carousel interview validate --require-ready` as the hard stop before drafting.
+- Render with `--require-interview --interview-answers` so an incomplete interview cannot accidentally produce a final pack.
 
 If the user asks to skip the interview, politely refuse the skip and explain that the skill requires the interrogation gate to protect output quality.
 
@@ -131,6 +134,19 @@ Normalize Threadify draft text, markdown, or JSON into an editable seed spec:
 
 ```bash
 PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli intake examples/intake/threadify-draft.json --out output/threadify-seed.yaml
+```
+
+Run the focused interrogation gate:
+
+```bash
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli interview next --answers output/run-name/interview.yaml --use-profile
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli interview validate --answers output/run-name/interview.yaml --use-profile --require-ready
+```
+
+Render with the hard interview gate and profile update:
+
+```bash
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli render path/to/spec.yaml --out-dir output/run-name --require-interview --interview-answers output/run-name/interview.yaml --update-profile
 ```
 
 Check platform/API-key readiness:

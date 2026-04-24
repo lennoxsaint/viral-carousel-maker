@@ -151,6 +151,7 @@ When invoked, the skill:
 - Normalizes pasted copy, markdown/text files, or Threadify JSON when provided
 - Runs a mandatory two-stage interrogation interview before generation, even when a profile or intake draft exists
 - Uses `request_user_input` when the host provides it, or asks direct question batches when it does not
+- Validates each answer batch with `viral-carousel interview next` and blocks drafting until `viral-carousel interview validate --require-ready` reports `ready_to_draft: true`
 - Runs a Hook Lab with at least 5 candidate hooks
 - Applies the Threads Virality Constitution before template selection
 - Applies the public pattern bank and optional private local corpus summaries
@@ -176,18 +177,27 @@ The production workflow is:
 
 1. Normalize draft intake if the user provides text, markdown, or Threadify JSON.
 2. Interrogate the idea and profile with Stage A essentials, then Stage B follow-ups.
-3. Generate and score hook candidates.
-4. Select a corpus-backed virality principle.
-5. Choose template family, body-slide count, CTA pressure, design pack, and visual thesis.
-6. Draft the YAML spec.
-7. Run `viral-carousel score`.
-8. Run the AI critic gate and revise until it passes.
-9. Render with the browser renderer.
-10. Review `contact_sheet.png`, `visual_qa.json`, and `visual_qa_report.md`.
-11. Run QA.
-12. Update local profile memory after successful QA when the user is using the skill workflow.
-13. Publish manually.
-14. Paste metrics later with `viral-carousel metrics add`.
+3. Save answers to YAML/JSON and run `viral-carousel interview next` after each batch.
+4. Run `viral-carousel interview validate --require-ready`; do not draft until it passes.
+5. Generate and score hook candidates.
+6. Select a corpus-backed virality principle.
+7. Choose template family, body-slide count, CTA pressure, design pack, and visual thesis.
+8. Draft the YAML spec.
+9. Run `viral-carousel score`.
+10. Run the AI critic gate and revise until it passes.
+11. Render with the browser renderer using `--require-interview --interview-answers ... --update-profile`.
+12. Review `contact_sheet.png`, `visual_qa.json`, and `visual_qa_report.md`.
+13. Run QA.
+14. Confirm local profile memory updated after successful QA.
+15. Publish manually.
+16. Paste metrics later with `viral-carousel metrics add`.
+
+Run the interview gate:
+
+```bash
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli interview next --answers output/ai-framework/interview.yaml --use-profile
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli interview validate --answers output/ai-framework/interview.yaml --use-profile --require-ready
+```
 
 Score before rendering:
 

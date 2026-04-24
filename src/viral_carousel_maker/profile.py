@@ -41,9 +41,12 @@ PROFILE_ALLOWED_KEYS = {
     "niche",
     "sub_niche",
     "audience",
+    "audience_pains",
+    "audience_desires",
     "tone",
     "voice",
     "cta_default",
+    "cta_defaults",
     "offer",
     "visual_preferences",
     "brand_colors",
@@ -53,9 +56,11 @@ PROFILE_ALLOWED_KEYS = {
     "style_anti_patterns",
     "winning_hook_categories",
     "weak_hook_categories",
+    "hook_preferences",
     "visual_anchors",
     "best_visual_packs",
     "performance_summary",
+    "template_preferences",
 }
 
 SECRET_KEY_PARTS = (
@@ -138,6 +143,13 @@ def profile_from_manifest(manifest: dict[str, Any]) -> dict[str, Any]:
     body_count = sum(1 for slide in slides if isinstance(slide, dict) and slide.get("role") == "body")
 
     incoming = dict(profile)
+    strategy_answers = strategy.get("interview_answers")
+    if isinstance(strategy_answers, dict):
+        incoming = merge_profile(
+            incoming,
+            profile_from_interview_answers(strategy_answers),
+            source="interview",
+        )
     if manifest.get("handle"):
         incoming["handle"] = manifest.get("handle")
     cta_slide = next(
@@ -158,6 +170,51 @@ def profile_from_manifest(manifest: dict[str, Any]) -> dict[str, Any]:
     return incoming
 
 
+def profile_from_interview_answers(answers: dict[str, Any]) -> dict[str, Any]:
+    """Convert normalized interview answers into stable profile fields."""
+
+    incoming: dict[str, Any] = {}
+
+    _copy_if_present(incoming, answers, "handle", "handle")
+    _copy_if_present(incoming, answers, "niche", "niche")
+    _copy_if_present(incoming, answers, "sub_niche", "sub_niche")
+    _copy_if_present(incoming, answers, "target_viewer", "audience")
+    _copy_if_present(incoming, answers, "risk_appetite", "risk_appetite")
+    _copy_if_present(incoming, answers, "body_slide_count", "preferred_body_slide_count")
+
+    if answers.get("viewer_pain"):
+        incoming["audience_pains"] = _as_list(answers["viewer_pain"])
+    if answers.get("viewer_desire"):
+        incoming["audience_desires"] = _as_list(answers["viewer_desire"])
+    if answers.get("tone"):
+        incoming["tone"] = {"primary": answers["tone"]}
+    if answers.get("visual_taste") or answers.get("brand_colors") or answers.get("visual_avoid"):
+        visual_preferences: dict[str, Any] = {}
+        if answers.get("visual_taste"):
+            visual_preferences["styles"] = _as_list(answers["visual_taste"])
+        if answers.get("brand_colors"):
+            visual_preferences["colors"] = answers["brand_colors"]
+        if answers.get("visual_avoid"):
+            visual_preferences["avoid"] = _as_list(answers["visual_avoid"])
+        incoming["visual_preferences"] = visual_preferences
+    if answers.get("visual_avoid"):
+        incoming["style_anti_patterns"] = _as_list(answers["visual_avoid"])
+    if answers.get("claims_to_avoid"):
+        incoming["proof_boundaries"] = _as_list(answers["claims_to_avoid"])
+    if answers.get("cta_type"):
+        incoming["cta_default"] = answers["cta_type"]
+    if answers.get("cta_pressure") or answers.get("offer_url") or answers.get("offer_promise"):
+        cta_defaults: dict[str, Any] = {}
+        if answers.get("cta_pressure"):
+            cta_defaults["pressure"] = answers["cta_pressure"]
+        if answers.get("offer_url"):
+            cta_defaults["offer_url"] = answers["offer_url"]
+        if answers.get("offer_promise"):
+            cta_defaults["offer_promise"] = answers["offer_promise"]
+        incoming["cta_defaults"] = cta_defaults
+    return incoming
+
+
 def update_profile_from_manifest(
     manifest: dict[str, Any],
     *,
@@ -173,6 +230,13 @@ def update_profile_from_manifest(
     return write_profile(merged, profile_path)
 
 
+def strip_profile_secrets(profile: dict[str, Any] | None) -> dict[str, Any]:
+    """Return profile data with secret-looking keys removed."""
+
+    clean = _strip_secrets(profile or {})
+    return clean if isinstance(clean, dict) else {}
+
+
 def _merge_list(existing: Any, incoming: list[Any]) -> list[Any]:
     result: list[Any] = []
     for item in existing if isinstance(existing, list) else []:
@@ -182,6 +246,23 @@ def _merge_list(existing: Any, incoming: list[Any]) -> list[Any]:
         if item not in result:
             result.append(item)
     return result
+
+
+def _copy_if_present(
+    incoming: dict[str, Any],
+    answers: dict[str, Any],
+    answer_key: str,
+    profile_key: str,
+) -> None:
+    value = answers.get(answer_key)
+    if value not in (None, "", [], {}):
+        incoming[profile_key] = value
+
+
+def _as_list(value: Any) -> list[Any]:
+    if isinstance(value, list):
+        return value
+    return [value]
 
 
 def _strip_secrets(value: Any) -> Any:

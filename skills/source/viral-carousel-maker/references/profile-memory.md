@@ -21,7 +21,7 @@ If a profile already exists, merge new stable preferences into it instead of ove
 In the source repo, the operational path is:
 
 ```bash
-viral-carousel render path/to/spec.yaml --out-dir output/run-name --use-profile --update-profile
+viral-carousel render path/to/spec.yaml --out-dir output/run-name --use-profile --require-interview --interview-answers output/run-name/interview.yaml --update-profile
 ```
 
 Use `--profile-path path/to/profile.yaml` in tests or unusual local setups.
@@ -110,6 +110,15 @@ Never store:
 - Anything the user explicitly says not to remember.
 
 The implementation must strip keys containing `api_key`, `secret`, `token`, `password`, `authorization`, or `credential` before writing.
+
+When interview answers are supplied, the CLI may merge stable fields into the profile after QA passes:
+
+- handle, niche, sub-niche, and target audience
+- audience pains and desires
+- tone and visual preferences
+- CTA defaults and CTA pressure
+- proof boundaries and risk appetite
+- preferred body slide count
 
 ## How to use the profile later
 

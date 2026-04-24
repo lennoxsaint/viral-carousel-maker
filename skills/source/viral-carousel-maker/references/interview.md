@@ -69,6 +69,20 @@ Recommended tool pattern when `request_user_input` exists:
 4. Ask follow-ups.
 5. Repeat until the minimum answer checklist is complete.
 
+After each batch, save the answers gathered so far to a local YAML or JSON file and run:
+
+```bash
+viral-carousel interview next --answers output/run-name/interview.yaml --use-profile
+```
+
+The command returns the next focused batch and explains missing, weak, or conflicting answers. Keep asking until validation passes:
+
+```bash
+viral-carousel interview validate --answers output/run-name/interview.yaml --use-profile --require-ready
+```
+
+The skill must not draft until validation returns `ready_to_draft: true`.
+
 Fallback when no structured input tool exists:
 
 ```text
@@ -189,3 +203,11 @@ Before generation, send the one-line ready summary:
 ```text
 Ready to generate: [viewer] needs [belief shift], backed by [proof level], in a [tone/visual direction] carousel with [slide count] body slides and a [CTA type] CTA.
 ```
+
+Render-time enforcement:
+
+```bash
+viral-carousel render path/to/spec.yaml --out-dir output/run-name --require-interview --interview-answers output/run-name/interview.yaml --update-profile
+```
+
+Use `--profile-path path/to/profile.yaml` only for tests or unusual local setups.

@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 
-from viral_carousel_maker.profile import merge_profile, update_profile_from_manifest
+from viral_carousel_maker.profile import merge_profile, strip_profile_secrets, update_profile_from_manifest
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -30,6 +30,18 @@ def test_profile_merge_allowlist_and_secret_stripping():
     assert "nested" not in merged
     assert merged["provenance"]["sources"] == ["test"]
     assert merged["provenance"]["last_updated_at"] == "2026-04-24T00:00:00+00:00"
+
+
+def test_profile_snapshot_secret_stripping():
+    clean = strip_profile_secrets(
+        {
+            "handle": "@tester",
+            "api_key": "sk-nope",
+            "nested": {"secret_token": "hidden", "tone": "direct"},
+        }
+    )
+
+    assert clean == {"handle": "@tester", "nested": {"tone": "direct"}}
 
 
 def test_update_profile_from_manifest_writes_merged_profile(tmp_path):

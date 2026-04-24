@@ -16,6 +16,7 @@ from .critic import normalize_critic_output
 from .design import resolve_design_pack, resolve_design_tokens, resolve_palette
 from .models import dimensions_for
 from .pattern_bank import select_pattern_bundle
+from .profile import strip_profile_secrets
 from .qa import build_visual_qa, write_qa_report, write_visual_qa_files
 from .spec import normalized_handle, validate_spec
 from .virality import score_spec
@@ -114,6 +115,7 @@ class BrowserCarouselRenderer:
             "design_pack": self.design_pack,
             "strategy": self.strategy,
             "visual_thesis": self.strategy.get("visual_thesis", ""),
+            "profile_snapshot": strip_profile_secrets(self.spec.get("profile", {})),
             "critic": normalize_critic_output(self.spec.get("critic")),
             "pattern_bank": self.spec.get("pattern_bank") or select_pattern_bundle(self.spec),
             "learning": self.spec.get("learning", {}),
@@ -1232,7 +1234,7 @@ class BrowserCarouselRenderer:
             alt_lines.append(f"- {alt}")
         (self.out_dir / "alt_text.md").write_text("\n".join(alt_lines) + "\n", encoding="utf-8")
 
-        profile_snapshot = self.spec.get("profile", {})
+        profile_snapshot = manifest.get("profile_snapshot") or strip_profile_secrets(self.spec.get("profile", {}))
         if profile_snapshot:
             (self.out_dir / "profile_snapshot.yaml").write_text(
                 yaml.safe_dump(profile_snapshot, sort_keys=False),

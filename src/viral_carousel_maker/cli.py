@@ -11,9 +11,16 @@ from .assets import generate_openai_asset, write_prompts_jsonl
 from .browser_renderer import BrowserCarouselRenderer
 from .corpus import import_private_corpus
 from .critic import load_critic, validate_critic_output
+from .interview import evaluate_interview, load_interview_answers
 from .intake import normalize_intake, write_seed_yaml
 from .performance import add_metrics, summarize_metrics
-from .profile import init_profile, load_profile, update_profile_from_manifest
+from .profile import (
+    init_profile,
+    load_profile,
+    merge_profile,
+    profile_from_interview_answers,
+    update_profile_from_manifest,
+)
 from .qa import load_manifest, run_manifest_qa, write_qa_report
 from .renderer import CarouselRenderer
 from .spec import load_spec, validate_spec
@@ -22,10 +29,14 @@ from .virality import score_spec
 
 def render_command(args: argparse.Namespace) -> int:
     spec = load_spec(args.spec)
+    profile = load_profile(args.profile_path) if (args.use_profile or args.update_profile or args.profile_path) else {}
     if args.use_profile or args.update_profile:
-        profile = load_profile(args.profile_path)
         if profile and not isinstance(spec.get("profile"), dict):
             spec["profile"] = profile
+    interview_report = _apply_interview_to_spec(spec, args, profile=profile)
+    if interview_report is not None and args.require_interview and not interview_report["ready_to_draft"]:
+        print(json.dumps(interview_report, indent=2, sort_keys=True))
+        return 1
     warnings = validate_spec(spec)
     if args.dry_run:
         print(json.dumps({"status": "ok", "renderer": args.renderer, "warnings": warnings}, indent=2))
@@ -52,6 +63,28 @@ def render_command(args: argparse.Namespace) -> int:
         )
     )
     return 0
+
+
+def _apply_interview_to_spec(
+    spec: dict[str, object],
+    args: argparse.Namespace,
+    *,
+    profile: dict[str, object],
+) -> dict[str, object] | None:
+    if not args.require_interview and not args.interview_answers:
+        return None
+    answers = load_interview_answers(args.interview_answers)
+    report = evaluate_interview(answers, profile=profile)
+    if not report["ready_to_draft"]:
+        return report
+
+    strategy = spec.setdefault("strategy", {})
+    if isinstance(strategy, dict):
+        strategy["interview_answers"] = report["answered"]
+    incoming_profile = profile_from_interview_answers(report["answered"])
+    current_profile = spec.get("profile") if isinstance(spec.get("profile"), dict) else {}
+    spec["profile"] = merge_profile(current_profile, incoming_profile, source="interview")
+    return report
 
 
 def prompts_command(args: argparse.Namespace) -> int:
@@ -138,6 +171,24 @@ def intake_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def interview_next_command(args: argparse.Namespace) -> int:
+    answers = load_interview_answers(args.answers)
+    profile = load_profile(args.profile_path) if args.use_profile or args.profile_path else {}
+    report = evaluate_interview(answers, profile=profile)
+    print(json.dumps(report, indent=2, sort_keys=True))
+    return 0
+
+
+def interview_validate_command(args: argparse.Namespace) -> int:
+    answers = load_interview_answers(args.answers)
+    profile = load_profile(args.profile_path) if args.use_profile or args.profile_path else {}
+    report = evaluate_interview(answers, profile=profile)
+    print(json.dumps(report, indent=2, sort_keys=True))
+    if args.require_ready and not report["ready_to_draft"]:
+        return 1
+    return 0
+
+
 def doctor_command(args: argparse.Namespace) -> int:
     platform = args.platform
     key_set = bool(os.environ.get("OPENAI_API_KEY"))
@@ -186,7 +237,24 @@ def main(argv: list[str] | None = None) -> int:
     render.add_argument("--use-profile", action="store_true", help="Load local profile into the spec when the spec has no profile block.")
     render.add_argument("--update-profile", action="store_true", help="After successful QA, merge stable render metadata into the local profile.")
     render.add_argument("--profile-path", help="Override the local profile path.")
+    render.add_argument("--require-interview", action="store_true", help="Fail unless interview answers satisfy the mandatory gate.")
+    render.add_argument("--interview-answers", help="YAML or JSON answers captured from the mandatory interview.")
     render.set_defaults(func=render_command)
+
+    interview = subparsers.add_parser("interview", help="Run the mandatory interrogation gate.")
+    interview_sub = interview.add_subparsers(dest="interview_command", required=True)
+    interview_next = interview_sub.add_parser("next", help="Return the next focused question batch.")
+    interview_next.add_argument("--answers", help="YAML or JSON answers collected so far.")
+    interview_next.add_argument("--use-profile", action="store_true", help="Use the saved local creator profile as stable context.")
+    interview_next.add_argument("--profile-path", help="Override the local profile path.")
+    interview_next.set_defaults(func=interview_next_command)
+
+    interview_validate = interview_sub.add_parser("validate", help="Validate interview answers.")
+    interview_validate.add_argument("--answers", help="YAML or JSON answers collected so far.")
+    interview_validate.add_argument("--require-ready", action="store_true", help="Exit non-zero until ready_to_draft is true.")
+    interview_validate.add_argument("--use-profile", action="store_true", help="Use the saved local creator profile as stable context.")
+    interview_validate.add_argument("--profile-path", help="Override the local profile path.")
+    interview_validate.set_defaults(func=interview_validate_command)
 
     intake = subparsers.add_parser("intake", help="Normalize pasted text, markdown, or Threadify JSON into a seed spec.")
     intake.add_argument("source", nargs="?", help="Local path or raw source string.")
