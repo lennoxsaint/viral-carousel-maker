@@ -32,8 +32,10 @@ def test_skill_render_script_creates_dist():
 
     claude_text = claude_skill.read_text(encoding="utf-8")
     codex_text = codex_skill.read_text(encoding="utf-8")
-    assert "require `OPENAI_API_KEY`" in claude_text
+    assert "connected image-generation provider" in claude_text
+    assert "OPENAI_API_KEY" in claude_text
     assert "https://platform.openai.com/api-keys" in claude_text
+    assert "native ImageGen" in codex_text
     assert "do not require `OPENAI_API_KEY`" in codex_text
     assert "Mandatory Interrogation Gate" in claude_text
     assert "request_user_input" in claude_text

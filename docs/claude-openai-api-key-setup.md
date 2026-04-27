@@ -1,8 +1,14 @@
-# Claude and OpenAI API key setup
+# Claude image-generation provider and OpenAI API key setup
 
 Use this guide when running Viral Carousel Maker in Claude Desktop or Claude Code.
 
-Codex users do not need an OpenAI API key for the preferred Codex-native path. Claude Desktop and Claude Code users need `OPENAI_API_KEY` for the intended OpenAI image-generation workflow.
+Codex users do not need an OpenAI API key for the preferred Codex-native path. Claude Desktop and Claude Code users should use whichever image-generation provider/tool the end user has connected to Claude. If no provider is connected, use `OPENAI_API_KEY` as the OpenAI Image API fallback.
+
+## Provider order
+
+1. Use a Claude-connected image-generation provider/tool when the end user has one configured.
+2. If no provider is connected, use the OpenAI Image API fallback with `OPENAI_API_KEY`.
+3. If neither exists, produce a procedural browser/Pillow draft and clearly label it as the fallback.
 
 Official OpenAI references:
 
@@ -82,17 +88,17 @@ The repo ignores `.env` files by default. Do not remove that ignore rule.
 
 ## What the skill should do if no key is present
 
-When running in Claude Desktop or Claude Code and `OPENAI_API_KEY` is missing, the skill should pause before production image generation and show this message:
+When running in Claude Desktop or Claude Code and no connected image provider or `OPENAI_API_KEY` is available, the skill should pause before production image generation and show this message:
 
 ```text
-To use Viral Carousel Maker in Claude Desktop or Claude Code, you need an OpenAI API key for image generation.
+To use Viral Carousel Maker image generation in Claude Desktop or Claude Code, connect an image-generation provider to Claude or provide an OpenAI API key fallback.
 
-Get one here: https://platform.openai.com/api-keys
+OpenAI fallback key page: https://platform.openai.com/api-keys
 
 Steps:
-1. Sign in to OpenAI.
-2. Create a new secret key.
-3. Copy it once and store it safely.
+1. Use your Claude connector/settings to enable the image-generation provider you want this skill to use.
+2. If you prefer OpenAI as the fallback, sign in to OpenAI and create a new secret key.
+3. Copy the OpenAI key once and store it safely.
 4. Provide it to Claude as OPENAI_API_KEY using your local environment, connector settings, or this current trusted local run.
 
 Do not commit the key to GitHub, paste it into public files, or share it with anyone else.

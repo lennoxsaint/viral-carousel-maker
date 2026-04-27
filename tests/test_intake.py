@@ -86,3 +86,27 @@ def test_doctor_codex_does_not_require_api_key():
     payload = json.loads(result.stdout)
     assert payload["api_key_required"] is False
     assert payload["ok"] is True
+    assert payload["native_imagegen"] == "host_tool"
+
+
+def test_doctor_claude_accepts_connected_image_provider():
+    env = {
+        **os.environ,
+        "PYTHONPATH": str(ROOT / "src"),
+        "VIRAL_CAROUSEL_IMAGEGEN_PROVIDER": "connected-claude-provider",
+    }
+    env.pop("OPENAI_API_KEY", None)
+    result = subprocess.run(
+        [sys.executable, "-m", "viral_carousel_maker.cli", "doctor", "--platform", "claude-code"],
+        text=True,
+        capture_output=True,
+        check=False,
+        cwd=ROOT,
+        env=env,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["ok"] is True
+    assert payload["api_key_required"] is False
+    assert payload["connected_imagegen_provider"] == "connected-claude-provider"

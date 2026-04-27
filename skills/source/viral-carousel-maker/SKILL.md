@@ -11,7 +11,7 @@ You must also act as a relentless product architect before generation. Your firs
 
 After interrogation, you must run the Virality Engine. This is the stage where you convert the user's raw idea into a hook, belief shift, slide count, CTA pressure, and visual thesis that can survive a fast Threads feed.
 
-Use the platform adapter at the top of this skill to choose the correct image path. Codex users do not need `OPENAI_API_KEY` for the preferred workflow. Claude Desktop and Claude Code users need `OPENAI_API_KEY` for the intended OpenAI image-generation workflow, with a procedural draft fallback when the key is missing.
+Use the platform adapter at the top of this skill to choose the correct image path. Codex users should use Codex's native ImageGen tool and do not need `OPENAI_API_KEY`. Claude Desktop and Claude Code users should use whichever image-generation provider/tool the end user has connected to Claude; if none is connected, use the OpenAI Image API fallback with `OPENAI_API_KEY`, then procedural rendering as the last fallback.
 
 ## Output Contract
 
@@ -54,10 +54,10 @@ Default canvas: `1080x1350` vertical. Use the same aspect ratio for every slide.
 10. Draft the carousel copy and YAML spec, including `strategy`, `design_pack`, `render_engine`, `pattern_bank`, and per-slide `main_idea` wherever possible.
 11. Score the strategy and spec with `references/quality-rubric.md` and the CLI `viral-carousel score`. Revise until it passes the virality gate.
 12. Run the required AI critic gate in `references/ai-critic-gate.md`. Revise until critic verdict is `pass`.
-13. Show the approved spec summary before paid API calls or native image generation.
-14. In Codex, use native image generation only for optional visual assets if helpful; no API key is required.
-15. In Claude Desktop or Claude Code, check whether `OPENAI_API_KEY` is available before production image generation.
-16. If `OPENAI_API_KEY` is missing in Claude, show the API-key onboarding message below and offer procedural draft rendering as the safe fallback.
+13. Show the approved spec summary before paid API calls, connected-provider generation, or native ImageGen generation.
+14. In Codex, use native ImageGen for image generation; no API key is required. Prefer code-rendered text for production packs, but use ImageGen full-slide mode when the user explicitly requests all-in ImageGen replacement PNGs.
+15. In Claude Desktop or Claude Code, first use whichever image-generation provider/tool the end user has connected to Claude.
+16. If Claude has no connected image-generation provider, check whether `OPENAI_API_KEY` is available before production image generation. If neither exists, show the provider/API-key onboarding message below and offer procedural draft rendering as the safe fallback.
 17. Render final PNGs with the browser renderer, passing `--require-interview --interview-answers path/to/interview.yaml --update-profile`. Use Pillow fallback only if browser rendering is unavailable.
 18. Ensure every slide has an explicit visual component (icon/object/diagram), not text-only layout.
 19. For aggressive first-slide requests, enforce both copy and visual hook-stop scores at `8.5+` before final delivery.
@@ -169,13 +169,14 @@ Import a private local corpus summary:
 PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli corpus import /path/to/posts --local-only
 ```
 
-## Codex Native Image Pathway
+## Codex Native ImageGen Pathway
 
 When running in Codex:
 
 - Do not ask the user for `OPENAI_API_KEY`.
-- Use the native image generation tool for optional backgrounds, style boards, hero accents, objects, or textures.
-- Keep all final readable text out of image prompts; the renderer adds text later.
+- Use Codex's native ImageGen tool for image generation.
+- For normal production carousels, use ImageGen for backgrounds, style boards, hero accents, objects, or textures, then let the browser renderer add final readable text. This keeps wording crisp and typo-safe.
+- If the user explicitly requests all-in ImageGen slides, generate one slide at a time with exact text in the prompt, save only accepted PNGs, and visually QA every word before moving to the next slide.
 - Save generated visual assets if the environment provides file outputs. If not, continue with procedural/bundled renderer assets.
 - Never block a carousel because native image generation is unavailable.
 
@@ -185,23 +186,40 @@ Good Codex image prompt shape:
 Create a subtle 1080x1350 white paper texture background with a single abstract orange accent shape near the lower-right. No text, no logos, no watermark. Minimal, editorial, high-end creator carousel style.
 ```
 
-## Claude API Key Gate
+Good Codex all-in slide prompt shape when the user explicitly asks for ImageGen-rendered text:
+
+```text
+Use case: infographic-diagram
+Asset type: Threads carousel slide, 1080x1350 vertical PNG
+Exact text, verbatim:
+HEADLINE HERE
+Body sentence here.
+@handle
+Style: high-contrast creator-native poster style.
+Constraints: spell every word exactly; no extra readable words; no watermarks; no fake UI chrome; no cropped text.
+```
+
+All-in ImageGen text QA rule: reject and regenerate any slide with a misspelled handle, URL, headline, number, or key body phrase. Keep raw generated files separate from accepted final PNGs when possible.
+
+## Claude ImageGen Provider Gate
 
 When running in Claude Desktop or Claude Code, do this before production image generation:
 
-1. Check whether `OPENAI_API_KEY` is available in the local environment.
-2. If it is present, continue.
-3. If it is missing, stop and send this message to the user:
+1. Check whether the Claude environment exposes a connected image-generation provider/tool for the current user.
+2. If a provider is connected, use that provider's imagegen pathway and follow the same per-slide prompt and QA rules as Codex.
+3. If no provider is connected, check whether `OPENAI_API_KEY` is available in the local environment.
+4. If `OPENAI_API_KEY` is present, use the OpenAI Image API fallback.
+5. If neither a connected provider nor `OPENAI_API_KEY` is available, stop and send this message to the user:
 
 ```text
-To use Viral Carousel Maker in Claude Desktop or Claude Code, you need an OpenAI API key for image generation.
+To use Viral Carousel Maker image generation in Claude Desktop or Claude Code, connect an image-generation provider to Claude or provide an OpenAI API key fallback.
 
-Get one here: https://platform.openai.com/api-keys
+OpenAI fallback key page: https://platform.openai.com/api-keys
 
 Steps:
-1. Sign in to OpenAI.
-2. Create a new secret key.
-3. Copy it once and store it safely.
+1. Use your Claude connector/settings to enable the image-generation provider you want this skill to use.
+2. If you prefer OpenAI as the fallback, sign in to OpenAI and create a new secret key.
+3. Copy the OpenAI key once and store it safely.
 4. Provide it to Claude as OPENAI_API_KEY using your local environment, connector settings, or this current trusted local run.
 
 Best practices:
@@ -221,17 +239,17 @@ Full guide in this installed skill: references/claude-openai-api-key-setup.md
 Repo guide: docs/claude-openai-api-key-setup.md
 ```
 
-If the user declines to provide a key, offer to draft the carousel spec, copy, caption, alt text, and procedural renderer output, but make clear that the intended Claude image-generation workflow needs `OPENAI_API_KEY`.
+If the user declines to connect a provider or provide a key, offer to draft the carousel spec, copy, caption, alt text, and procedural renderer output, but make clear that custom image generation needs a connected Claude image provider or API fallback.
 
 Safe fallback message:
 
 ```text
-I can still create a procedural draft pack without the API key. It will use the browser/Pillow renderer and bundled/procedural visuals, but it will not use OpenAI image generation for custom visual assets until OPENAI_API_KEY is available.
+I can still create a procedural draft pack without a connected image provider or API key. It will use the browser/Pillow renderer and bundled/procedural visuals, but it will not use custom image generation until a provider or API fallback is available.
 ```
 
-## Claude / Local API Workflow
+## Claude / Local ImageGen Workflow
 
-If running in Claude Desktop, Claude Code, or another non-Codex environment, use the OpenAI Image API workflow documented in `references/claude-openai-api-key-setup.md`, `docs/openai-image-fallback.md`, and `docs/claude-openai-api-key-setup.md`.
+If running in Claude Desktop, Claude Code, or another non-Codex environment, prefer the end user's connected Claude image-generation provider. Use the OpenAI Image API workflow documented in `references/claude-openai-api-key-setup.md`, `docs/openai-image-fallback.md`, and `docs/claude-openai-api-key-setup.md` only when no connected provider is available or the user explicitly selects OpenAI.
 
 ## Proof Policy
 

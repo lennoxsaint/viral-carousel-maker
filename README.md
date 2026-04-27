@@ -28,30 +28,32 @@ Every slide includes the creator's Threads handle in the bottom-left corner.
 For premium clarity, set `render_quality: high` or `render_quality: ultra` in the spec.
 This writes both standard slides and high-resolution masters for sharper exports.
 
-## Preferred path: Codex, no API key needed
+## Preferred path: Codex native ImageGen, no API key needed
 
 If you are using this skill inside Codex, you do not need to set an OpenAI API key for the preferred workflow.
 
-Codex can use its native image generation capability for style boards, backgrounds, hero accents, and visual objects. The Python renderer then places all final text itself so words stay crisp and correct.
+Codex can use its native ImageGen capability for style boards, backgrounds, hero accents, visual objects, and explicit one-slide-at-a-time ImageGen replacement packs when the user asks for all-in generated PNGs. The safest production path still lets the Python/browser renderer place final text itself so words stay crisp and correct.
 
 That means:
 
-- Codex handles image generation when available
+- Codex handles image generation through native ImageGen when available
 - Python/Pillow handles exact layout and text rendering
 - No `OPENAI_API_KEY` is required for the Codex-native path
 
 ## Claude Desktop or Claude Code path
 
-If you are using this skill in Claude Desktop or Claude Code, the intended image-generation workflow requires an OpenAI API key.
+If you are using this skill in Claude Desktop or Claude Code, the intended image-generation workflow uses whichever image-generation provider/tool the end user has connected to Claude.
 
-When the skill is invoked in Claude Desktop or Claude Code, it should pause before production image generation and tell the user:
+If no provider is connected, the OpenAI Image API remains the supported fallback and requires an OpenAI API key.
+
+When the skill is invoked in Claude Desktop or Claude Code and no connected provider or API fallback is available, it should pause before production image generation and tell the user:
 
 ```text
-To use Viral Carousel Maker in Claude Desktop or Claude Code, you need an OpenAI API key for image generation.
+To use Viral Carousel Maker image generation in Claude Desktop or Claude Code, connect an image-generation provider to Claude or provide an OpenAI API key fallback.
 
-Get one here: https://platform.openai.com/api-keys
+OpenAI fallback key page: https://platform.openai.com/api-keys
 
-Follow the setup guide in docs/claude-openai-api-key-setup.md, then provide the key to Claude as OPENAI_API_KEY.
+Follow the setup guide in docs/claude-openai-api-key-setup.md, then either connect a Claude image provider or provide an OpenAI fallback key as OPENAI_API_KEY.
 Do not commit the key to GitHub, paste it into public files, or share it with anyone else.
 ```
 
@@ -73,7 +75,7 @@ Then restart Claude Code or open a new terminal session before invoking the skil
 
 For Claude Desktop, use the safest available local environment or connector configuration for your setup. If Claude Desktop cannot read environment variables, the skill should ask the user whether they are comfortable providing the key for the current local run only. Never store it in the repo.
 
-The renderer can still make draft/procedural carousel PNGs without API calls, but Claude Desktop and Claude Code users should expect to provide `OPENAI_API_KEY` for the intended OpenAI image-generation workflow.
+The renderer can still make draft/procedural carousel PNGs without API calls, but Claude Desktop and Claude Code users should expect to connect an image provider or provide `OPENAI_API_KEY` for the OpenAI fallback before custom image generation.
 
 Install the API extras:
 
@@ -81,7 +83,7 @@ Install the API extras:
 uv pip install -e ".[image-api]"
 ```
 
-The API image workflow targets `gpt-image-2`.
+The OpenAI API fallback targets `gpt-image-2`.
 
 ## Quick start
 

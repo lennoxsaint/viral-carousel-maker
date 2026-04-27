@@ -192,28 +192,38 @@ def interview_validate_command(args: argparse.Namespace) -> int:
 def doctor_command(args: argparse.Namespace) -> int:
     platform = args.platform
     key_set = bool(os.environ.get("OPENAI_API_KEY"))
+    claude_provider = os.environ.get("VIRAL_CAROUSEL_IMAGEGEN_PROVIDER") or os.environ.get(
+        "CLAUDE_IMAGEGEN_PROVIDER"
+    )
     if platform == "codex":
         status = {
             "platform": "codex",
             "ok": True,
             "api_key_required": False,
-            "message": "Codex preferred path is ready. OPENAI_API_KEY is not required.",
+            "native_imagegen": "host_tool",
+            "message": "Codex native ImageGen path is preferred. OPENAI_API_KEY is not required.",
         }
     else:
+        has_connected_provider = bool(claude_provider)
         status = {
             "platform": platform,
-            "ok": key_set,
-            "api_key_required": True,
+            "ok": has_connected_provider or key_set,
+            "api_key_required": not has_connected_provider,
+            "connected_imagegen_provider": claude_provider or None,
             "openai_api_key_set": key_set,
             "message": (
-                "OPENAI_API_KEY is set. Claude image-generation workflow can run."
-                if key_set
-                else "OPENAI_API_KEY is missing. Claude can still make procedural drafts, but the intended image workflow needs a key."
+                f"Claude image-generation workflow can run through connected provider: {claude_provider}."
+                if has_connected_provider
+                else (
+                    "OPENAI_API_KEY is set. Claude OpenAI Image API fallback can run."
+                    if key_set
+                    else "No Claude-connected image provider or OPENAI_API_KEY was detected. Claude can still make procedural drafts."
+                )
             ),
             "next_action": (
                 "Run the carousel workflow."
-                if key_set
-                else "Create a key at https://platform.openai.com/api-keys and expose it as OPENAI_API_KEY."
+                if has_connected_provider or key_set
+                else "Connect an image-generation provider to Claude, or create an OpenAI key at https://platform.openai.com/api-keys and expose it as OPENAI_API_KEY."
             ),
         }
     print(json.dumps(status, indent=2, sort_keys=True))
