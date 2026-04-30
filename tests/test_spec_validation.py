@@ -52,6 +52,13 @@ def test_strategy_fields_and_visual_modes_validate():
     assert isinstance(warnings, list)
 
 
+def test_imagegen_render_engine_validates():
+    spec = load_spec(ROOT / "examples" / "specs" / "ai-framework.yaml")
+    spec["render_engine"] = "imagegen"
+    warnings = validate_spec(spec)
+    assert isinstance(warnings, list)
+
+
 def test_unknown_design_pack_fails():
     spec = load_spec(ROOT / "examples" / "specs" / "ai-framework.yaml")
     spec["design_pack"] = "glitter"

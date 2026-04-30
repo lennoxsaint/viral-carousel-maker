@@ -149,6 +149,22 @@ def test_render_require_interview_blocks_incomplete_answers(tmp_path):
     assert json.loads(result.stdout)["ready_to_draft"] is False
 
 
+def test_imagegen_renderer_writes_prompts_and_requires_host(tmp_path):
+    result = _run_cli(
+        "render",
+        "examples/specs/ai-framework.yaml",
+        "--out-dir",
+        str(tmp_path / "pack"),
+        "--renderer",
+        "imagegen",
+    )
+
+    assert result.returncode == 2
+    payload = json.loads(result.stdout)
+    assert payload["status"] == "host_imagegen_required"
+    assert Path(payload["prompts"]).exists()
+
+
 def test_render_updates_profile_with_interview_fields_after_successful_qa(tmp_path):
     answers_path = tmp_path / "answers.yaml"
     profile_path = tmp_path / "profile.yaml"

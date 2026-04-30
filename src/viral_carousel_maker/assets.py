@@ -119,7 +119,7 @@ def collect_visual_prompts(spec: dict[str, Any]) -> list[dict[str, Any]]:
                 "slide_index": index,
                 "role": slide.get("role"),
                 "prompt": prompt,
-                "recommended_use": "Codex native image generation first; OpenAI API fallback outside Codex.",
+                "recommended_use": "Codex native ImageGen for production; outside Codex use connected provider, OpenAI API, then Google API.",
             }
         )
     return prompts

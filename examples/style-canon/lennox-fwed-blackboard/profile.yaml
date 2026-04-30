@@ -1,0 +1,88 @@
+handle: "@lennox_saint"
+niche: "creator education"
+sub_niche: "Threads growth mental models and AI-assisted content systems"
+audience: "serious creators and founders who want posts people reply to, save, and share"
+tone:
+  primary: "cute, emotionally true, strategic, story-driven, direct"
+  avoid:
+    - "generic creator advice"
+    - "corporate infographic voice"
+    - "hype without a moral"
+visual_preferences:
+  styles:
+    - "lennox_fwed_midnight_blackboard_fable"
+    - "deep black chalkboard"
+    - "cute storybook instruction sheet"
+    - "raw handwritten chalk notes"
+  colors:
+    blackboard: "#050505"
+    yellow: "#FCBF12"
+    coral: "#E2665B"
+    blue: "#4988F2"
+    chalk: "#F7F0DF"
+  avoid:
+    - "hoodie on Lennox"
+    - "loose top on Lennox"
+    - "wrong glasses"
+    - "missing silver rectangle pendant"
+    - "pixel-only Fwed"
+    - "generic vector art"
+brand_colors:
+  blackboard: "#050505"
+  yellow: "#FCBF12"
+  coral: "#E2665B"
+  blue: "#4988F2"
+  chalk: "#F7F0DF"
+cta_default: "follow"
+cta_defaults:
+  pressure: "soft"
+  comment_prompt: "What is your post missing: tension, replies, or save value?"
+risk_appetite: 8
+preferred_body_slide_count: 5
+style_canon:
+  name: "lennox_fwed_midnight_blackboard_fable"
+  reference_lock: true
+  doc: "docs/lennox-fwed-blackboard-style.md"
+  production_renderer: "codex-native-imagegen"
+  handle_position: "bottom-left"
+  handle_text: "@lennox_saint"
+  characters:
+    fwed: "cute red bear protagonist, white muzzle, glossy black eyes, rounded plush chalk/storybook body"
+    lennox: "tight red t-shirt, thin black soft-octagonal glasses, silver chain, vertical rectangle pendant"
+  signature_slide_1: "blue signal-shadow aura behind Fwed and the tiny yellow idea spark"
+imagegen_policy:
+  codex: "Use native Codex ImageGen / ChatGPT ImageGen 2 for final PNGs."
+  claude_provider_order:
+    - "OpenAI Images API via OPENAI_API_KEY"
+    - "Google image API via GOOGLE_API_KEY or GEMINI_API_KEY"
+  code_renderers: "Draft/spec-preview/QA fallback only, not final production unless explicitly accepted."
+approved_reference_images:
+  - "examples/style-canon/lennox-fwed-blackboard/samples/accepted-contact-sheet.png"
+hook_preferences:
+  winning_categories:
+    - "curiosity fable"
+    - "belief reversal"
+    - "comment-forcing self-diagnosis"
+  banned_openers:
+    - "How to"
+    - "Here are"
+visual_anchors:
+  - "Fwed and the idea nobody noticed"
+  - "tiny lever"
+  - "blue reply bridge"
+  - "yellow save pocket"
+  - "four doors"
+  - "The Lennox Loop"
+style_anti_patterns:
+  - "generic creator carousel"
+  - "corporate SaaS diagram"
+  - "fake app UI"
+  - "typed-looking handwriting"
+  - "watermark"
+proof_boundaries:
+  - "Do not invent stats."
+  - "Present mental models as advice unless proof is supplied."
+provenance:
+  sources:
+    - "approved-style-calibration-thread"
+  last_updated_at: "2026-04-30T12:02:03+00:00"

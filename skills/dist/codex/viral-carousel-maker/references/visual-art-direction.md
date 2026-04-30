@@ -19,9 +19,9 @@ Textured white editorial paper, sharp navy/orange hierarchy, one proof-stat obje
 - Use hero numbers when a stat is the point.
 - Avoid generic cards unless the card itself carries meaning.
 - Avoid decorative visuals that do not teach, prove, or create tension.
-- Keep final readable text code-rendered, never baked into generated images.
-- Keep visual assets text-free unless they are deliberately non-final background elements.
-- Default to the browser renderer for final production. Use Pillow only as a fallback.
+- Production carousels are ImageGen-first. Generate final full-slide PNGs through the active Codex or Claude image-generation path.
+- Browser/Pillow renderers are draft/spec-preview/QA fallbacks unless the user explicitly accepts fallback output.
+- If using full-slide ImageGen text, visually QA every word and regenerate any slide with misspellings, wrong handle, wrong character details, or crop issues.
 - Choose a named `design_pack` before rendering so the carousel has a coherent visual system.
 - Generate image assets only when they carry meaning: proof, contrast, scene, object, texture, or emotional setting.
 
@@ -55,7 +55,7 @@ Use `visual_mode` per slide when helpful:
 
 ## Contact-sheet QA
 
-The renderer writes `contact_sheet.png`, `visual_qa.json`, and `visual_qa_report.md`. Review them before final delivery:
+For ImageGen production packs, create or assemble a contact sheet and review it before final delivery. Browser/Pillow draft renderers write `contact_sheet.png`, `visual_qa.json`, and `visual_qa_report.md`; use those as QA helpers, not proof that code-rendered output is the final production image.
 
 - Does slide 1 stop the eye immediately?
 - Does the sequence alternate tension and payoff?

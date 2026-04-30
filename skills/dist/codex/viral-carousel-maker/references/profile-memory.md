@@ -85,6 +85,24 @@ performance_summary:
 proof_boundaries:
   - "do not invent stats"
   - "flag unsupported claims"
+style_canon:
+  name: "approved visual style name"
+  reference_lock: true
+  production_renderer: "codex-native-imagegen or provider-imagegen"
+  handle_position: "bottom-left"
+  handle_text: "@creator"
+  signature_moves: []
+imagegen_policy:
+  codex: "Use native Codex ImageGen / ChatGPT ImageGen 2 for final PNGs."
+  claude_provider_order:
+    - "OpenAI Images API via OPENAI_API_KEY"
+    - "Google image API via GOOGLE_API_KEY or GEMINI_API_KEY"
+  code_renderers: "Draft/spec-preview fallback only unless explicitly accepted."
+approved_reference_images: []
+style_calibration:
+  approved_at: "YYYY-MM-DDTHH:MM:SS+00:00"
+  approved_summary: ""
+  rejected_directions: []
 template_preferences:
   preferred:
     - "framework"
@@ -119,6 +137,8 @@ When interview answers are supplied, the CLI may merge stable fields into the pr
 - CTA defaults and CTA pressure
 - proof boundaries and risk appetite
 - preferred body slide count
+- approved style canon and reference images
+- ImageGen provider policy
 
 ## How to use the profile later
 
@@ -126,7 +146,8 @@ On future carousels:
 
 1. Load the profile first.
 2. Tell the user which stable preferences you found.
-3. Ask current-carousel questions anyway:
+3. If no approved `style_canon` exists, run first-use style calibration before final production.
+4. Ask current-carousel questions anyway:
    - topic
    - desired outcome
    - current audience pain
@@ -135,9 +156,9 @@ On future carousels:
    - CTA for this post
    - CTA pressure
    - any style changes
-4. Use the profile to tailor tone, visuals, CTA defaults, hook categories, visual anchors, and risk level.
-5. Update the profile only with stable new information.
-6. If the user provides performance metrics, update only summarized learnings. Do not paste private raw comments or secrets into the profile.
+5. Use the profile to tailor tone, visuals, CTA defaults, hook categories, visual anchors, and risk level.
+6. Update the profile only with stable new information.
+7. If the user provides performance metrics, update only summarized learnings. Do not paste private raw comments or secrets into the profile.
 
 ## Profile write message
 

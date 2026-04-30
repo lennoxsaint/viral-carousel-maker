@@ -34,8 +34,12 @@ def test_skill_render_script_creates_dist():
     codex_text = codex_skill.read_text(encoding="utf-8")
     assert "connected image-generation provider" in claude_text
     assert "OPENAI_API_KEY" in claude_text
+    assert "GOOGLE_API_KEY" in claude_text
+    assert "first-use style calibration" in claude_text
     assert "https://platform.openai.com/api-keys" in claude_text
     assert "native ImageGen" in codex_text
+    assert "ChatGPT ImageGen 2" in codex_text
+    assert "first-use style calibration" in codex_text
     assert "do not require `OPENAI_API_KEY`" in codex_text
     assert "Mandatory Interrogation Gate" in claude_text
     assert "request_user_input" in claude_text
@@ -46,7 +50,7 @@ def test_skill_render_script_creates_dist():
     assert "Virality Engine" in claude_text
     assert "Hook Lab" in claude_text
     assert "AI critic gate" in claude_text
-    assert "browser renderer" in claude_text
+    assert "draft previews" in claude_text
     assert "visual_priority" in claude_text
     assert "visual_qa.json" in claude_text
     assert "contact_sheet.png" in claude_text
@@ -59,7 +63,7 @@ def test_skill_render_script_creates_dist():
     assert "profile.yaml" in codex_text
     assert "Virality Engine" in codex_text
     assert "AI critic gate" in codex_text
-    assert "browser renderer" in codex_text
+    assert "draft previews" in codex_text
     assert "visual_priority" in codex_text
     assert "OPENAI_API_KEY" not in codex_text.split("## Platform Adapter", 1)[1].split("<!-- END GENERATED", 1)[0] or "do not require `OPENAI_API_KEY`" in codex_text
 
@@ -67,6 +71,7 @@ def test_skill_render_script_creates_dist():
 def test_skill_reference_docs_include_interview_profile_and_quality_gates():
     source_root = ROOT / "skills" / "source" / "viral-carousel-maker" / "references"
     interview = (source_root / "interview.md").read_text(encoding="utf-8")
+    style_calibration = (source_root / "style-calibration.md").read_text(encoding="utf-8")
     profile = (source_root / "profile-memory.md").read_text(encoding="utf-8")
     quality = (source_root / "quality-rubric.md").read_text(encoding="utf-8")
     constitution = (source_root / "threads-virality-constitution.md").read_text(encoding="utf-8")
@@ -83,6 +88,9 @@ def test_skill_reference_docs_include_interview_profile_and_quality_gates():
     assert "ready_to_draft: true" in interview
     assert "Use `request_user_input` whenever the host provides it." in interview
     assert "Do not summarize, draft, plan, select a template, generate images, or render" in interview
+    assert "This gate is mandatory" in style_calibration
+    assert "explicitly approves the style direction" in style_calibration
+    assert "Lennox/Fwed" in style_calibration
     assert "~/.viral-carousel-maker/profile.yaml" in profile
     assert "Never store" in profile
     assert "provenance" in profile

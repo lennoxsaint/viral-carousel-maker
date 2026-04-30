@@ -61,6 +61,10 @@ PROFILE_ALLOWED_KEYS = {
     "best_visual_packs",
     "performance_summary",
     "template_preferences",
+    "style_canon",
+    "style_calibration",
+    "imagegen_policy",
+    "approved_reference_images",
 }
 
 SECRET_KEY_PARTS = (

@@ -68,8 +68,8 @@ def validate_spec(spec: dict[str, Any]) -> list[str]:
         raise SpecError(f"Unsupported design_pack '{design_pack}'.")
 
     render_engine = spec.get("render_engine")
-    if render_engine and str(render_engine) not in {"browser", "pillow"}:
-        raise SpecError("render_engine must be browser or pillow.")
+    if render_engine and str(render_engine) not in {"browser", "pillow", "imagegen"}:
+        raise SpecError("render_engine must be browser, pillow, or imagegen.")
 
     render_quality = spec.get("render_quality")
     if render_quality and str(render_quality).lower() not in {"standard", "high", "ultra"}:

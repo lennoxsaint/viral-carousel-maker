@@ -16,6 +16,8 @@ def test_profile_merge_allowlist_and_secret_stripping():
             "handle": "@new",
             "niche": "creator education",
             "visual_preferences": ["clean", "high contrast"],
+            "style_canon": {"name": "Lennox/Fwed Blackboard"},
+            "imagegen_policy": {"production_renderer": "codex-native-imagegen"},
             "OPENAI_API_KEY": "sk-test",
             "nested": {"secret_token": "hidden"},
         },
@@ -26,6 +28,8 @@ def test_profile_merge_allowlist_and_secret_stripping():
     assert merged["handle"] == "@new"
     assert merged["niche"] == "creator education"
     assert merged["visual_preferences"] == ["clean", "high contrast"]
+    assert merged["style_canon"]["name"] == "Lennox/Fwed Blackboard"
+    assert merged["imagegen_policy"]["production_renderer"] == "codex-native-imagegen"
     assert "OPENAI_API_KEY" not in merged
     assert "nested" not in merged
     assert merged["provenance"]["sources"] == ["test"]

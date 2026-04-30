@@ -11,7 +11,7 @@ handle: "@creator"
 template_family: "framework"
 aspect_ratio: "vertical"
 design_pack: "editorial-paper"
-render_engine: "browser"
+render_engine: "imagegen"
 render_quality: "high"
 theme:
   palette:
@@ -91,7 +91,7 @@ Use `strategy` whenever possible:
 ## V2 fields
 
 - `design_pack`: one of `editorial-paper`, `brutal-proof`, `quiet-luxury`, `founder-field-notes`, `photo-anchor`, `data-lab`, `myth-truth`, or `template-marketplace`.
-- `render_engine`: `browser` by default, `pillow` only for fallback.
+- `render_engine`: `imagegen` for production packs, `browser` or `pillow` only for draft previews and explicit fallback output.
 - `render_quality`: `standard`, `high`, or `ultra` (browser renderer).
 - `critic`: structured AI critic output from `ai-critic-gate.md`.
 - `pattern_bank`: selected public or private pattern summary.
@@ -122,11 +122,13 @@ If `strategy.hook_priority` or `strategy.scroll_stop_priority` is `high`, `extre
 
 If `strategy.visual_priority` is `high`, `extreme`, or `thumbnail`, every slide must include a visual component and pass visual-area thresholds in QA.
 
-Render with the browser engine:
+Prepare an ImageGen production prompt pack:
 
 ```bash
-viral-carousel render path/to/spec.yaml --out-dir output/run-name
+viral-carousel render path/to/spec.yaml --out-dir output/run-name --renderer imagegen
 ```
+
+This writes prompts and returns `host_imagegen_required`; final production PNGs are generated through Codex native ImageGen or the configured Claude image provider/API fallback.
 
 Use Pillow fallback only when browser rendering is unavailable:
 

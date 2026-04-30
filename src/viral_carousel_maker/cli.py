@@ -41,6 +41,22 @@ def render_command(args: argparse.Namespace) -> int:
     if args.dry_run:
         print(json.dumps({"status": "ok", "renderer": args.renderer, "warnings": warnings}, indent=2))
         return 0
+    if args.renderer == "imagegen":
+        prompts_path = write_prompts_jsonl(spec, Path(args.out_dir) / "prompts.jsonl")
+        print(
+            json.dumps(
+                {
+                    "status": "host_imagegen_required",
+                    "prompts": str(prompts_path),
+                    "message": (
+                        "ImageGen production rendering is host-driven. Use Codex native ImageGen, "
+                        "or Claude's configured image provider/API fallback, then QA accepted PNGs."
+                    ),
+                },
+                indent=2,
+            )
+        )
+        return 2
     renderer = (
         CarouselRenderer(spec, args.out_dir)
         if args.renderer == "pillow"
@@ -191,7 +207,12 @@ def interview_validate_command(args: argparse.Namespace) -> int:
 
 def doctor_command(args: argparse.Namespace) -> int:
     platform = args.platform
-    key_set = bool(os.environ.get("OPENAI_API_KEY"))
+    openai_key_set = bool(os.environ.get("OPENAI_API_KEY"))
+    google_key_set = bool(
+        os.environ.get("GOOGLE_API_KEY")
+        or os.environ.get("GEMINI_API_KEY")
+        or os.environ.get("GOOGLE_GENERATIVE_AI_API_KEY")
+    )
     claude_provider = os.environ.get("VIRAL_CAROUSEL_IMAGEGEN_PROVIDER") or os.environ.get(
         "CLAUDE_IMAGEGEN_PROVIDER"
     )
@@ -200,30 +221,45 @@ def doctor_command(args: argparse.Namespace) -> int:
             "platform": "codex",
             "ok": True,
             "api_key_required": False,
+            "production_renderer": "codex-native-imagegen",
             "native_imagegen": "host_tool",
-            "message": "Codex native ImageGen path is preferred. OPENAI_API_KEY is not required.",
+            "openai_api_key_set": openai_key_set,
+            "google_image_api_key_set": google_key_set,
+            "message": "Codex native ImageGen / ChatGPT ImageGen 2 is the production path. OPENAI_API_KEY is not required.",
         }
     else:
         has_connected_provider = bool(claude_provider)
+        provider_order = [
+            "connected Claude image-generation provider",
+            "OpenAI Images API via OPENAI_API_KEY",
+            "Google image API via GOOGLE_API_KEY/GEMINI_API_KEY",
+        ]
         status = {
             "platform": platform,
-            "ok": has_connected_provider or key_set,
+            "ok": has_connected_provider or openai_key_set or google_key_set,
             "api_key_required": not has_connected_provider,
+            "production_renderer": "provider-imagegen",
             "connected_imagegen_provider": claude_provider or None,
-            "openai_api_key_set": key_set,
+            "openai_api_key_set": openai_key_set,
+            "google_image_api_key_set": google_key_set,
+            "provider_order": provider_order,
             "message": (
                 f"Claude image-generation workflow can run through connected provider: {claude_provider}."
                 if has_connected_provider
                 else (
-                    "OPENAI_API_KEY is set. Claude OpenAI Image API fallback can run."
-                    if key_set
-                    else "No Claude-connected image provider or OPENAI_API_KEY was detected. Claude can still make procedural drafts."
+                    "OPENAI_API_KEY is set. Claude OpenAI Images API production path can run."
+                    if openai_key_set
+                    else (
+                        "Google image API key is set. Claude Google image fallback can run."
+                        if google_key_set
+                        else "No Claude-connected image provider, OPENAI_API_KEY, or Google image API key was detected. Pause before production image generation."
+                    )
                 )
             ),
             "next_action": (
                 "Run the carousel workflow."
-                if has_connected_provider or key_set
-                else "Connect an image-generation provider to Claude, or create an OpenAI key at https://platform.openai.com/api-keys and expose it as OPENAI_API_KEY."
+                if has_connected_provider or openai_key_set or google_key_set
+                else "Connect an image-generation provider to Claude, expose OPENAI_API_KEY, or expose GOOGLE_API_KEY/GEMINI_API_KEY."
             ),
         }
     print(json.dumps(status, indent=2, sort_keys=True))
@@ -239,9 +275,9 @@ def main(argv: list[str] | None = None) -> int:
     render.add_argument("--out-dir", required=True)
     render.add_argument(
         "--renderer",
-        choices=["browser", "pillow"],
+        choices=["browser", "pillow", "imagegen"],
         default="browser",
-        help="Renderer engine. Browser is the default production path; Pillow is the fallback.",
+        help="Renderer engine. ImageGen is the production host path; browser/Pillow are draft and QA fallbacks.",
     )
     render.add_argument("--dry-run", action="store_true")
     render.add_argument("--use-profile", action="store_true", help="Load local profile into the spec when the spec has no profile block.")

@@ -1,14 +1,15 @@
-# Claude image-generation provider and OpenAI API key setup
+# Claude image-generation provider and API key setup
 
 Use this guide when running Viral Carousel Maker in Claude Desktop or Claude Code.
 
-Codex users do not need an OpenAI API key for the preferred Codex-native path. Claude Desktop and Claude Code users should use whichever image-generation provider/tool the end user has connected to Claude. If no provider is connected, use `OPENAI_API_KEY` as the OpenAI Image API fallback.
+Codex users do not need an OpenAI API key for the preferred Codex-native ImageGen / ChatGPT ImageGen 2 path. Claude Desktop and Claude Code users should use whichever image-generation provider/tool the end user has connected to Claude. If no provider is connected, use `OPENAI_API_KEY` first, then a Google image API key when OpenAI is unavailable.
 
 ## Provider order
 
 1. Use a Claude-connected image-generation provider/tool when the end user has one configured.
-2. If no provider is connected, use the OpenAI Image API fallback with `OPENAI_API_KEY`.
-3. If neither exists, produce a procedural browser/Pillow draft and clearly label it as the fallback.
+2. If no provider is connected, use the OpenAI Images API fallback with `OPENAI_API_KEY`.
+3. If OpenAI is unavailable, use Google image API fallback with `GOOGLE_API_KEY`, `GEMINI_API_KEY`, or `GOOGLE_GENERATIVE_AI_API_KEY`.
+4. If none exists, pause before production image generation. Procedural browser/Pillow output is a draft-only fallback.
 
 Official OpenAI references:
 
@@ -80,6 +81,8 @@ If you prefer a local file, create a private `.env` file in the repo root:
 
 ```bash
 OPENAI_API_KEY=
+# or
+GOOGLE_API_KEY=
 ```
 
 Paste your key after the equals sign in your private local file.
@@ -88,18 +91,19 @@ The repo ignores `.env` files by default. Do not remove that ignore rule.
 
 ## What the skill should do if no key is present
 
-When running in Claude Desktop or Claude Code and no connected image provider or `OPENAI_API_KEY` is available, the skill should pause before production image generation and show this message:
+When running in Claude Desktop or Claude Code and no connected image provider, `OPENAI_API_KEY`, or Google image API key is available, the skill should pause before production image generation and show this message:
 
 ```text
-To use Viral Carousel Maker image generation in Claude Desktop or Claude Code, connect an image-generation provider to Claude or provide an OpenAI API key fallback.
+To use Viral Carousel Maker production image generation in Claude Desktop or Claude Code, connect an image-generation provider to Claude, provide an OpenAI API key fallback, or provide a Google image API key fallback.
 
 OpenAI fallback key page: https://platform.openai.com/api-keys
 
 Steps:
 1. Use your Claude connector/settings to enable the image-generation provider you want this skill to use.
 2. If you prefer OpenAI as the fallback, sign in to OpenAI and create a new secret key.
-3. Copy the OpenAI key once and store it safely.
-4. Provide it to Claude as OPENAI_API_KEY using your local environment, connector settings, or this current trusted local run.
+3. If you prefer Google as the fallback, create a Google/Gemini API key for image generation.
+4. Copy the key once and store it safely.
+5. Provide it to Claude as OPENAI_API_KEY, GOOGLE_API_KEY, or GEMINI_API_KEY using your local environment, connector settings, or this current trusted local run.
 
 Do not commit the key to GitHub, paste it into public files, or share it with anyone else.
 ```

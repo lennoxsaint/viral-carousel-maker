@@ -1,6 +1,6 @@
 ---
 name: viral-carousel-maker
-description: "Use this skill whenever a user wants to create a Threads carousel, viral carousel, social media carousel, carousel images, swipe post, educational carousel, or saveable visual post from an idea, rough notes, Threadify draft, or existing copy. It must run a mandatory interrogation interview before generation, create or update a reusable local creator profile after the first successful carousel, use the correct Codex or Claude image-generation pathway, and render final PNGs with exact code-rendered text."
+description: "Use this skill whenever a user wants to create a Threads carousel, viral carousel, social media carousel, carousel images, swipe post, educational carousel, or saveable visual post from an idea, rough notes, Threadify draft, or existing copy. It must run a mandatory interrogation interview and first-use style calibration before production generation, create or update a reusable local creator profile after approval, use the correct Codex or Claude image-generation pathway, and produce final PNGs through ImageGen unless the user explicitly accepts a draft fallback."
 ---
 
 <!-- BEGIN GENERATED: platform-adapter -->
@@ -9,9 +9,10 @@ description: "Use this skill whenever a user wants to create a Threads carousel,
 - Rendered for: Claude Code.
 - Skill root: `~/.claude/skills`.
 - Canonical source: `skills/source/viral-carousel-maker`.
-- In Claude Desktop or Claude Code, use the image-generation provider/tool the end user has connected to Claude first.
-- If no Claude-connected image provider is available, fall back to the OpenAI Image API path with `OPENAI_API_KEY`.
-- If no image provider or API key is available, offer procedural draft rendering and clearly label it as the fallback path.
+- In Claude Desktop or Claude Code, use the image-generation provider/tool the end user has connected to Claude when one exists.
+- If no Claude-connected image provider is available, use the OpenAI Images API path with `OPENAI_API_KEY` first.
+- If OpenAI is unavailable, use the Google image API path with `GOOGLE_API_KEY` or `GEMINI_API_KEY`.
+- If no image provider or API key is available, pause before production image generation; procedural rendering is draft-only fallback.
 - Readiness check: `viral-carousel doctor --platform claude-code`.
 - Provider setup guide: `references/claude-openai-api-key-setup.md`.
 <!-- END GENERATED: platform-adapter -->
@@ -24,7 +25,7 @@ You must also act as a relentless product architect before generation. Your firs
 
 After interrogation, you must run the Virality Engine. This is the stage where you convert the user's raw idea into a hook, belief shift, slide count, CTA pressure, and visual thesis that can survive a fast Threads feed.
 
-Use the platform adapter at the top of this skill to choose the correct image path. Codex users should use Codex's native ImageGen tool and do not need `OPENAI_API_KEY`. Claude Desktop and Claude Code users should use whichever image-generation provider/tool the end user has connected to Claude; if none is connected, use the OpenAI Image API fallback with `OPENAI_API_KEY`, then procedural rendering as the last fallback.
+Use the platform adapter at the top of this skill to choose the correct image path. Codex users should use Codex's native ImageGen / ChatGPT ImageGen 2 tool for production images and do not need `OPENAI_API_KEY`. Claude Desktop and Claude Code users should use a connected Claude image-generation provider when available; otherwise use the OpenAI Images API with `OPENAI_API_KEY`, then Google image API with `GOOGLE_API_KEY` or `GEMINI_API_KEY`. Procedural browser/Pillow rendering is draft-only fallback unless the user explicitly accepts it.
 
 ## Output Contract
 
@@ -53,33 +54,34 @@ Default canvas: `1080x1350` vertical. Use the same aspect ratio for every slide.
 1. Check for an existing local profile at `~/.viral-carousel-maker/profile.yaml`.
 2. If the user provides pasted copy, markdown/text, or Threadify JSON, normalize it first with the Threadify draft intake workflow below. Treat extracted fields as provisional answers, not final truth.
 3. Always run the mandatory two-stage interrogation gate in `references/interview.md` before the first carousel in a session. A saved profile or draft intake can prefill answers, but it does not remove the obligation to ask current-carousel questions.
-4. Use `request_user_input` whenever the host provides it. Ask Stage A essentials first, then Stage B follow-ups only for missing, weak, or conflicting answers. If `request_user_input` is unavailable, ask the same questions directly in chat and wait for answers.
-5. Save the current answer state to a local YAML/JSON file and run `viral-carousel interview next` after each batch. Continue asking the returned focused batch until `viral-carousel interview validate --require-ready` reports `ready_to_draft: true`.
-6. Do not draft, plan, select a template, generate images, or render until the gate has captured the minimum required answers and any thin answers have been challenged.
-7. Run the Virality Engine and Hook Lab:
+4. If this user has no approved local `style_canon` profile, run the mandatory first-use style calibration loop in `references/style-calibration.md`. Generate sample contact sheets or sample slides, collect feedback, iterate, and do not produce a final production pack until the user explicitly approves a style direction.
+5. Use `request_user_input` whenever the host provides it. Ask Stage A essentials first, then Stage B follow-ups only for missing, weak, or conflicting answers. If `request_user_input` is unavailable, ask the same questions directly in chat and wait for answers.
+6. Save the current answer state to a local YAML/JSON file and run `viral-carousel interview next` after each batch. Continue asking the returned focused batch until `viral-carousel interview validate --require-ready` reports `ready_to_draft: true`.
+7. Do not draft, plan, select a template, generate images, or render until the gate has captured the minimum required answers, thin answers have been challenged, and first-use style calibration is approved when required.
+8. Run the Virality Engine and Hook Lab:
    - Apply `references/threads-virality-constitution.md`.
    - Generate at least 5 hooks with `references/hook-lab.md`.
    - Apply the public pattern bank and any local-only corpus summaries in `references/pattern-bank.md`.
    - Select the hook, belief shift, proof level, CTA pressure, carousel length, and `visual_thesis`.
    - If permissioned research is useful, apply `references/larry-growth-loop.md`.
-8. Select one template family from `references/template-families.md`. Auto-pick, but respect explicit user preference.
-9. Select a `design_pack`, `render_engine`, `render_quality`, and `visual_priority`. Default to `browser` + `high`; use `pillow` only as fallback.
-10. Draft the carousel copy and YAML spec, including `strategy`, `design_pack`, `render_engine`, `pattern_bank`, and per-slide `main_idea` wherever possible.
-11. Score the strategy and spec with `references/quality-rubric.md` and the CLI `viral-carousel score`. Revise until it passes the virality gate.
-12. Run the required AI critic gate in `references/ai-critic-gate.md`. Revise until critic verdict is `pass`.
-13. Show the approved spec summary before paid API calls, connected-provider generation, or native ImageGen generation.
-14. In Codex, use native ImageGen for image generation; no API key is required. Prefer code-rendered text for production packs, but use ImageGen full-slide mode when the user explicitly requests all-in ImageGen replacement PNGs.
-15. In Claude Desktop or Claude Code, first use whichever image-generation provider/tool the end user has connected to Claude.
-16. If Claude has no connected image-generation provider, check whether `OPENAI_API_KEY` is available before production image generation. If neither exists, show the provider/API-key onboarding message below and offer procedural draft rendering as the safe fallback.
-17. Render final PNGs with the browser renderer, passing `--require-interview --interview-answers path/to/interview.yaml --update-profile`. Use Pillow fallback only if browser rendering is unavailable.
-18. Ensure every slide has an explicit visual component (icon/object/diagram), not text-only layout.
-19. For aggressive first-slide requests, enforce both copy and visual hook-stop scores at `8.5+` before final delivery.
-20. Review `contact_sheet.png` for pacing, hierarchy, and mobile crop safety.
-21. Run technical QA against `manifest.json` and visual QA from `visual_qa.json`.
-22. Run the strict per-slide quality gate in `references/quality-rubric.md`. Every slide must pass before final delivery.
-23. If any slide fails, revise the spec/render and rerun QA. Do not mark the production pack finished until all slides pass.
-24. After successful QA, confirm `~/.viral-carousel-maker/profile.yaml` was created or updated by the CLI `--update-profile` flag. Use that profile to tailor future carousels.
-25. Return file paths plus the short QA result.
+9. Select one template family from `references/template-families.md`. Auto-pick, but respect explicit user preference.
+10. Select a `design_pack`, `render_engine`, `render_quality`, and `visual_priority`. Use `render_engine: imagegen` for production packs. Use `browser` or `pillow` only for draft previews, QA experiments, or explicit fallback acceptance.
+11. Draft the carousel copy and YAML spec, including `strategy`, `design_pack`, `render_engine`, `pattern_bank`, and per-slide `main_idea` wherever possible.
+12. Score the strategy and spec with `references/quality-rubric.md` and the CLI `viral-carousel score`. Revise until it passes the virality gate.
+13. Run the required AI critic gate in `references/ai-critic-gate.md`. Revise until critic verdict is `pass`.
+14. Show the approved spec summary before paid API calls, connected-provider generation, or native ImageGen generation.
+15. In Codex, use native ImageGen / ChatGPT ImageGen 2 full-slide generation for production PNGs; no API key is required.
+16. In Claude Desktop or Claude Code, first use a connected Claude image-generation provider when available. If none is connected, use OpenAI with `OPENAI_API_KEY`; if OpenAI is unavailable, use Google image API with `GOOGLE_API_KEY` or `GEMINI_API_KEY`.
+17. If Claude has no connected provider, OpenAI key, or Google key, pause before production image generation and offer only a clearly labeled procedural draft fallback.
+18. Generate final PNGs one slide at a time or as an accepted batch through ImageGen, then visually QA every slide. Use `viral-carousel render --renderer imagegen` only to write prompt packs and prove host ImageGen is required; browser/Pillow output is not final production unless explicitly accepted.
+19. Ensure every slide has an explicit visual component (icon/object/diagram), not text-only layout.
+20. For aggressive first-slide requests, enforce both copy and visual hook-stop scores at `8.5+` before final delivery.
+21. Review `contact_sheet.png` for pacing, hierarchy, and mobile crop safety.
+22. Run technical QA against `manifest.json` and visual QA from `visual_qa.json`.
+23. Run the strict per-slide quality gate in `references/quality-rubric.md`. Every slide must pass before final delivery.
+24. If any slide fails, revise the spec/render and rerun QA. Do not mark the production pack finished until all slides pass.
+25. After successful QA and user approval, confirm `~/.viral-carousel-maker/profile.yaml` was created or updated with stable creator preferences and any approved `style_canon`. Use that profile to tailor future carousels.
+26. Return file paths plus the short QA result.
 
 ## Mandatory Interrogation Gate
 
@@ -107,14 +109,20 @@ Assume the repo root is:
 /Users/lennoxsaint/viral-carousel-maker
 ```
 
-Render a spec:
+Prepare a production ImageGen prompt pack:
 
 ```bash
 cd /Users/lennoxsaint/viral-carousel-maker
-PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli render path/to/spec.yaml --out-dir output/run-name
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli render path/to/spec.yaml --out-dir output/run-name --renderer imagegen
 ```
 
-The default renderer is browser/Playwright. Use the fallback only when needed:
+Draft preview renderers are available for non-production fallback output:
+
+```bash
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli render path/to/spec.yaml --out-dir output/run-name --renderer browser
+```
+
+Use Pillow fallback only when needed:
 
 ```bash
 PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli render path/to/spec.yaml --out-dir output/run-name --renderer pillow
@@ -187,11 +195,11 @@ PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playw
 When running in Codex:
 
 - Do not ask the user for `OPENAI_API_KEY`.
-- Use Codex's native ImageGen tool for image generation.
-- For normal production carousels, use ImageGen for backgrounds, style boards, hero accents, objects, or textures, then let the browser renderer add final readable text. This keeps wording crisp and typo-safe.
-- If the user explicitly requests all-in ImageGen slides, generate one slide at a time with exact text in the prompt, save only accepted PNGs, and visually QA every word before moving to the next slide.
+- Use Codex's native ImageGen / ChatGPT ImageGen 2 tool for production image generation.
+- For production carousels, generate full-slide PNGs through ImageGen. Code-rendered browser/Pillow slides are draft-only fallbacks unless the user explicitly accepts fallback output.
+- Generate one slide at a time when wording, handle accuracy, or character consistency matters. Save only accepted PNGs, and visually QA every word and character detail before moving to the next slide.
 - Save generated visual assets if the environment provides file outputs. If not, continue with procedural/bundled renderer assets.
-- Never block a carousel because native image generation is unavailable.
+- If native image generation is unavailable, stop before production and offer a clearly labeled procedural draft fallback.
 
 Good Codex image prompt shape:
 
@@ -221,19 +229,21 @@ When running in Claude Desktop or Claude Code, do this before production image g
 1. Check whether the Claude environment exposes a connected image-generation provider/tool for the current user.
 2. If a provider is connected, use that provider's imagegen pathway and follow the same per-slide prompt and QA rules as Codex.
 3. If no provider is connected, check whether `OPENAI_API_KEY` is available in the local environment.
-4. If `OPENAI_API_KEY` is present, use the OpenAI Image API fallback.
-5. If neither a connected provider nor `OPENAI_API_KEY` is available, stop and send this message to the user:
+4. If `OPENAI_API_KEY` is present, use the OpenAI Images API fallback.
+5. If OpenAI is unavailable, check for `GOOGLE_API_KEY`, `GEMINI_API_KEY`, or `GOOGLE_GENERATIVE_AI_API_KEY` and use the Google image API fallback when present.
+6. If none of the above is available, stop and send this message to the user:
 
 ```text
-To use Viral Carousel Maker image generation in Claude Desktop or Claude Code, connect an image-generation provider to Claude or provide an OpenAI API key fallback.
+To use Viral Carousel Maker production image generation in Claude Desktop or Claude Code, connect an image-generation provider to Claude, provide an OpenAI API key fallback, or provide a Google image API key fallback.
 
 OpenAI fallback key page: https://platform.openai.com/api-keys
 
 Steps:
 1. Use your Claude connector/settings to enable the image-generation provider you want this skill to use.
 2. If you prefer OpenAI as the fallback, sign in to OpenAI and create a new secret key.
-3. Copy the OpenAI key once and store it safely.
-4. Provide it to Claude as OPENAI_API_KEY using your local environment, connector settings, or this current trusted local run.
+3. If you prefer Google as the fallback, create a Google/Gemini API key for image generation.
+4. Copy the key once and store it safely.
+5. Provide it to Claude as OPENAI_API_KEY, GOOGLE_API_KEY, or GEMINI_API_KEY using your local environment, connector settings, or this current trusted local run.
 
 Best practices:
 - Treat the API key like a password.
@@ -244,6 +254,8 @@ Best practices:
 
 Claude Code setup on macOS:
 echo "export OPENAI_API_KEY='paste-your-key-here'" >> ~/.zshrc
+# or
+echo "export GOOGLE_API_KEY='paste-your-key-here'" >> ~/.zshrc
 source ~/.zshrc
 
 Then restart Claude Code or open a new terminal and invoke this skill again.
@@ -252,17 +264,17 @@ Full guide in this installed skill: references/claude-openai-api-key-setup.md
 Repo guide: docs/claude-openai-api-key-setup.md
 ```
 
-If the user declines to connect a provider or provide a key, offer to draft the carousel spec, copy, caption, alt text, and procedural renderer output, but make clear that custom image generation needs a connected Claude image provider or API fallback.
+If the user declines to connect a provider or provide a key, offer to draft the carousel spec, copy, caption, alt text, and procedural renderer output, but make clear that production image generation needs a connected Claude image provider or API fallback.
 
 Safe fallback message:
 
 ```text
-I can still create a procedural draft pack without a connected image provider or API key. It will use the browser/Pillow renderer and bundled/procedural visuals, but it will not use custom image generation until a provider or API fallback is available.
+I can still create a procedural draft pack without a connected image provider or API key. It will use the browser/Pillow renderer and bundled/procedural visuals, but it is not the production ImageGen carousel until a provider or API fallback is available.
 ```
 
 ## Claude / Local ImageGen Workflow
 
-If running in Claude Desktop, Claude Code, or another non-Codex environment, prefer the end user's connected Claude image-generation provider. Use the OpenAI Image API workflow documented in `references/claude-openai-api-key-setup.md`, `docs/openai-image-fallback.md`, and `docs/claude-openai-api-key-setup.md` only when no connected provider is available or the user explicitly selects OpenAI.
+If running in Claude Desktop, Claude Code, or another non-Codex environment, prefer the end user's connected Claude image-generation provider when present. Otherwise use OpenAI first, then Google. Use the workflows documented in `references/claude-openai-api-key-setup.md`, `docs/openai-image-fallback.md`, and `docs/claude-openai-api-key-setup.md`.
 
 ## Proof Policy
 
@@ -313,6 +325,7 @@ For future carousels, load the profile first, reuse stable preferences, and stil
 ## Reference Map
 
 - `references/interview.md`: adaptive onboarding questions
+- `references/style-calibration.md`: first-use style sample iteration and approval gate
 - `references/threadify-draft-intake.md`: pasted text, markdown, and Threadify JSON intake
 - `references/threads-virality-constitution.md`: corpus-backed Threads rules
 - `references/hook-lab.md`: hook generation and scoring system

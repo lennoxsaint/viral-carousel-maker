@@ -4,21 +4,21 @@ Viral Carousel Maker is local-first. It creates Threads carousel image packs, ca
 
 ## Codex path
 
-Codex is the preferred public path because it does not require users to set `OPENAI_API_KEY`.
+Codex is the preferred public path because it does not require users to set `OPENAI_API_KEY` for native ImageGen / ChatGPT ImageGen 2 production generation.
 
 ```bash
 git clone https://github.com/lennoxsaint/viral-carousel-maker.git
 cd viral-carousel-maker
 uv run python -m playwright install chromium
 PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli doctor --platform codex
-PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli render examples/specs/threads-shock-stat.yaml --out-dir output/threads-shock-stat
+PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli render examples/specs/threads-shock-stat.yaml --out-dir output/threads-shock-stat --renderer imagegen
 ```
 
-In Codex, native image generation can be used for optional visual assets. Final readable text is still rendered by code so it stays crisp.
+In Codex, native ImageGen is the production path. Browser/Pillow rendering remains available for draft previews and QA fallbacks, but it is not the final production image path unless explicitly accepted.
 
 ## Claude Desktop or Claude Code path
 
-Claude users need an OpenAI API key for the intended image-generation workflow.
+Claude users need a connected image-generation provider, an OpenAI API key, or a Google image API key for the intended production image-generation workflow.
 
 ```bash
 git clone https://github.com/lennoxsaint/viral-carousel-maker.git
@@ -37,6 +37,13 @@ Then expose it locally:
 
 ```bash
 echo "export OPENAI_API_KEY='paste-your-key-here'" >> ~/.zshrc
+source ~/.zshrc
+```
+
+If OpenAI is unavailable and you want the Google fallback, expose a Google/Gemini image API key instead:
+
+```bash
+echo "export GOOGLE_API_KEY='paste-your-key-here'" >> ~/.zshrc
 source ~/.zshrc
 ```
 

@@ -54,16 +54,17 @@ def adapter_block(target: str) -> str:
     info = TARGETS[target]
     if target == "claude":
         platform_notes = (
-            "- In Claude Desktop or Claude Code, use the image-generation provider/tool the end user has connected to Claude first.\n"
-            "- If no Claude-connected image provider is available, fall back to the OpenAI Image API path with `OPENAI_API_KEY`.\n"
-            "- If no image provider or API key is available, offer procedural draft rendering and clearly label it as the fallback path.\n"
+            "- In Claude Desktop or Claude Code, use the image-generation provider/tool the end user has connected to Claude when one exists.\n"
+            "- If no Claude-connected image provider is available, use the OpenAI Images API path with `OPENAI_API_KEY` first.\n"
+            "- If OpenAI is unavailable, use the Google image API path with `GOOGLE_API_KEY` or `GEMINI_API_KEY`.\n"
+            "- If no image provider or API key is available, pause before production image generation; procedural rendering is draft-only fallback.\n"
             "- Readiness check: `viral-carousel doctor --platform claude-code`.\n"
             "- Provider setup guide: `references/claude-openai-api-key-setup.md`.\n"
         )
     else:
         platform_notes = (
-            "- In Codex, use the native ImageGen tool for image generation and do not require `OPENAI_API_KEY`.\n"
-            "- If native image generation is unavailable, continue with procedural renderer assets rather than blocking.\n"
+            "- In Codex, use the native ImageGen / ChatGPT ImageGen 2 tool for production carousel images and do not require `OPENAI_API_KEY`.\n"
+            "- Browser/Pillow rendering is a draft-only fallback unless the user explicitly accepts it.\n"
             "- Readiness check: `viral-carousel doctor --platform codex`.\n"
         )
     return (
