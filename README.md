@@ -147,6 +147,13 @@ Install locally:
 bash scripts/install.sh
 ```
 
+The installer regenerates the Claude/Codex skill bundles from canonical source, copies them into `~/.claude/skills/viral-carousel-maker` and `~/.codex/skills/viral-carousel-maker`, then verifies the installed copies include:
+
+- ImageGen-first production policy with Codex native ImageGen / ChatGPT ImageGen 2
+- mandatory first-use style calibration
+- Claude OpenAI and Google API fallback instructions
+- `references/style-calibration.md`
+
 ## Public skill behavior
 
 When invoked, the skill:

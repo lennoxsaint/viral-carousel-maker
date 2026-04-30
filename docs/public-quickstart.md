@@ -9,6 +9,7 @@ Codex is the preferred public path because it does not require users to set `OPE
 ```bash
 git clone https://github.com/lennoxsaint/viral-carousel-maker.git
 cd viral-carousel-maker
+bash scripts/install.sh
 uv run python -m playwright install chromium
 PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli doctor --platform codex
 PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli render examples/specs/threads-shock-stat.yaml --out-dir output/threads-shock-stat --renderer imagegen
@@ -23,6 +24,7 @@ Claude users need a connected image-generation provider, an OpenAI API key, or a
 ```bash
 git clone https://github.com/lennoxsaint/viral-carousel-maker.git
 cd viral-carousel-maker
+bash scripts/install.sh
 uv run python -m playwright install chromium
 PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli doctor --platform claude-code
 ```
