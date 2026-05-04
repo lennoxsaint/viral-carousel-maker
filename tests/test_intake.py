@@ -95,7 +95,6 @@ def test_doctor_claude_accepts_connected_image_provider():
         "PYTHONPATH": str(ROOT / "src"),
         "VIRAL_CAROUSEL_IMAGEGEN_PROVIDER": "connected-claude-provider",
     }
-    env.pop("OPENAI_API_KEY", None)
     result = subprocess.run(
         [sys.executable, "-m", "viral_carousel_maker.cli", "doctor", "--platform", "claude-code"],
         text=True,

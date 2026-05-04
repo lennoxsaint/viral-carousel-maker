@@ -18,4 +18,4 @@ test -f "$HOME/.codex/skills/viral-carousel-maker/references/style-calibration.m
 test -f "$HOME/.claude/skills/viral-carousel-maker/references/style-calibration.md"
 
 echo "Installed viral-carousel-maker into Claude Code and Codex skill roots."
-echo "Verified ImageGen-first policy, first-use style calibration, and Claude OpenAI/Google fallback docs."
+echo "Verified ImageGen-first policy, first-use style calibration, and Claude provider/Gemini fallback docs."

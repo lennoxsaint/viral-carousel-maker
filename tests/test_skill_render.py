@@ -27,20 +27,22 @@ def test_skill_render_script_creates_dist():
         / "claude"
         / "viral-carousel-maker"
         / "references"
-        / "claude-openai-api-key-setup.md"
+        / "claude-image-provider-setup.md"
     ).exists()
 
     claude_text = claude_skill.read_text(encoding="utf-8")
     codex_text = codex_skill.read_text(encoding="utf-8")
     assert "connected image-generation provider" in claude_text
-    assert "OPENAI_API_KEY" in claude_text
     assert "GOOGLE_API_KEY" in claude_text
     assert "first-use style calibration" in claude_text
-    assert "https://platform.openai.com/api-keys" in claude_text
     assert "native ImageGen" in codex_text
     assert "ChatGPT ImageGen 2" in codex_text
     assert "first-use style calibration" in codex_text
-    assert "do not require `OPENAI_API_KEY`" in codex_text
+    assert "Do not use third-party API image generation in Codex." in codex_text
+    assert "Generate one separate full-slide PNG per carousel slide" in codex_text
+    assert "Final chat output for production carousel runs must contain only the separate carousel images." in codex_text
+    assert "Display photo final.png" in codex_text
+    assert "identity_reference_images" in codex_text
     assert "Mandatory Interrogation Gate" in claude_text
     assert "request_user_input" in claude_text
     assert "interview validate" in claude_text
@@ -54,6 +56,7 @@ def test_skill_render_script_creates_dist():
     assert "visual_priority" in claude_text
     assert "visual_qa.json" in claude_text
     assert "contact_sheet.png" in claude_text
+    assert "QA artifact only" in codex_text or "QA-only" in codex_text
     assert "Threadify draft" in claude_text
     assert "Safe fallback message" in claude_text
     assert "Mandatory Interrogation Gate" in codex_text
@@ -65,7 +68,9 @@ def test_skill_render_script_creates_dist():
     assert "AI critic gate" in codex_text
     assert "draft previews" in codex_text
     assert "visual_priority" in codex_text
-    assert "OPENAI_API_KEY" not in codex_text.split("## Platform Adapter", 1)[1].split("<!-- END GENERATED", 1)[0] or "do not require `OPENAI_API_KEY`" in codex_text
+    assert "OPENAI" + "_API_KEY" not in codex_text
+    assert "Open" + "AI Images API" not in codex_text
+    assert "Open" + "AI API fallback" not in codex_text
 
 
 def test_skill_reference_docs_include_interview_profile_and_quality_gates():
@@ -91,7 +96,9 @@ def test_skill_reference_docs_include_interview_profile_and_quality_gates():
     assert "This gate is mandatory" in style_calibration
     assert "explicitly approves the style direction" in style_calibration
     assert "Lennox/Fwed" in style_calibration
+    assert "Display photo final.png" in style_calibration
     assert "~/.viral-carousel-maker/profile.yaml" in profile
+    assert "identity_reference_images" in profile
     assert "Never store" in profile
     assert "provenance" in profile
     assert "Threadify-style JSON" in intake

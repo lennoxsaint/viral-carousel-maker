@@ -28,62 +28,53 @@ Every slide includes the creator's Threads handle in the bottom-left corner.
 For premium clarity, set `render_quality: high` or `render_quality: ultra` in the spec.
 This writes both standard slides and high-resolution masters for sharper exports.
 
-## Preferred path: Codex native ImageGen, no API key needed
+## Preferred path: Codex native ImageGen only
 
-If you are using this skill inside Codex, you do not need to set an OpenAI API key for the preferred workflow.
+If you are using this skill inside Codex, do not use API image generation.
 
-Codex uses native ImageGen / ChatGPT ImageGen 2 as the production path for final carousel PNGs. Browser/Pillow renderers remain available for draft previews, prompt packs, and QA fallback output, but code-rendered slides are not the final production path unless the user explicitly accepts a fallback.
+Codex uses native ImageGen / ChatGPT ImageGen 2 as the only production path for final carousel PNGs. Browser/Pillow renderers remain available for draft previews, prompt packs, and QA fallback output, but code-rendered slides and contact sheets are not the final production path unless the user explicitly accepts a fallback.
 
 That means:
 
-- Codex handles production image generation through native ImageGen when available
-- Python/browser/Pillow output is draft-only fallback unless explicitly accepted
-- No `OPENAI_API_KEY` is required for the Codex-native path
+- Codex handles production image generation through native ImageGen.
+- Generate one separate full-slide PNG per carousel slide.
+- Final Codex carousel replies should contain only the separate slide images, not prose or one combined contact sheet.
+- Copy accepted PNGs to a Desktop run folder when saved ImageGen files are available.
+- Python/browser/Pillow/contact-sheet output is QA-only unless explicitly accepted as a draft.
+- API image generation is forbidden in Codex.
+- If a profile includes `identity_reference_images`, every relevant per-slide ImageGen prompt must include those reference paths and saved likeness rules.
 
 ## Claude Desktop or Claude Code path
 
 If you are using this skill in Claude Desktop or Claude Code, the intended image-generation workflow uses whichever image-generation provider/tool the end user has connected to Claude.
 
-If no provider is connected, the OpenAI Images API is the first fallback and requires an OpenAI API key. If OpenAI is unavailable, use a Google image API key fallback.
+If no provider is connected, Gemini is the only emergency API fallback for production image generation.
 
-When the skill is invoked in Claude Desktop or Claude Code and no connected provider or API fallback is available, it should pause before production image generation and tell the user:
+When the skill is invoked in Claude Desktop or Claude Code and no connected provider or Gemini fallback is available, it should pause before production image generation and tell the user:
 
 ```text
-To use Viral Carousel Maker production image generation in Claude Desktop or Claude Code, connect an image-generation provider to Claude, provide an OpenAI API key fallback, or provide a Google image API key fallback.
+To use Viral Carousel Maker production image generation in Claude Desktop or Claude Code, connect an image-generation provider to Claude or provide a Gemini image API fallback.
 
-OpenAI fallback key page: https://platform.openai.com/api-keys
-
-Follow the setup guide in docs/claude-openai-api-key-setup.md, then either connect a Claude image provider, provide OPENAI_API_KEY, or provide GOOGLE_API_KEY/GEMINI_API_KEY.
+Follow the setup guide in docs/claude-image-provider-setup.md, then either connect a Claude image provider or provide GOOGLE_API_KEY/GEMINI_API_KEY.
 Do not commit the key to GitHub, paste it into public files, or share it with anyone else.
 ```
 
 Full setup guide:
 
-- [Claude and OpenAI API key setup](docs/claude-openai-api-key-setup.md)
-- Official OpenAI API key page: <https://platform.openai.com/api-keys>
-- Official OpenAI API key safety guide: <https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety>
-- Official OpenAI "where do I find my API key" guide: <https://help.openai.com/en/articles/4936850-where-do-i-find-my-secret-api-key_>
+- [Claude image provider setup](docs/claude-image-provider-setup.md)
 
 For Claude Code on macOS, the usual setup is:
 
 ```bash
-echo "export OPENAI_API_KEY='paste-your-key-here'" >> ~/.zshrc
+echo "export GOOGLE_API_KEY='paste-your-key-here'" >> ~/.zshrc
 source ~/.zshrc
 ```
 
 Then restart Claude Code or open a new terminal session before invoking the skill again.
 
-For Claude Desktop, use the safest available local environment or connector configuration for your setup. If Claude Desktop cannot read environment variables, the skill should ask the user whether they are comfortable providing the key for the current local run only. Never store it in the repo.
+For Claude Desktop, use the safest available local environment or connector configuration for your setup. If Claude Desktop cannot read environment variables, the skill should ask the user whether they are comfortable providing a Gemini key for the current local run only. Never store it in the repo.
 
-The renderer can still make draft/procedural carousel PNGs without API calls, but Claude Desktop and Claude Code users should expect to connect an image provider, provide `OPENAI_API_KEY`, or provide a Google image API key before production image generation.
-
-Install the API extras:
-
-```bash
-uv pip install -e ".[image-api]"
-```
-
-The OpenAI API fallback targets `gpt-image-2`.
+The renderer can still make draft/procedural carousel PNGs without API calls, but Claude Desktop and Claude Code users should expect to connect an image provider or provide a Google/Gemini image API key before production image generation.
 
 ## Quick start
 
@@ -93,7 +84,7 @@ uv run python -m playwright install chromium
 PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli render examples/specs/ai-framework.yaml --out-dir output/ai-framework --renderer imagegen
 ```
 
-`--renderer imagegen` writes the prompt pack and returns `host_imagegen_required`; generate final PNGs through Codex native ImageGen or the configured Claude image provider/API fallback.
+`--renderer imagegen` writes the prompt pack and returns `host_imagegen_required`; generate final PNGs through Codex native ImageGen or the configured non-Codex native provider. Gemini is emergency fallback only.
 
 The Playwright/browser renderer is still available for draft previews. It uses HTML/CSS/SVG-style layouts and screenshots them into exact PNGs.
 
@@ -151,7 +142,7 @@ The installer regenerates the Claude/Codex skill bundles from canonical source, 
 
 - ImageGen-first production policy with Codex native ImageGen / ChatGPT ImageGen 2
 - mandatory first-use style calibration
-- Claude OpenAI and Google API fallback instructions
+- Claude connected-provider and Gemini emergency fallback instructions
 - `references/style-calibration.md`
 
 ## Public skill behavior
@@ -176,12 +167,14 @@ When invoked, the skill:
 - Drafts the carousel spec
 - Scores hook strength, saveability, shareability, clarity, CTA fit, and proof quality
 - Runs a required AI critic gate before final rendering
-- Shows the spec before paid or native image generation
-- Generates final PNGs through the active ImageGen path and assembles a production pack
+- Shows the spec before connected-provider or native image generation
+- Generates final separate PNGs through the active ImageGen path and assembles a production pack
 - Creates or updates `~/.viral-carousel-maker/profile.yaml` after the first successful carousel
 - Runs strict per-slide QA before calling the pack done
 
 The skill is intentionally not a one-prompt generator. It asks several questions first so the final carousel can be tailored to the user's niche, voice, offer, visual taste, proof boundaries, and virality goal.
+
+For Lennox's local profile, the approved Lennox/Fwed blackboard canon also stores his identity reference image at `/Users/lennoxsaint/Documents/Growth/Lennox Saint/DP/Display photo final.png`. Future Lennox/Fwed carousels must render Lennox as a blackboard-style caricature based on that photo, not as a generic character or pasted photo sticker.
 
 ## Virality workflow
 
@@ -197,8 +190,8 @@ The production workflow is:
 8. Draft the YAML spec.
 9. Run `viral-carousel score`.
 10. Run the AI critic gate and revise until it passes.
-11. Generate ImageGen prompt packs and final PNGs through the active host/provider path.
-12. Review the contact sheet and per-slide PNGs; regenerate any slide with misspelled text, wrong character details, weak hook, unreadable handwriting, or style drift.
+11. Generate ImageGen prompt packs and final separate PNGs through the active host/provider path.
+12. Review the QA contact sheet and per-slide PNGs; regenerate any slide with misspelled text, wrong character details, weak hook, unreadable handwriting, or style drift.
 13. Run QA.
 14. Confirm local profile memory updated after successful QA.
 15. Publish manually.
@@ -301,9 +294,9 @@ Each run writes:
 - `visual_qa.json`
 - `visual_qa_report.md`
 - `manifest.json`
-- `contact_sheet.png`
+- `contact_sheet.png` as a QA artifact only
 
-`manifest.json` records selected strategy fields, visual thesis, critic result, pattern bank, virality score, design pack, visual modes, visual QA, makeover scale, and contact-sheet path.
+`manifest.json` records selected strategy fields, visual thesis, critic result, pattern bank, virality score, design pack, visual modes, visual QA, makeover scale, and QA contact-sheet path.
 
 When recreating a weak older carousel, treat `visual_qa.makeover_scale.score` as the upgrade bar. Anything below `8.5/10` is still too incremental for a high-intensity makeover.
 
@@ -328,7 +321,7 @@ See [docs/gallery.md](docs/gallery.md) for curated example packs and contact she
 
 V1 does not publish or automate browser posting.
 
-The renderer produces Threadify-ready files and copy. Threadify-ready means posting-order PNGs, caption, alt text, manifest, QA report, visual QA, and contact sheet. It does not mean Threadify auth, browser staging, direct Threads publishing, or scheduling.
+The renderer produces Threadify-ready files and copy. Threadify-ready means posting-order PNGs, caption, alt text, manifest, QA report, visual QA, and a QA contact sheet. It does not mean Threadify auth, browser staging, direct Threads publishing, or scheduling.
 
 See [docs/threadify-draft-intake.md](docs/threadify-draft-intake.md) for draft intake and [docs/threadify-staging.md](docs/threadify-staging.md) for the optional manual staging workflow.
 

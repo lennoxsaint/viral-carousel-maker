@@ -18,7 +18,10 @@ def test_profile_merge_allowlist_and_secret_stripping():
             "visual_preferences": ["clean", "high contrast"],
             "style_canon": {"name": "Lennox/Fwed Blackboard"},
             "imagegen_policy": {"production_renderer": "codex-native-imagegen"},
-            "OPENAI_API_KEY": "sk-test",
+            "identity_reference_images": {
+                "lennox_dp": "/Users/lennoxsaint/Documents/Growth/Lennox Saint/DP/Display photo final.png"
+            },
+            "GOOGLE_API_KEY": "sk-test",
             "nested": {"secret_token": "hidden"},
         },
         source="test",
@@ -30,7 +33,8 @@ def test_profile_merge_allowlist_and_secret_stripping():
     assert merged["visual_preferences"] == ["clean", "high contrast"]
     assert merged["style_canon"]["name"] == "Lennox/Fwed Blackboard"
     assert merged["imagegen_policy"]["production_renderer"] == "codex-native-imagegen"
-    assert "OPENAI_API_KEY" not in merged
+    assert "Display photo final.png" in merged["identity_reference_images"]["lennox_dp"]
+    assert "GOOGLE_API_KEY" not in merged
     assert "nested" not in merged
     assert merged["provenance"]["sources"] == ["test"]
     assert merged["provenance"]["last_updated_at"] == "2026-04-24T00:00:00+00:00"

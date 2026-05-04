@@ -4,7 +4,7 @@ Viral Carousel Maker is local-first. It creates Threads carousel image packs, ca
 
 ## Codex path
 
-Codex is the preferred public path because it does not require users to set `OPENAI_API_KEY` for native ImageGen / ChatGPT ImageGen 2 production generation.
+Codex is the preferred public path because it uses native ImageGen / ChatGPT ImageGen 2 production generation.
 
 ```bash
 git clone https://github.com/lennoxsaint/viral-carousel-maker.git
@@ -15,11 +15,11 @@ PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playw
 PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli render examples/specs/threads-shock-stat.yaml --out-dir output/threads-shock-stat --renderer imagegen
 ```
 
-In Codex, native ImageGen is the production path. Browser/Pillow rendering remains available for draft previews and QA fallbacks, but it is not the final production image path unless explicitly accepted.
+In Codex, native ImageGen is the only production path. Generate and return separate slide PNGs. Browser/Pillow rendering remains available for draft previews and QA fallbacks, but it is not the final production image path unless explicitly accepted.
 
 ## Claude Desktop or Claude Code path
 
-Claude users need a connected image-generation provider, an OpenAI API key, or a Google image API key for the intended production image-generation workflow.
+Claude users need a connected image-generation provider or a Google/Gemini image API key for the emergency production fallback.
 
 ```bash
 git clone https://github.com/lennoxsaint/viral-carousel-maker.git
@@ -29,20 +29,7 @@ uv run python -m playwright install chromium
 PYTHONPATH=src uv run --with Pillow --with PyYAML --with jsonschema --with playwright python -m viral_carousel_maker.cli doctor --platform claude-code
 ```
 
-If `OPENAI_API_KEY` is missing, create one at:
-
-```text
-https://platform.openai.com/api-keys
-```
-
-Then expose it locally:
-
-```bash
-echo "export OPENAI_API_KEY='paste-your-key-here'" >> ~/.zshrc
-source ~/.zshrc
-```
-
-If OpenAI is unavailable and you want the Google fallback, expose a Google/Gemini image API key instead:
+If no connected provider is available and you need the Gemini emergency fallback, expose a Google/Gemini image API key:
 
 ```bash
 echo "export GOOGLE_API_KEY='paste-your-key-here'" >> ~/.zshrc
@@ -61,7 +48,7 @@ Threadify-ready means the pack includes:
 - `manifest.json`
 - `qa_report.md`
 - `visual_qa.json`
-- `contact_sheet.png`
+- `contact_sheet.png` as a QA artifact
 
 It does not mean automatic Threadify publishing, browser staging, or account login.
 
@@ -74,3 +61,5 @@ The skill can save stable creator preferences to:
 ```
 
 The profile stores preferences, not secrets. It should never contain API keys, tokens, passwords, or private credentials.
+
+Profiles may also store approved reference images and identity reference images. When those fields exist, production prompts must carry the exact paths and likeness rules forward so installed skills do not drift back to generic avatars.

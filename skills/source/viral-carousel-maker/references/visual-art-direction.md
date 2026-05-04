@@ -55,7 +55,7 @@ Use `visual_mode` per slide when helpful:
 
 ## Contact-sheet QA
 
-For ImageGen production packs, create or assemble a contact sheet and review it before final delivery. Browser/Pillow draft renderers write `contact_sheet.png`, `visual_qa.json`, and `visual_qa_report.md`; use those as QA helpers, not proof that code-rendered output is the final production image.
+For ImageGen production packs, create or assemble a contact sheet only as a QA helper and review it before final delivery. Browser/Pillow draft renderers write `contact_sheet.png`, `visual_qa.json`, and `visual_qa_report.md`; use those as QA helpers, not proof that code-rendered output is the final production image. Codex final delivery must be separate slide images, not the contact sheet.
 
 - Does slide 1 stop the eye immediately?
 - Does the sequence alternate tension and payoff?

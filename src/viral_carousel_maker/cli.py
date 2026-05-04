@@ -7,7 +7,7 @@ import json
 import os
 from pathlib import Path
 
-from .assets import generate_openai_asset, write_prompts_jsonl
+from .assets import generate_api_asset, write_prompts_jsonl
 from .browser_renderer import BrowserCarouselRenderer
 from .corpus import import_private_corpus
 from .critic import load_critic, validate_critic_output
@@ -50,7 +50,7 @@ def render_command(args: argparse.Namespace) -> int:
                     "prompts": str(prompts_path),
                     "message": (
                         "ImageGen production rendering is host-driven. Use Codex native ImageGen, "
-                        "or Claude's configured image provider/API fallback, then QA accepted PNGs."
+                        "or a connected non-Codex native image provider. Gemini is emergency fallback only."
                     ),
                 },
                 indent=2,
@@ -134,7 +134,7 @@ def profile_command(args: argparse.Namespace) -> int:
 
 
 def generate_asset_command(args: argparse.Namespace) -> int:
-    path = generate_openai_asset(args.prompt, Path(args.out), model=args.model)
+    path = generate_api_asset(args.prompt, Path(args.out), model=args.model)
     print(path)
     return 0
 
@@ -207,7 +207,6 @@ def interview_validate_command(args: argparse.Namespace) -> int:
 
 def doctor_command(args: argparse.Namespace) -> int:
     platform = args.platform
-    openai_key_set = bool(os.environ.get("OPENAI_API_KEY"))
     google_key_set = bool(
         os.environ.get("GOOGLE_API_KEY")
         or os.environ.get("GEMINI_API_KEY")
@@ -223,43 +222,41 @@ def doctor_command(args: argparse.Namespace) -> int:
             "api_key_required": False,
             "production_renderer": "codex-native-imagegen",
             "native_imagegen": "host_tool",
-            "openai_api_key_set": openai_key_set,
             "google_image_api_key_set": google_key_set,
-            "message": "Codex native ImageGen / ChatGPT ImageGen 2 is the production path. OPENAI_API_KEY is not required.",
+            "separate_slide_output_required": True,
+            "contact_sheet_deliverable_allowed": False,
+            "message": (
+                "Codex native ImageGen / ChatGPT ImageGen 2 is the only production path. "
+                "Generate and return separate slide PNGs only."
+            ),
         }
     else:
         has_connected_provider = bool(claude_provider)
         provider_order = [
-            "connected Claude image-generation provider",
-            "OpenAI Images API via OPENAI_API_KEY",
-            "Google image API via GOOGLE_API_KEY/GEMINI_API_KEY",
+            "connected native image-generation provider",
+            "Gemini image API emergency fallback",
         ]
         status = {
             "platform": platform,
-            "ok": has_connected_provider or openai_key_set or google_key_set,
+            "ok": has_connected_provider or google_key_set,
             "api_key_required": not has_connected_provider,
             "production_renderer": "provider-imagegen",
             "connected_imagegen_provider": claude_provider or None,
-            "openai_api_key_set": openai_key_set,
             "google_image_api_key_set": google_key_set,
             "provider_order": provider_order,
             "message": (
-                f"Claude image-generation workflow can run through connected provider: {claude_provider}."
+                f"Non-Codex image-generation workflow can run through connected provider: {claude_provider}."
                 if has_connected_provider
                 else (
-                    "OPENAI_API_KEY is set. Claude OpenAI Images API production path can run."
-                    if openai_key_set
-                    else (
-                        "Google image API key is set. Claude Google image fallback can run."
-                        if google_key_set
-                        else "No Claude-connected image provider, OPENAI_API_KEY, or Google image API key was detected. Pause before production image generation."
-                    )
+                    "Google image API key is set. Gemini emergency fallback can run."
+                    if google_key_set
+                    else "No connected image provider or Gemini image API key was detected. Pause before production image generation."
                 )
             ),
             "next_action": (
                 "Run the carousel workflow."
-                if has_connected_provider or openai_key_set or google_key_set
-                else "Connect an image-generation provider to Claude, expose OPENAI_API_KEY, or expose GOOGLE_API_KEY/GEMINI_API_KEY."
+                if has_connected_provider or google_key_set
+                else "Connect a native image-generation provider or expose GOOGLE_API_KEY/GEMINI_API_KEY for Gemini emergency fallback."
             ),
         }
     print(json.dumps(status, indent=2, sort_keys=True))
@@ -333,7 +330,7 @@ def main(argv: list[str] | None = None) -> int:
 
     gen_asset = subparsers.add_parser(
         "generate-asset",
-        help="Optional OpenAI API fallback for Claude/local environments.",
+        help="Disabled API asset generator. Use host-native ImageGen instead.",
     )
     gen_asset.add_argument("--prompt", required=True)
     gen_asset.add_argument("--out", required=True)

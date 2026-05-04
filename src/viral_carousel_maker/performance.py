@@ -11,7 +11,7 @@ from typing import Any
 
 LEDGER_DIR = Path.home() / ".viral-carousel-maker" / "performance"
 LEDGER_PATH = LEDGER_DIR / "metrics.jsonl"
-SECRET_MARKERS = ("sk-", "OPENAI_API_KEY", "api_key", "secret_key", "bearer ")
+SECRET_MARKERS = ("sk-", "api_key", "secret_key", "bearer ")
 
 
 def add_metrics(

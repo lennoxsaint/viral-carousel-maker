@@ -55,16 +55,20 @@ def adapter_block(target: str) -> str:
     if target == "claude":
         platform_notes = (
             "- In Claude Desktop or Claude Code, use the image-generation provider/tool the end user has connected to Claude when one exists.\n"
-            "- If no Claude-connected image provider is available, use the OpenAI Images API path with `OPENAI_API_KEY` first.\n"
-            "- If OpenAI is unavailable, use the Google image API path with `GOOGLE_API_KEY` or `GEMINI_API_KEY`.\n"
-            "- If no image provider or API key is available, pause before production image generation; procedural rendering is draft-only fallback.\n"
+            "- If no Claude-connected image provider is available, Gemini is the only emergency API fallback.\n"
+            "- If no image provider or Gemini API key is available, pause before production image generation; procedural rendering is draft-only fallback.\n"
             "- Readiness check: `viral-carousel doctor --platform claude-code`.\n"
-            "- Provider setup guide: `references/claude-openai-api-key-setup.md`.\n"
+            "- Provider setup guide: `references/claude-image-provider-setup.md`.\n"
         )
     else:
         platform_notes = (
-            "- In Codex, use the native ImageGen / ChatGPT ImageGen 2 tool for production carousel images and do not require `OPENAI_API_KEY`.\n"
-            "- Browser/Pillow rendering is a draft-only fallback unless the user explicitly accepts it.\n"
+            "- In Codex, use the native ImageGen / ChatGPT ImageGen 2 tool for production carousel images.\n"
+            "- Do not use third-party API image generation in Codex.\n"
+            "- Generate one separate full-slide PNG per carousel slide; never return a single contact-sheet image as the final deliverable.\n"
+            "- Final chat output for production carousel runs must contain only the separate carousel images.\n"
+            "- Copy accepted PNGs to a Desktop run folder when possible.\n"
+            "- Include saved identity reference images and likeness rules in every relevant per-slide ImageGen prompt.\n"
+            "- Browser/Pillow/contact-sheet rendering is QA-only unless the user explicitly accepts a draft fallback.\n"
             "- Readiness check: `viral-carousel doctor --platform codex`.\n"
         )
     return (

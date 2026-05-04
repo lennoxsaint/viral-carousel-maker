@@ -65,6 +65,7 @@ PROFILE_ALLOWED_KEYS = {
     "style_calibration",
     "imagegen_policy",
     "approved_reference_images",
+    "identity_reference_images",
 }
 
 SECRET_KEY_PARTS = (

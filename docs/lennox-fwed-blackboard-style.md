@@ -6,9 +6,9 @@ It is reference-locked, not pixel-deterministic. Full-slide image generation can
 
 ## Production Renderer
 
-- Codex: use native Codex ImageGen / ChatGPT ImageGen 2 for final carousel PNGs.
-- Claude Code / Claude Desktop: use OpenAI Images API when `OPENAI_API_KEY` is present, then Google image API when `GOOGLE_API_KEY`, `GEMINI_API_KEY`, or `GOOGLE_GENERATIVE_AI_API_KEY` is present.
-- Browser and Pillow renderers are draft/spec-preview/QA fallbacks only. Do not treat code-rendered output as Lennox's final production style unless Lennox explicitly accepts a fallback draft.
+- Codex: use native Codex ImageGen / ChatGPT ImageGen 2 for final separate carousel PNGs.
+- Claude Code / Claude Desktop: use a connected native image provider first; Gemini is emergency fallback only.
+- Browser and Pillow renderers are draft/spec-preview/QA fallbacks only. Do not treat code-rendered output or contact sheets as Lennox's final production style unless Lennox explicitly accepts a fallback draft.
 
 ## Canon Name
 
@@ -40,11 +40,22 @@ It is reference-locked, not pixel-deterministic. Full-slide image generation can
 ### Lennox
 
 - Gentle guide/teacher.
-- Cute stylized Lennox with dark messy hair, moustache, warm clever expression, rounded storybook proportions.
+- Cute stylized Lennox based on `/Users/lennoxsaint/Documents/Growth/Lennox Saint/DP/Display photo final.png`, rendered as a chalk/storybook caricature in the same carousel style.
+- Preserve dark side-swept hair with volume, slim oval face, neat dark moustache, clear transparent rounded-square glasses, warm smile, red shirt, silver chain, and vertical rectangle pendant when visible.
+- Never paste the real photo into the carousel as a sticker or cutout. Translate the reference into the approved hand-drawn blackboard style.
+- Never render Lennox as a generic teacher, generic founder avatar, or random brown-haired character.
 - Tight fitted red t-shirt. No hoodie.
-- Thin black metal glasses with soft octagonal / rounded-square lenses, delicate bridge, visible nose pads, slim temples, slight lens reflection.
+- Clear transparent rounded-square glasses with delicate bridge, visible nose pads, slim temples, slight lens reflection. Avoid thick black frames.
 - Thin silver chain necklace with a vertical rectangle pendant.
 - Appears on 3-4 slides, not as the protagonist.
+
+## Identity Reference Lock
+
+When this canon is used for Lennox's personal carousels, every production ImageGen prompt that includes Lennox must include:
+
+`/Users/lennoxsaint/Documents/Growth/Lennox Saint/DP/Display photo final.png`
+
+Use it as the face and likeness source only. The output must still be an illustrated caricature in the Lennox/Fwed blackboard style.
 
 ## Typography
 
@@ -86,7 +97,10 @@ Slide 1 should include the white-version blue signal-shadow move:
 ## Anti-Patterns
 
 - Hoodie or loose top on Lennox.
-- Wrong glasses.
+- Wrong glasses, especially thick black frames.
+- Generic Lennox face or no resemblance to the identity reference.
+- Pasted photo-sticker Lennox instead of a hand-drawn caricature.
+- Missing Lennox moustache.
 - Missing silver chain or rectangle pendant.
 - Fwed as pixel-only.
 - Corporate vector art.

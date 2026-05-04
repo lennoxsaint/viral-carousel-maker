@@ -46,6 +46,7 @@ The Lennox/Fwed style was found through iterative calibration:
 7. Lock Lennox character details: tight red t-shirt, thin black soft-octagonal glasses, silver chain, vertical rectangle pendant.
 8. Add the blue signal-shadow hook move from the best white-background sample into the blackboard version.
 9. Prefer comment-maximizing prompts such as "What is your post missing: tension, replies, or save value?"
+10. For Lennox's local canon, enforce `/Users/lennoxsaint/Documents/Growth/Lennox Saint/DP/Display photo final.png` as the identity reference and render Lennox as a blackboard-style caricature, not a pasted photo sticker or generic teacher.
 
 This exemplar should guide the process, not be copied for every user. The public workflow must help each user reach their own distinct canon.
 
@@ -62,14 +63,17 @@ style_canon:
   handle_position: "bottom-left"
   handle_text: "@handle"
   characters: {}
+  likeness_rules: []
+  rejection_triggers: []
   signature_moves: []
-imagegen_policy:
-  codex: "Use native Codex ImageGen / ChatGPT ImageGen 2 for final PNGs."
-  claude_provider_order:
-    - "OpenAI Images API via OPENAI_API_KEY"
-    - "Google image API via GOOGLE_API_KEY or GEMINI_API_KEY"
+  imagegen_policy:
+    codex: "Use native Codex ImageGen / ChatGPT ImageGen 2 for final PNGs."
+    claude_provider_order:
+    - "Connected native image-generation provider"
+    - "Gemini emergency fallback via GOOGLE_API_KEY or GEMINI_API_KEY"
   code_renderers: "Draft fallback only unless explicitly accepted."
 approved_reference_images: []
+identity_reference_images: {}
 style_calibration:
   approved_at: "YYYY-MM-DDTHH:MM:SS+00:00"
   approved_summary: "plain English style lock"

@@ -128,7 +128,7 @@ Prepare an ImageGen production prompt pack:
 viral-carousel render path/to/spec.yaml --out-dir output/run-name --renderer imagegen
 ```
 
-This writes prompts and returns `host_imagegen_required`; final production PNGs are generated through Codex native ImageGen or the configured Claude image provider/API fallback.
+This writes prompts and returns `host_imagegen_required`; final production PNGs are generated through Codex native ImageGen or the configured non-Codex native image provider. Gemini is emergency fallback only.
 
 Use Pillow fallback only when browser rendering is unavailable:
 

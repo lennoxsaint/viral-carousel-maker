@@ -24,7 +24,11 @@ visual_preferences:
     - "hoodie on Lennox"
     - "loose top on Lennox"
     - "wrong glasses"
+    - "generic Lennox face"
+    - "photo-sticker Lennox instead of a caricature"
+    - "black thick glasses on Lennox"
     - "missing silver rectangle pendant"
+    - "missing Lennox moustache"
     - "pixel-only Fwed"
     - "generic vector art"
 brand_colors:
@@ -48,16 +52,27 @@ style_canon:
   handle_text: "@lennox_saint"
   characters:
     fwed: "cute red bear protagonist, white muzzle, glossy black eyes, rounded plush chalk/storybook body"
-    lennox: "tight red t-shirt, thin black soft-octagonal glasses, silver chain, vertical rectangle pendant"
+    lennox: "caricature based on /Users/lennoxsaint/Documents/Growth/Lennox Saint/DP/Display photo final.png; dark side-swept hair with volume, slim oval face, neat dark moustache, clear transparent rounded-square glasses, warm smile, tight red t-shirt, silver chain, vertical rectangle pendant; never generic, never a pasted photo sticker"
+  likeness_rules:
+    - "If Lennox appears, use the identity reference image path and render him as a chalk/storybook caricature in the blackboard carousel style."
+    - "Preserve dark side-swept hair, slim oval face, neat dark moustache, clear transparent rounded-square glasses, warm smile, red shirt, silver chain, and vertical rectangle pendant when visible."
+    - "Do not render a generic teacher, black glasses, hoodie, loose top, missing moustache, or a pasted photo cutout."
+  rejection_triggers:
+    - "Lennox does not resemble the identity reference image."
+    - "Lennox looks like a photo sticker instead of an illustrated caricature."
+    - "Glasses are black, thick, or the wrong shape."
+    - "Moustache is missing."
   signature_slide_1: "blue signal-shadow aura behind Fwed and the tiny yellow idea spark"
 imagegen_policy:
   codex: "Use native Codex ImageGen / ChatGPT ImageGen 2 for final PNGs."
   claude_provider_order:
-    - "OpenAI Images API via OPENAI_API_KEY"
-    - "Google image API via GOOGLE_API_KEY or GEMINI_API_KEY"
+    - "Connected native image-generation provider"
+    - "Gemini emergency fallback via GOOGLE_API_KEY or GEMINI_API_KEY"
   code_renderers: "Draft/spec-preview/QA fallback only, not final production unless explicitly accepted."
 approved_reference_images:
   - "examples/style-canon/lennox-fwed-blackboard/samples/accepted-contact-sheet.png"
+identity_reference_images:
+  lennox_dp: "/Users/lennoxsaint/Documents/Growth/Lennox Saint/DP/Display photo final.png"
 hook_preferences:
   winning_categories:
     - "curiosity fable"

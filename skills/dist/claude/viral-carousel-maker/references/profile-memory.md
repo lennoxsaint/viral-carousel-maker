@@ -91,14 +91,18 @@ style_canon:
   production_renderer: "codex-native-imagegen or provider-imagegen"
   handle_position: "bottom-left"
   handle_text: "@creator"
+  characters: {}
+  likeness_rules: []
+  rejection_triggers: []
   signature_moves: []
 imagegen_policy:
   codex: "Use native Codex ImageGen / ChatGPT ImageGen 2 for final PNGs."
   claude_provider_order:
-    - "OpenAI Images API via OPENAI_API_KEY"
-    - "Google image API via GOOGLE_API_KEY or GEMINI_API_KEY"
+    - "Connected native image-generation provider"
+    - "Gemini emergency fallback via GOOGLE_API_KEY or GEMINI_API_KEY"
   code_renderers: "Draft/spec-preview fallback only unless explicitly accepted."
 approved_reference_images: []
+identity_reference_images: {}
 style_calibration:
   approved_at: "YYYY-MM-DDTHH:MM:SS+00:00"
   approved_summary: ""
@@ -119,7 +123,7 @@ provenance:
 
 Never store:
 
-- OpenAI API keys.
+- API keys.
 - Tokens.
 - Passwords.
 - Private credentials.
@@ -138,6 +142,7 @@ When interview answers are supplied, the CLI may merge stable fields into the pr
 - proof boundaries and risk appetite
 - preferred body slide count
 - approved style canon and reference images
+- identity reference images and likeness constraints
 - ImageGen provider policy
 
 ## How to use the profile later
@@ -156,9 +161,11 @@ On future carousels:
    - CTA for this post
    - CTA pressure
    - any style changes
-5. Use the profile to tailor tone, visuals, CTA defaults, hook categories, visual anchors, and risk level.
+5. Use the profile to tailor tone, visuals, CTA defaults, hook categories, visual anchors, risk level, approved reference images, identity reference images, and character likeness rules.
 6. Update the profile only with stable new information.
 7. If the user provides performance metrics, update only summarized learnings. Do not paste private raw comments or secrets into the profile.
+
+If the profile contains `identity_reference_images`, every production ImageGen prompt that may include the named person must include the exact reference image path and the saved likeness rules. The output should translate the reference into the approved carousel style, not paste the photo into the slide.
 
 ## Profile write message
 
